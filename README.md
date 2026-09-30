@@ -25,7 +25,7 @@ python3 -m http.server 4173 --bind 127.0.0.1
 - `site.js`：语言偏好与视频配置。
 - `favicon.svg`：浏览器标签页图标。
 
-三个视频位置目前只显示文字介绍。准备好素材后，在 `site.js` 的 `videos` 对象中替换对应的 `null`：
+未配置素材时只显示一段视频准备说明，三个视频位置暂时隐藏，配置后自动显示。准备好素材后，在 `site.js` 的 `videos` 对象中替换对应的 `null`：
 
 ```javascript
 main: { src: "./media/task.mp4", poster: "./media/task.jpg" },

@@ -73,6 +73,7 @@ for (const [slot, source] of Object.entries(videos)) {
     container.append(error);
   });
   container.append(video);
+  container.hidden = false;
 }
 
 try {

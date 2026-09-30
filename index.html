@@ -28,12 +28,8 @@
 
   <main id="main" class="content">
     <section class="intro" aria-labelledby="page-title">
-      <p class="project-name">Navigation Agent</p>
-      <h1 id="page-title">
-        <span data-en="Tell your robot">告诉机器人，</span>
-        <span data-en="what you want to find.">你想找什么。</span>
-      </h1>
-      <p class="intro-copy" data-en="Navigation Agent is an autonomous navigation agent for robots. Give it a goal in everyday language, and it guides the robot to look around, explore its surroundings, and search for what you asked for.">Navigation Agent 是一个面向机器人的自主导航 Agent。用日常语言告诉它你的目标，它会引导机器人观察周围、探索空间，寻找你想找的东西。</p>
+      <h1 id="page-title" data-en="Tell your robot what to find.">告诉机器人，你想找什么。</h1>
+      <p class="intro-copy" data-en="An autonomous navigation agent for robots. Describe your goal in everyday language, and let the robot observe, explore, and find its way to what you are looking for.">一个面向机器人的自主导航 Agent。用日常语言描述目标，让机器人观察周围、探索空间，寻找你想找的东西。</p>
       <div class="intro-links">
         <a href="https://github.com/Novaxis-Robot-Group/navigation-agent" target="_blank" rel="noopener noreferrer" data-en="View on GitHub ↗">GitHub ↗</a>
         <a href="https://github.com/Novaxis-Robot-Group/navigation-agent/blob/main/README.md" target="_blank" rel="noopener noreferrer" data-en="Documentation ↗">技术文档 ↗</a>
@@ -41,52 +37,37 @@
     </section>
 
     <section class="text-section" id="about" aria-labelledby="about-title">
-      <h2 id="about-title" data-en="It starts with a simple request.">从一句日常表达开始。</h2>
-      <p data-en="“Find the brown sofa.” You know what you are looking for, but you may not know exactly where it is or how to get there. Navigation Agent is built around this kind of request. You describe the destination in terms that make sense to you, and the robot begins looking for it in the space around it.">“找到棕色沙发。”你知道自己要找什么，却未必知道它的准确位置，也不一定能给出一条明确的路线。Navigation Agent 围绕这样的需求展开：你用自己习惯的方式描述目标，机器人开始在周围的空间中寻找它。</p>
-      <p data-en="The interaction is centered on what you want the robot to do. Instead of directing every turn and movement, you give it a goal to work toward. This makes finding an object the starting point of the interaction, rather than a route you need to plan in advance.">人与机器人的交流由此围绕一件具体的事情展开。你不必把“找到沙发”拆成一连串前进和转向的指令，而是直接说出想完成的事，让机器人围绕这个目标行动。</p>
-    </section>
-
-    <section class="text-section" aria-labelledby="search-title">
-      <h2 id="search-title" data-en="Let the robot do the searching.">把寻找的过程交给机器人。</h2>
-      <p data-en="The target is not always in view when a task begins. The robot may need to look around, explore another part of the room, or follow a clue from a new viewpoint. Navigation Agent keeps the original request in focus throughout that search, using what the robot sees to decide how to continue.">目标不一定出现在任务开始时的画面里。机器人可能需要先看看周围，走向房间的另一侧，或根据新看到的线索继续寻找。Navigation Agent 在这个过程中持续围绕最初的目标，根据机器人看到的环境判断该如何继续。</p>
-      <p data-en="Reaching a stopping point is not the end of the story. The agent looks again to check whether the object matches what you asked for. The experience is organized around finding your target, from the first request through exploration to checking the result.">走到一个位置也不意味着任务就此结束。Agent 还会再次观察，确认眼前的物体是否符合你的要求。从接收目标、展开寻找，到确认结果，整个过程都围绕你最初想完成的那件事。</p>
-    </section>
-
-    <section class="text-section" aria-labelledby="product-title">
-      <h2 id="product-title" data-en="An agent that acts in physical space.">让 Agent 走进真实空间。</h2>
-      <p data-en="Navigation Agent brings the idea of an agent into the spaces a robot can move through. Its response to a request is a sequence of observations and actions in the surrounding environment. Object search is the project's starting point: a concrete, everyday task that connects what a person wants with what a robot does.">Navigation Agent 将 Agent 的交互带入机器人能够行动的空间。面对一个请求，它的回应是在周围环境中展开观察与行动。自主找物是这个产品的起点：从一个具体、日常的需求出发，把人的目标与机器人的行动连接起来。</p>
+      <h2 id="about-title" data-en="Let the robot do the searching.">把寻找的过程交给机器人</h2>
+      <p data-en="“Find the brown sofa.” You know what you are looking for, but you may not know exactly where it is or how to get there. Navigation Agent is built around this kind of request. You describe what you want to find, and the robot begins searching the space around it, without a route that you have to plan in advance.">“找到棕色沙发。”你知道自己要找什么，却未必知道它的准确位置，也不一定能给出明确的路线。Navigation Agent 围绕这样的需求展开：你用自己习惯的方式描述目标，机器人开始在周围的空间中寻找，不需要你事先安排每一步前进和转向。</p>
+      <p data-en="The target is not always in view when a task begins. The robot may need to look around, explore another part of the room, or follow a clue from a new viewpoint. The agent keeps the original request in focus throughout that search, using what the robot sees to decide how to continue.">目标不一定出现在任务开始时的画面里。机器人可能需要先看看周围，走向房间的另一侧，或根据新看到的线索继续寻找。Agent 在这个过程中持续围绕最初的目标，根据机器人看到的环境判断该如何继续。</p>
+      <p data-en="Reaching a stopping point does not end the task. The agent looks again to check whether the object matches what you asked for. From the first request to exploration and checking the result, the experience stays focused on finding your target.">走到一个位置也不意味着任务就此结束。Agent 还会再次观察，确认眼前的物体是否符合你的要求。从接收目标、展开寻找，到确认结果，整个过程都围绕你最初想完成的那件事。</p>
+      <p data-en="Navigation Agent brings an agent's response into physical space: observations and actions in the environment around a robot. Object search is the starting point, connecting an everyday request with a task the robot can work toward.">Navigation Agent 将 Agent 的回应带入真实空间：面对一个请求，它会在机器人所处的环境中展开观察与行动。自主找物是这个产品的起点，把一个日常的需求变成机器人可以执行的任务。</p>
     </section>
 
     <section class="text-section" id="videos" aria-labelledby="videos-title">
-      <h2 id="videos-title" data-en="See the project in action.">项目演示</h2>
+      <h2 id="videos-title" data-en="See it in action">视频演示</h2>
       <p data-en="Videos will show complete object-search tasks and examples in simulation and on a physical robot. The recordings are being prepared.">这里将展示完整的自主找物过程，以及仿真环境和真实机器人上的运行效果。演示视频正在整理中。</p>
-      <div class="video-entry" data-video-slot="main">
+      <div class="video-entry" hidden data-video-slot="main">
         <h3 data-en="An end-to-end object-search task">完整找物任务</h3>
         <p data-en="From receiving a natural-language goal to exploration, navigation, and checking the result.">从接收自然语言目标，到探索、导航与结果确认。</p>
       </div>
-      <div class="video-entry" data-video-slot="simulation">
+      <div class="video-entry" hidden data-video-slot="simulation">
         <h3 data-en="Navigation in MuJoCo">MuJoCo 仿真演示</h3>
         <p data-en="An example of the agent carrying out a navigation task in a simulated environment.">展示 Agent 在仿真环境中执行导航任务的过程。</p>
       </div>
-      <div class="video-entry" data-video-slot="robot">
+      <div class="video-entry" hidden data-video-slot="robot">
         <h3 data-en="Navigation on Unitree Go2">Go2 真机演示</h3>
         <p data-en="An example of perception, task decisions, and navigation on a physical robot.">展示真实空间中的环境感知、任务决策与导航执行。</p>
       </div>
     </section>
 
-    <section class="text-section resources" id="resources" aria-labelledby="resources-title">
-      <h2 id="resources-title" data-en="Discover Navigation Agent.">了解更多</h2>
-      <p data-en="Explore the source code on GitHub, or read the documentation for technical details.">项目源码与技术细节，见 GitHub 和技术文档。</p>
-      <div class="intro-links">
-        <a href="https://github.com/Novaxis-Robot-Group/navigation-agent" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
-        <a href="https://github.com/Novaxis-Robot-Group/navigation-agent/blob/main/README.md" target="_blank" rel="noopener noreferrer" data-en="Documentation ↗">技术文档 ↗</a>
-      </div>
-      <p class="access-note" data-en="The Agent source code and technical documentation currently require repository access.">Agent 项目代码与技术文档目前需要仓库访问权限。</p>
-    </section>
   </main>
 
   <footer class="site-footer">
-    <span>© 2026 Novaxis · Navigation Agent</span>
+    <div class="footer-copy">
+      <span>© 2026 Novaxis · Navigation Agent</span>
+      <p data-en="Agent source code and documentation currently require access.">Agent 项目代码与文档目前需要访问权限。</p>
+    </div>
     <div>
       <a href="https://github.com/Novaxis-Robot-Group/navigation-agent/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">Apache-2.0</a>
       <a href="https://github.com/Novaxis-Robot-Group/navigation-agent/issues" target="_blank" rel="noopener noreferrer" data-en="Feedback ↗">反馈 ↗</a>
