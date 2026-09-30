@@ -41,6 +41,21 @@ jobs:
           if [ -d media ]; then
             cp -R media _site/media
           fi
+      - name: Version static assets
+        run: |
+          python3 - <<'PY'
+          import hashlib
+          from pathlib import Path
+
+          # 资源地址随内容变化，避免新版 HTML 搭配浏览器缓存的旧样式。
+          root = Path("_site")
+          page = root / "index.html"
+          html = page.read_text()
+          for name in ("styles.css", "site.js"):
+              version = hashlib.sha256((root / name).read_bytes()).hexdigest()[:12]
+              html = html.replace(f'./{name}"', f'./{name}?v={version}"')
+          page.write_text(html)
+          PY
       - uses: actions/upload-pages-artifact@v5.0.0
         with:
           path: _site
