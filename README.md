@@ -2,6 +2,7 @@
 
 面向外部开发者和客户的中英双语产品介绍网站。以文字介绍产品，预留视频位置，并链接到项目代码和技术文档。
 
+- 在线网站：[Navigation Agent](https://novaxis-robot-group.github.io/navigation-agent-site/)
 - 网站源码：[navigation-agent-site](https://github.com/Novaxis-Robot-Group/navigation-agent-site)
 - Agent 项目：[navigation-agent](https://github.com/Novaxis-Robot-Group/navigation-agent)
 
@@ -40,11 +41,11 @@ robot: { src: "./media/go2.mp4", poster: "./media/go2.jpg" },
 
 ## 网站托管
 
-目前 GitHub 仓库为私有，仅保存和发布网站代码，尚未上线网站。组织的 GitHub Free 套餐不支持从私有仓库发布 GitHub Pages。
+本仓库公开，网站通过 GitHub Pages 托管。推送网站文件到 `main` 后，`.github/workflows/pages.yml` 自动发布；也可以在 GitHub Actions 中手动运行 `Deploy website`。
 
-将来启用静态托管时，无需构建，发布网站运行文件 `index.html`、`styles.css`、`site.js`、`favicon.svg` 及实际媒体文件即可，不发布 `.git`、本地记录或开发说明。网站支持部署到子路径。
+无需构建。工作流只打包 `index.html`、`styles.css`、`site.js`、`favicon.svg` 和存在的 `media/`，不将开发说明作为网页发布。新增运行资源时同步更新工作流的触发路径与打包步骤。
 
-页面中的 GitHub 与文档链接目前指向私有的 Agent 仓库，访问需要权限。上线前核对这些链接；仓库公开后更新页面中的访问提示。网站双语不代表技术文档已翻译。
+网站仓库公开不改变 Agent 项目仓库的权限。页面中的 GitHub 与文档链接目前指向私有的 Agent 仓库，访问需要权限；Agent 仓库公开后再更新页面提示。网站双语不代表技术文档已翻译。
 
 ## 许可证
 

@@ -1,5 +1,6 @@
 .DS_Store
 .runtime/
+_site/
 __pycache__/
 *.py[cod]
 .env
