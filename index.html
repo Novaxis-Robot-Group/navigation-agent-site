@@ -1,63 +1,155 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#faf9f5">
-  <meta name="description" content="Navigation Agent 是一个面向机器人的自主导航 Agent。说出你想找的东西，让机器人观察周围、探索空间，寻找目标。">
-  <meta property="og:title" content="Navigation Agent — Goal-driven robot navigation">
-  <meta property="og:description" content="Tell your robot what to find. Navigation Agent guides the search.">
+  <meta name="theme-color" content="#fafafa">
+  <meta name="description" content="Navigation Agent decides where to explore from visual clues and past observations, then uses vision-language navigation (VLN) to guide the robot there.">
+  <meta property="og:title" content="Navigation Agent — Set the goal. Let your robot search.">
+  <meta property="og:description" content="Navigation Agent decides where to explore from visual clues and past observations, then uses vision-language navigation (VLN) to guide the robot there.">
   <meta property="og:type" content="website">
-  <title>Navigation Agent · 告诉机器人，你想找什么</title>
+  <title>Navigation Agent · Set the goal. Let your robot search.</title>
   <link rel="icon" href="./favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="./replay.css">
   <script src="./site.js" defer></script>
+  <script src="./replay.js" type="module"></script>
 </head>
 <body>
-  <a class="skip-link" href="#main" data-en="Skip to content">跳到正文</a>
+  <a class="skip-link" href="#main" data-en="Skip to content" data-zh="跳到正文">Skip to content</a>
   <header class="site-header">
     <a class="brand" href="#">Navigation Agent</a>
-    <nav aria-label="主导航" data-label-en="Main navigation" data-label-zh="主导航">
-      <a href="#about" data-en="About">项目介绍</a>
-      <a href="#videos" data-en="Videos">视频</a>
-      <a href="https://github.com/Novaxis-Robot-Group/navigation-agent/blob/main/README.md" target="_blank" rel="noopener noreferrer" data-en="Documentation">技术文档 ↗</a>
+    <nav aria-label="Main navigation" data-label-en="Main navigation" data-label-zh="主导航">
+      <a href="#about" data-en="About" data-zh="项目介绍">About</a>
+      <a href="#videos" data-en="Videos" data-zh="视频">Videos</a>
+      <a href="https://github.com/Novaxis-Robot-Group/navigation-agent/blob/main/README.md" target="_blank" rel="noopener noreferrer" data-en="Documentation" data-zh="技术文档 ↗">Documentation</a>
       <a href="https://github.com/Novaxis-Robot-Group/navigation-agent" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
     </nav>
-    <button class="language" type="button" aria-label="Switch to English">EN</button>
+    <button class="language" type="button" aria-label="切换为中文">中文</button>
   </header>
 
   <main id="main" class="content">
     <section class="intro" aria-labelledby="page-title">
-      <h1 id="page-title" data-en="Tell your robot what to find.">告诉机器人，你想找什么。</h1>
-      <p class="intro-copy" data-en="An autonomous navigation agent for robots. Describe your goal in everyday language, and let the robot observe, explore, and find its way to what you are looking for.">一个面向机器人的自主导航 Agent。用日常语言描述目标，让机器人观察周围、探索空间，寻找你想找的东西。</p>
-      <div class="intro-links">
-        <a href="https://github.com/Novaxis-Robot-Group/navigation-agent" target="_blank" rel="noopener noreferrer" data-en="View on GitHub ↗">GitHub ↗</a>
-        <a href="https://github.com/Novaxis-Robot-Group/navigation-agent/blob/main/README.md" target="_blank" rel="noopener noreferrer" data-en="Documentation ↗">技术文档 ↗</a>
+      <h1 id="page-title" data-en="Set the goal. Let your robot search." data-zh="说出目标，让机器人自主寻找。">Set the goal. Let your robot search.</h1>
+      <div class="intro-bottom">
+        <p class="intro-copy" data-en="Describe what you want to find. Navigation Agent observes, decides where to explore, and guides the robot with vision-language navigation." data-zh="描述你想找的东西，Navigation Agent 自主观察、决定探索方向，再通过视觉语言导航引导机器人前往。">Describe what you want to find. Navigation Agent observes, decides where to explore, and guides the robot with vision-language navigation.</p>
+        <a class="primary-link" href="#videos" data-en="Watch a search" data-zh="观看任务回放">Watch a search</a>
       </div>
-    </section>
-
-    <section class="text-section" id="about" aria-labelledby="about-title">
-      <h2 id="about-title" data-en="Let the robot do the searching.">把寻找的过程交给机器人</h2>
-      <p data-en="“Find the brown sofa.” You know what you are looking for, but you may not know exactly where it is or how to get there. Navigation Agent is built around this kind of request. You describe what you want to find, and the robot begins searching the space around it, without a route that you have to plan in advance.">“找到棕色沙发。”你知道自己要找什么，却未必知道它的准确位置，也不一定能给出明确的路线。Navigation Agent 围绕这样的需求展开：你用自己习惯的方式描述目标，机器人开始在周围的空间中寻找，不需要你事先安排每一步前进和转向。</p>
-      <p data-en="The target is not always in view when a task begins. The robot may need to look around, explore another part of the room, or follow a clue from a new viewpoint. The agent keeps the original request in focus throughout that search, using what the robot sees to decide how to continue.">目标不一定出现在任务开始时的画面里。机器人可能需要先看看周围，走向房间的另一侧，或根据新看到的线索继续寻找。Agent 在这个过程中持续围绕最初的目标，根据机器人看到的环境判断该如何继续。</p>
-      <p data-en="Reaching a stopping point does not end the task. The agent looks again to check whether the object matches what you asked for. From the first request to exploration and checking the result, the experience stays focused on finding your target.">走到一个位置也不意味着任务就此结束。Agent 还会再次观察，确认眼前的物体是否符合你的要求。从接收目标、展开寻找，到确认结果，整个过程都围绕你最初想完成的那件事。</p>
-      <p data-en="Navigation Agent brings an agent's response into physical space: observations and actions in the environment around a robot. Object search is the starting point, connecting an everyday request with a task the robot can work toward.">Navigation Agent 将 Agent 的回应带入真实空间：面对一个请求，它会在机器人所处的环境中展开观察与行动。自主找物是这个产品的起点，把一个日常的需求变成机器人可以执行的任务。</p>
     </section>
 
     <section class="text-section" id="videos" aria-labelledby="videos-title">
-      <h2 id="videos-title" data-en="See it in action">视频演示</h2>
-      <p data-en="Videos will show complete object-search tasks and examples in simulation and on a physical robot. The recordings are being prepared.">这里将展示完整的自主找物过程，以及仿真环境和真实机器人上的运行效果。演示视频正在整理中。</p>
-      <div class="video-entry" hidden data-video-slot="main">
-        <h3 data-en="An end-to-end object-search task">完整找物任务</h3>
-        <p data-en="From receiving a natural-language goal to exploration, navigation, and checking the result.">从接收自然语言目标，到探索、导航与结果确认。</p>
+      <div class="demo-intro">
+        <h2 id="videos-title" data-en="MuJoCo task replays" data-zh="MuJoCo 任务回放">MuJoCo task replays</h2>
+        <p data-en="Choose a task to compare the search with VLN and Agent + VLN." data-zh="选择同一个任务，对比 VLN 与 Agent + VLN 的寻找过程。">Choose a task to compare the search with VLN and Agent + VLN.</p>
+
       </div>
-      <div class="video-entry" hidden data-video-slot="simulation">
-        <h3 data-en="Navigation in MuJoCo">MuJoCo 仿真演示</h3>
-        <p data-en="An example of the agent carrying out a navigation task in a simulated environment.">展示 Agent 在仿真环境中执行导航任务的过程。</p>
+      <div class="demo-replay" data-ui>
+    <section id="simulation" aria-label="MuJoCo task replay" data-label-zh="MuJoCo 任务回放" data-label-en="MuJoCo task replay">
+      <div class="task-selector">
+        <span data-en="Task" data-zh="任务选择">Task</span>
+        <div id="session-list" class="session-list" role="group" aria-label="Choose a task" data-label-zh="切换任务" data-label-en="Choose a task"></div>
       </div>
-      <div class="video-entry" hidden data-video-slot="robot">
-        <h3 data-en="Navigation on Unitree Go2">Go2 真机演示</h3>
-        <p data-en="An example of perception, task decisions, and navigation on a physical robot.">展示真实空间中的环境感知、任务决策与导航执行。</p>
+      <section class="comparison-column baseline-column" aria-labelledby="baseline-title">
+        <h3 id="baseline-title" class="comparison-heading">VLN</h3>
+        <div class="baseline-player">
+          <div class="player-heading"><h4 id="baseline-task">Loading task…</h4><span class="pending-label" data-en="Not recorded" data-zh="待录制">Not recorded</span></div>
+          <div class="baseline-stage">
+            <svg viewBox="0 0 32 32" aria-hidden="true"><rect x="3" y="7" width="26" height="18" rx="2"/><path d="m13 12 8 4-8 4Z"/></svg>
+            <p data-en="VLN recording coming soon" data-zh="VLN 录像待加入">VLN recording coming soon</p>
+          </div>
+          <p class="baseline-status" data-en="Progress and results will appear after recording." data-zh="录制后展示独立进度与结果">Progress and results will appear after recording.</p>
+        </div>
+      </section>
+      <section class="comparison-column agent-column" aria-labelledby="agent-title">
+        <h3 id="agent-title" class="comparison-heading">Agent + VLN</h3>
+      <div class="player" id="player" aria-busy="true">
+        <div class="player-heading">
+          <h4 id="task-title">Loading task…</h4>
+          <span class="result-label" id="result-label" data-en="Completed · as logged" data-zh="已完成 · 日志记录">Completed · as logged</span>
+        </div>
+        <div class="player-body">
+          <div class="screen-column">
+            <div class="video-stage">
+              <video id="video" controls playsinline preload="none" aria-label="Task recording" data-label-zh="任务录像" data-label-en="Task recording"></video>
+              <span class="view-label" id="view-label">First person</span>
+              <button type="button" id="stage-play" class="stage-play" aria-label="Play recording" data-label-zh="播放录像" data-label-en="Play recording"><span aria-hidden="true">▶</span><span data-en="Play the journey" data-zh="播放这次寻找">Play the journey</span></button>
+              <p id="media-error" class="media-error" role="alert" hidden></p>
+            </div>
+
+          </div>
+
+        </div>
+        <div class="transport">
+          <div class="timeline-wrap">
+            <div id="timeline-segments" class="timeline-segments" aria-hidden="true"></div>
+            <input id="timeline" type="range" min="0" max="1" value="0" step="0.01" aria-label="Recording progress" data-label-zh="录像进度" data-label-en="Recording progress" disabled>
+            <div id="timeline-markers" class="timeline-markers" aria-hidden="true"></div>
+          </div>
+          <div class="transport-row">
+            <button type="button" id="toggle-play" class="play-button" aria-label="Play" data-label-zh="播放" data-label-en="Play" disabled>▶</button>
+            <button type="button" id="previous" class="icon-button" aria-label="Previous moment" data-label-zh="上一节点" data-label-en="Previous moment" disabled>Ⅰ‹</button>
+            <button type="button" id="next" class="icon-button" aria-label="Next moment" data-label-zh="下一节点" data-label-en="Next moment" disabled>›Ⅰ</button>
+            <span class="time-display"><span id="elapsed">00:00</span><span class="time-divider">/</span><span id="duration">00:00</span></span>
+            <div class="transport-options">
+              <div class="view-switch" aria-label="Camera view" data-label-zh="录像视角" data-label-en="Camera view">
+                <button type="button" data-view="first" aria-pressed="true" data-en="First person" data-zh="第一视角">First person</button>
+                <button type="button" data-view="third" aria-pressed="false" data-en="Third person" data-zh="第三视角">Third person</button>
+              </div>
+
+
+              <button type="button" id="fullscreen" class="icon-button" aria-label="Fullscreen" data-label-zh="全屏" data-label-en="Fullscreen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4H4v4m12-4h4v4M4 16v4h4m12-4v4h-4"/></svg></button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      </section>
+
+        <aside class="replay-details" aria-labelledby="decisions-title">
+          <div class="decisions-heading"><h3 id="decisions-title" data-en="Agent decisions" data-zh="Agent 节点与决策">Agent decisions</h3><span id="chapter-count">7</span></div>
+          <div class="details-body">
+            <ol id="chapter-list" aria-label="Jump to a key moment" data-label-zh="跳转到关键节点" data-label-en="Jump to a key moment"></ol>
+            <div class="decision-note" aria-live="polite">
+              <div class="note-heading"><span id="note-kind">Task started</span><span id="note-time">00:00</span></div>
+              <p id="note-text"></p>
+              <p class="instruction" id="instruction" hidden></p>
+            </div>
+          </div>
+        </aside>
+      <div class="comparison-controls">
+        <button class="sync-play" type="button" disabled data-en="Play both" data-zh="同时播放">Play both</button>
+        <label class="speed-label"><span data-en="Speed" data-zh="倍速">Speed</span><select id="speed" aria-label="Playback speed" data-label-zh="播放速度" data-label-en="Playback speed"><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="1.5">1.5×</option><option value="2">2×</option><option value="4">4×</option></select></label>
+        <span class="sync-hint" data-en="Both videos can play together once VLN is recorded." data-zh="VLN 录制后可同时播放">Both videos can play together once VLN is recorded.</span>
+      </div>
+      <p id="data-error" role="alert" hidden></p>
+
+    </section>
+
+
+    </div>
+    <noscript><p>Enable JavaScript for interactive replay, or <a href="./media/replays/basketball/first.mp4">watch the basketball recording</a>.</p></noscript>
+    </section>
+
+    <section class="text-section" id="go2" aria-labelledby="go2-title">
+      <h2 id="go2-title" data-en="Go2 on the real robot" data-zh="Go2 真机演示">Go2 on the real robot</h2>
+      <p data-en="Real-robot recordings will be added here." data-zh="真机录像待加入，将在这里单独展示。">Real-robot recordings will be added here.</p>
+    </section>
+
+    <section class="text-section" id="about" aria-labelledby="about-title">
+      <div class="about-heading">
+      <h2 id="about-title" data-en="From a goal to exploration" data-zh="从一句目标，到持续探索">From a goal to exploration</h2>
+      </div>
+      <div class="about-copy">
+        <div>
+      <p data-en="“Find the brown sofa.” That tells the robot what you want, but not which room the sofa is in or which route to take. If the target is out of sight, the robot still needs to decide where to look first, which clues to follow, and when to try another direction." data-zh="“找到棕色沙发。”这句话说明了你想要什么，却没有告诉机器人沙发在哪个房间、应该走哪条路。如果目标不在眼前，机器人还需要判断：先去哪里看看，哪些线索值得跟进，什么时候应该换个方向。">“Find the brown sofa.” That tells the robot what you want, but not which room the sofa is in or which route to take. If the target is out of sight, the robot still needs to decide where to look first, which clues to follow, and when to try another direction.</p>
+      <p data-en="Navigation Agent makes these decisions. It observes its surroundings and considers both the goal and the places it has already explored to choose where to look next. When the target is not visible, it can first move to a position that offers a better view. When it spots a possible match, it can move closer to inspect the details. You do not need to provide a new instruction for every step of the search." data-zh="Navigation Agent 负责这部分决策。它观察周围环境，结合任务目标和已经探索过的地方，选择值得继续查看的位置。目标尚未出现时，它可以先接近一个能够获得更多视野的地方；发现疑似目标后，再靠近观察、确认细节。用户无需为每一步探索补充指令。">Navigation Agent makes these decisions. It observes its surroundings and considers both the goal and the places it has already explored to choose where to look next. When the target is not visible, it can first move to a position that offers a better view. When it spots a possible match, it can move closer to inspect the details. You do not need to provide a new instruction for every step of the search.</p>
+        </div>
+        <div>
+      <p data-en="The agent and VLN have distinct roles. The agent decides where to go next and why, then turns that decision into a concrete instruction for the next local destination. VLN uses the instruction and visual input to generate navigation actions for the robot to execute. The project currently integrates LightNav for this navigation stage." data-zh="在这个过程中，Agent 与 VLN 各有分工。Agent 负责判断“下一步去哪里、为什么去”，并将探索决策转化为具体的局部导航指令；VLN 根据指令和视觉输入生成导航动作，由机器人执行。当前项目已接入 LightNav，承担这一导航环节。">The agent and VLN have distinct roles. The agent decides where to go next and why, then turns that decision into a concrete instruction for the next local destination. VLN uses the instruction and visual input to generate navigation actions for the robot to execute. The project currently integrates LightNav for this navigation stage.</p>
+      <p data-en="After each navigation step, the agent observes the environment again and checks for progress against earlier clues and action results. If it has gained no new information, it adjusts the direction of exploration. If it finds the target, it checks whether it matches the request. Finishing one navigation step does not by itself mean the whole task is complete." data-zh="每次导航之后，Agent 都会重新观察环境，结合之前的线索与执行结果判断是否取得进展。如果没有获得新的信息，就调整探索方向；如果发现目标，就进一步核对是否符合用户的要求。一次导航结束，并不直接代表整个任务完成。">After each navigation step, the agent observes the environment again and checks for progress against earlier clues and action results. If it has gained no new information, it adjusts the direction of exploration. If it finds the target, it checks whether it matches the request. Finishing one navigation step does not by itself mean the whole task is complete.</p>
+      <p data-en="Together, these capabilities let you simply ask the robot to find something. The agent handles observation, decisions, and adjustments throughout the search, while VLN provides the navigation needed to carry out each step." data-zh="这种协作让用户可以直接提出找物需求，把寻找过程中的观察、选择与调整交给 Agent，同时由 VLN 提供具体的导航能力。">Together, these capabilities let you simply ask the robot to find something. The agent handles observation, decisions, and adjustments throughout the search, while VLN provides the navigation needed to carry out each step.</p>
+        </div>
       </div>
     </section>
 
@@ -66,11 +158,11 @@
   <footer class="site-footer">
     <div class="footer-copy">
       <span>© 2026 Novaxis · Navigation Agent</span>
-      <p data-en="Agent source code and documentation currently require access.">Agent 项目代码与文档目前需要访问权限。</p>
+      <p data-en="Agent source code and documentation currently require access." data-zh="Agent 项目代码与文档目前需要访问权限。">Agent source code and documentation currently require access.</p>
     </div>
     <div>
       <a href="https://github.com/Novaxis-Robot-Group/navigation-agent/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">Apache-2.0</a>
-      <a href="https://github.com/Novaxis-Robot-Group/navigation-agent/issues" target="_blank" rel="noopener noreferrer" data-en="Feedback ↗">反馈 ↗</a>
+      <a href="https://github.com/Novaxis-Robot-Group/navigation-agent/issues" target="_blank" rel="noopener noreferrer" data-en="Feedback ↗" data-zh="反馈 ↗">Feedback ↗</a>
     </div>
   </footer>
 </body>

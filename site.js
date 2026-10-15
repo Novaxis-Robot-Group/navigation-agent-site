@@ -1,28 +1,10 @@
 "use strict";
 
-// 配置真实素材后才显示播放器；未配置时只保留文字说明。
-const videos = {
-  main: null,
-  simulation: null,
-  robot: null,
-  // 格式：{ src: "./media/demo.mp4", poster: "./media/demo.jpg" }
-};
-
 const translatedElements = [...document.querySelectorAll("[data-en]")];
 const languageButton = document.querySelector(".language");
-let language = "zh";
+let language = "en";
 
-// HTML 保留中文正文，关闭脚本也能阅读和访问链接。
-for (const element of translatedElements) {
-  element.dataset.zh = element.textContent;
-}
-
-function videoErrorText() {
-  return language === "zh"
-    ? "视频暂时无法加载，请稍后重试。"
-    : "The video could not be loaded. Please try again later.";
-}
-
+// HTML 默认显示英文，中文保存在 data-zh 中。
 function setLanguage(nextLanguage) {
   language = nextLanguage;
   document.documentElement.lang = language === "zh" ? "zh-CN" : "en";
@@ -35,50 +17,15 @@ function setLanguage(nextLanguage) {
   languageButton.textContent = language === "zh" ? "EN" : "中文";
   languageButton.setAttribute("aria-label", language === "zh" ? "Switch to English" : "切换为中文");
   document.title = language === "zh"
-    ? "Navigation Agent · 告诉机器人，你想找什么"
-    : "Navigation Agent · Tell your robot what you want to find";
+    ? "Navigation Agent · 说出目标，让机器人自主寻找"
+    : "Navigation Agent · Set the goal. Let your robot search.";
   document.querySelector('meta[name="description"]').content = language === "zh"
-    ? "Navigation Agent 是一个面向机器人的自主导航 Agent。说出你想找的东西，让机器人观察周围、探索空间，寻找目标。"
-    : "Tell your robot what to find. Navigation Agent guides it to observe, explore, and search for your target.";
-  for (const error of document.querySelectorAll(".video-error")) {
-    error.textContent = videoErrorText();
-  }
-  try {
-    localStorage.setItem("navigation-agent-language", language);
-  } catch {
-    // 无法保存偏好时，仍允许本次切换。
-  }
+    ? "Navigation Agent 将自主探索与视觉语言导航（VLN）结合起来。描述你想找的东西，Agent 根据环境线索决定去哪里探索，再由 VLN 引导机器人前往。"
+    : "Navigation Agent decides where to explore from visual clues and past observations, then uses vision-language navigation (VLN) to guide the robot there.";
+  document.dispatchEvent(new CustomEvent("site-language-change", { detail: language }));
 }
 
+// 每次打开首页默认英文；切换按钮只改变本次页面语言。
 languageButton.addEventListener("click", () => setLanguage(language === "zh" ? "en" : "zh"));
 
-for (const [slot, source] of Object.entries(videos)) {
-  if (!source) continue;
-  const container = document.querySelector(`[data-video-slot="${slot}"]`);
-  const video = document.createElement("video");
-  video.controls = true;
-  video.playsInline = true;
-  video.preload = "none";
-  video.src = source.src;
-  if (source.poster) video.poster = source.poster;
-  const heading = container.querySelector("h3");
-  heading.id = `video-title-${slot}`;
-  video.setAttribute("aria-labelledby", heading.id);
-  video.addEventListener("error", () => {
-    if (container.querySelector(".video-error")) return;
-    const error = document.createElement("p");
-    error.className = "video-error";
-    error.setAttribute("role", "status");
-    error.textContent = videoErrorText();
-    container.append(error);
-  });
-  container.append(video);
-  container.hidden = false;
-}
-
-try {
-  if (localStorage.getItem("navigation-agent-language") === "en") language = "en";
-} catch {
-  // 默认使用中文。
-}
 setLanguage(language);
