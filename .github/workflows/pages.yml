@@ -7,6 +7,8 @@ on:
       - index.html
       - styles.css
       - site.js
+      - replay.css
+      - replay.js
       - favicon.svg
       - media/**
       - .github/workflows/pages.yml
@@ -37,7 +39,7 @@ jobs:
       - name: Prepare website files
         run: |
           mkdir -p _site
-          cp index.html styles.css site.js favicon.svg _site/
+          cp index.html styles.css site.js replay.css replay.js favicon.svg _site/
           if [ -d media ]; then
             cp -R media _site/media
           fi
@@ -51,7 +53,7 @@ jobs:
           root = Path("_site")
           page = root / "index.html"
           html = page.read_text()
-          for name in ("styles.css", "site.js"):
+          for name in ("styles.css", "site.js", "replay.css", "replay.js"):
               version = hashlib.sha256((root / name).read_bytes()).hexdigest()[:12]
               html = html.replace(f'./{name}"', f'./{name}?v={version}"')
           page.write_text(html)
