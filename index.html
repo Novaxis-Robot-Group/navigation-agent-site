@@ -66,28 +66,39 @@
       </div>
       <section class="comparison-column baseline-column" aria-labelledby="baseline-title">
         <h4 id="baseline-title" class="comparison-heading">VLN</h4>
-        <div class="baseline-player">
-          <div class="player-heading"><h5 id="baseline-task">Loading task…</h5><span class="pending-label" data-en="Not recorded" data-zh="待录制">Not recorded</span></div>
-          <div class="baseline-stage">
+        <div class="baseline-player" id="baseline-player">
+          <div id="baseline-placeholder" class="baseline-stage">
             <svg viewBox="0 0 32 32" aria-hidden="true"><rect x="3" y="7" width="26" height="18" rx="2"/><path d="m13 12 8 4-8 4Z"/></svg>
             <p data-en="VLN recording coming soon" data-zh="VLN 录像待加入">VLN recording coming soon</p>
           </div>
-          <p class="baseline-status" data-en="—" data-zh="—">—</p>
+          <div id="baseline-stage" class="video-stage" hidden>
+            <video id="baseline-video" controls playsinline preload="none" aria-label="VLN recording" data-label-en="VLN recording" data-label-zh="VLN 录像"></video>
+
+            <p id="baseline-error" class="media-error" role="alert" hidden></p>
+          </div>
+          <p id="baseline-empty-status" class="baseline-status">—</p>
+          <div id="baseline-transport" class="transport" hidden>
+            <div class="timeline-wrap"><input id="baseline-timeline" type="range" min="0" max="1" step="0.01" value="0" aria-label="VLN progress" data-label-en="VLN progress" data-label-zh="VLN 录像进度"></div>
+            <div class="transport-row">
+              <button type="button" id="baseline-play" class="play-button" aria-label="Play VLN">▶</button>
+              <span class="time-display"><span id="baseline-elapsed">00:00</span><span class="time-divider">/</span><span id="baseline-duration">00:00</span></span>
+            <select id="baseline-speed" class="playback-speed" aria-label="VLN playback speed" data-label-en="VLN playback speed" data-label-zh="VLN 播放速度"><option value="0.5">0.5×</option><option value="1">1×</option><option value="1.5">1.5×</option><option value="2">2×</option><option value="4" selected>4×</option></select>
+              <div class="transport-options"><div class="view-switch" aria-label="VLN camera view" data-label-en="VLN camera view" data-label-zh="VLN 录像视角">
+                <button type="button" data-baseline-view="first" aria-pressed="true" data-en="First person" data-zh="第一视角">First person</button>
+                <button type="button" data-baseline-view="third" aria-pressed="false" data-en="Third person" data-zh="第三视角">Third person</button>
+              </div></div>
+            </div>
+          </div>
         </div>
       </section>
       <section class="comparison-column agent-column" aria-labelledby="agent-title">
         <h4 id="agent-title" class="comparison-heading">Agent + VLN</h4>
       <div class="player" id="player" aria-busy="true">
-        <div class="player-heading">
-          <h5 id="task-title">Loading task…</h5>
-          <span class="result-label" id="result-label" data-en="Completed · as logged" data-zh="已完成 · 日志记录">Completed · as logged</span>
-        </div>
         <div class="player-body">
           <div class="screen-column">
             <div class="video-stage">
               <video id="video" controls playsinline preload="none" aria-label="Task recording" data-label-zh="任务录像" data-label-en="Task recording"></video>
-              <span class="view-label" id="view-label">First person</span>
-              <button type="button" id="stage-play" class="stage-play" aria-label="Play recording" data-label-zh="播放录像" data-label-en="Play recording"><span aria-hidden="true">▶</span><span data-en="Play the journey" data-zh="播放这次寻找">Play the journey</span></button>
+
               <p id="media-error" class="media-error" role="alert" hidden></p>
             </div>
 
@@ -105,6 +116,7 @@
             <button type="button" id="previous" class="icon-button" aria-label="Previous moment" data-label-zh="上一节点" data-label-en="Previous moment" disabled>Ⅰ‹</button>
             <button type="button" id="next" class="icon-button" aria-label="Next moment" data-label-zh="下一节点" data-label-en="Next moment" disabled>›Ⅰ</button>
             <span class="time-display"><span id="elapsed">00:00</span><span class="time-divider">/</span><span id="duration">00:00</span></span>
+            <select id="speed" class="playback-speed" aria-label="Agent playback speed" data-label-en="Agent playback speed" data-label-zh="Agent 播放速度"><option value="0.5">0.5×</option><option value="1">1×</option><option value="1.5">1.5×</option><option value="2">2×</option><option value="4" selected>4×</option></select>
             <div class="transport-options">
               <div class="view-switch" aria-label="Camera view" data-label-zh="录像视角" data-label-en="Camera view">
                 <button type="button" data-view="first" aria-pressed="true" data-en="First person" data-zh="第一视角">First person</button>
@@ -125,24 +137,20 @@
           <div class="decisions-heading"><h4 id="decisions-title" data-en="Agent decisions" data-zh="Agent 节点与决策">Agent decisions</h4><span id="chapter-count">7</span></div>
           <div class="details-body">
             <ol id="chapter-list" aria-label="Jump to a key moment" data-label-zh="跳转到关键节点" data-label-en="Jump to a key moment"></ol>
-            <div class="decision-note" aria-live="polite">
-              <div class="note-heading"><span id="note-kind">Task started</span><span id="note-time">00:00</span></div>
+            <div id="decision-note" class="decision-note" role="dialog" aria-labelledby="note-kind" hidden>
+              <div class="note-heading"><span id="note-kind">Task started</span><span id="note-time">00:00</span><button type="button" id="close-note" aria-label="Close details" data-label-en="Close details" data-label-zh="关闭详情">×</button></div>
               <p id="note-text"></p>
               <p class="instruction" id="instruction" hidden></p>
             </div>
           </div>
         </aside>
-      <div class="comparison-controls">
-        <button class="sync-play" type="button" disabled data-en="Play both" data-zh="同时播放">Play both</button>
-        <label class="speed-label"><span data-en="Speed" data-zh="倍速">Speed</span><select id="speed" aria-label="Playback speed" data-label-zh="播放速度" data-label-en="Playback speed"><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="1.5">1.5×</option><option value="2">2×</option><option value="4">4×</option></select></label>
-      </div>
       <p id="data-error" role="alert" hidden></p>
 
     </section>
 
 
     </div>
-    <noscript><p>Enable JavaScript for interactive replay, or <a href="./media/replays/basketball/first.mp4">watch the basketball recording</a>.</p></noscript>
+    <noscript><p>Enable JavaScript for interactive replay, or <a href="./media/replays/basketball/first.mp4">watch the Agent basketball recording</a> / <a href="./media/replays/basketball/vln/first.mp4">watch the VLN basketball recording</a> / <a href="./media/replays/bed/vln/first.mp4">watch the VLN bed recording</a>.</p></noscript>
       <section id="go2" aria-labelledby="go2-title">
         <div class="demo-section-heading">
           <h3 id="go2-title" data-en="Go2 · Real-world deployment" data-zh="Go2 · 真实场景适配">Go2 · Real-world deployment</h3>

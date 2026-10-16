@@ -97,7 +97,18 @@
         "labelEn": "Completion verified",
         "reasonEn": "The basketball is visible on the orange floor beyond the glass door. Visual confirmation satisfies this find task."
       }
-    ]
+    ],
+    "baseline": {
+      "taskId": "2b089ee3bd0344f3acd637adca59eee3",
+      "goal": "找到篮球",
+      "goalEn": "Find the basketball",
+      "instruction": "find the basketball",
+      "date": "2026-10-16T05:02:17.510118+00:00",
+      "duration": 50.8,
+      "wallDuration": 53.68584,
+      "endReason": "model_stop",
+      "success": null
+    }
   },
   {
     "slug": "bed",
@@ -197,106 +208,128 @@
         "labelEn": "Completion verified",
         "reasonEn": "The bed now fills the close-up view. The log confirms that the robot has reached the bedside."
       }
-    ]
+    ],
+    "baseline": {
+      "taskId": "5251495fbe0746cdad2bfb8d9f1b9ff8",
+      "goal": "找到床",
+      "goalEn": "Find the bed",
+      "instruction": "找到床",
+      "date": "2026-10-16T03:46:29.781795+00:00",
+      "duration": 35.8,
+      "wallDuration": 37.773401,
+      "endReason": "model_stop",
+      "success": null
+    }
   },
   {
-    "slug": "plant",
-    "taskId": "487debc04d564639b3d540db8a42dfc4",
-    "goal": "找到盆栽",
+    "slug": "fridge",
+    "taskId": "978169e3570847c18af84113f677ddfc",
+    "goal": "走到冰箱旁边",
+    "goalEn": "Walk to the refrigerator",
     "status": "completed",
-    "date": "2026-10-14T02:30:30.460305+00:00",
-    "summary": "当前图（O11）中，透过正前方开启的红棕色木门，在相邻深色地板房间的木桌旁清晰可见一株直立的绿色盆栽植物，身份明确，满足找到盆栽的任务要求。",
-    "duration": 275.4,
-    "wallDuration": 288.35,
-    "goalEn": "Find the potted plant",
+    "date": "2026-10-16T05:20:36.913478+00:00",
+    "summary": "当前图正前方清晰可见灰色双门冰箱，机器人已移动至冰箱紧邻位置，满足走到旁边的要求。",
+    "duration": 89.2,
+    "wallDuration": 93.362224,
     "nodes": [
       {
         "time": 0,
         "label": "任务开始",
         "labelEn": "Task started",
-        "reason": "找到盆栽",
-        "reasonEn": "Find the potted plant",
+        "reason": "走到冰箱旁边",
+        "reasonEn": "Walk to the refrigerator",
         "type": "started",
         "instruction": ""
       },
       {
-        "time": 5.915,
+        "time": 8.719,
         "type": "decision",
         "step": 1,
-        "action": "navigate",
-        "reason": "当前视野内未发现盆栽，右前方有明确的可通行门洞通往未探索区域，优先前往搜索。",
-        "instruction": "Go to the doorway on the front-right.",
-        "region": "带窗户和木桌的房间",
+        "action": "look",
+        "reason": "当前正面未见冰箱，先向左观察以排除本房间左侧区域，再决定是前往右侧门洞还是继续探索。",
+        "instruction": "",
+        "region": "带木桌和窗户的房间",
         "confirmed": null,
-        "label": "从门洞开始探索",
-        "labelEn": "Explore the doorway",
-        "reasonEn": "No plant is visible. Explore the open doorway ahead on the right."
+        "label": "向左观察",
+        "labelEn": "Look left",
+        "reasonEn": "No refrigerator is visible ahead. Look left before choosing a doorway."
       },
       {
-        "time": 73.153,
+        "time": 20.604,
+        "type": "decision",
+        "step": 2,
+        "action": "look",
+        "reason": "当前左侧发现新的红框门洞入口，继续向左观察以确认通路并排除本房间剩余盲区，再决定前往哪个入口寻找冰箱。",
+        "instruction": "",
+        "region": "带木桌和窗户的房间",
+        "confirmed": null,
+        "label": "检查剩余盲区",
+        "labelEn": "Check the remaining view",
+        "reasonEn": "A red-framed doorway is visible. Continue looking left to inspect the remaining area."
+      },
+      {
+        "time": 30.574,
         "type": "decision",
         "step": 3,
         "action": "navigate",
-        "reason": "已成功进入隔壁房间（洗手间/过渡区），当前未发现盆栽，正前方玻璃门通往更深处的卧室区域，是主要的未探索入口，需前往搜索。",
-        "instruction": "Go to the open white grid glass door in front.",
-        "region": "带白色洗手池和玻璃门的房间",
+        "reason": "当前房间未发现冰箱，需前往可见的红框门洞 C2 探索隔壁区域。",
+        "instruction": "Go to the red-framed doorway on the right.",
+        "region": "带木桌和窗户的房间",
         "confirmed": null,
-        "label": "进入新的房间",
-        "labelEn": "Enter the next room",
-        "reasonEn": "The new room has no visible plant. Continue toward the glass door and bedroom beyond."
+        "label": "探索红框门洞",
+        "labelEn": "Explore the doorway",
+        "reasonEn": "No refrigerator was found in this room. Explore the red-framed doorway on the right."
       },
       {
-        "time": 139.591,
+        "time": 40.505,
+        "type": "target_detection_hit",
+        "step": 4,
+        "action": null,
+        "reason": "目标检测器产生冰箱候选，等待 Agent 复核。",
+        "instruction": "",
+        "region": "",
+        "confirmed": null,
+        "label": "发现冰箱线索",
+        "labelEn": "Detect a possible refrigerator",
+        "reasonEn": "The detector reports a possible refrigerator. Agent verification is still pending."
+      },
+      {
+        "time": 64.731,
         "type": "decision",
         "step": 5,
         "action": "navigate",
-        "reason": "已成功进入橙色地面房间，当前未发现盆栽，需先接近房间主要家具（木桌）区域进行细致观察，同时保持对远处入口的视野。",
-        "instruction": "Walk to the open floor space in front of the wooden table.",
-        "region": "橙色地面与木桌房间",
+        "reason": "目标冰箱已明确看见，用户要求走到旁边，需导航至冰箱附近的可通行地面。",
+        "instruction": "Go to the gray refrigerator in front.",
+        "region": "深灰墙面, 冰箱",
         "confirmed": null,
-        "label": "搜索木桌附近",
-        "labelEn": "Search around the desk",
-        "reasonEn": "Search the orange-floored room near the wooden desk."
+        "label": "接近冰箱",
+        "labelEn": "Approach the refrigerator",
+        "reasonEn": "The refrigerator is clearly visible. Move closer to satisfy the request."
       },
       {
-        "time": 225.255,
-        "type": "decision",
-        "step": 8,
-        "action": "look",
-        "reason": "当前正对木门尝试进入失败且视野受限，向左转可查看R4房间内床铺周边及其他未查区域，寻找盆栽线索或更好的通行角度。",
-        "instruction": "",
-        "region": "橙色地面与木桌房间",
-        "confirmed": null,
-        "label": "通行受阻，调整视角",
-        "labelEn": "Blocked passage; look left",
-        "reasonEn": "The attempt to enter the wooden door has failed. Look left for clues and a better view."
-      },
-      {
-        "time": 252.253,
-        "type": "decision",
-        "step": 10,
-        "action": "look",
-        "reason": "当前正对木门尝试进入失败且视野受限，已转回原朝向确认无目标；需向右转查看 R4 房间内右侧未看区域，寻找盆栽线索或更好的通行角度。",
-        "instruction": "",
-        "region": "橙色地面与木桌房间",
-        "confirmed": null,
-        "label": "转向右侧观察",
-        "labelEn": "Look to the right",
-        "reasonEn": "The doorway remains blocked. Look right to inspect the remaining area."
-      },
-      {
-        "time": 275.192,
+        "time": 89.1,
         "type": "completion_check",
-        "step": 11,
+        "step": 6,
         "action": null,
-        "reason": "当前图像（O11）显示机器人向右转后，透过开启的木门可以看到隔壁房间（深色地板）内有一株明显的绿色盆栽植物，放置在窗边的桌子上。虽然目标位于门后的相邻房间且有一定距离，但视觉特征清晰（绿色枝叶、细长树干），足以确认‘盆栽’这一目标身份已被找到。",
+        "reason": "历史图O5清晰显示目标为灰色双门冰箱。当前图O6中，该灰色冰箱占据画面主体，细节清晰（可见门把手），且右侧可见历史图中冰箱旁的黑色矮柜局部，特征完全吻合。机器人已从远处（P2）移动至冰箱紧邻位置（P3），视觉证据表明已到达目标旁边。",
         "instruction": "",
         "region": "",
         "confirmed": true,
         "label": "完成条件核验通过",
         "labelEn": "Completion verified",
-        "reasonEn": "A green potted plant is clearly visible through the open door in the next room. Visual confirmation satisfies this find task."
+        "reasonEn": "The refrigerator fills the close-up view, and the nearby cabinet matches the earlier observation. The log confirms arrival beside the refrigerator."
       }
-    ]
+    ],
+    "baseline": {
+      "taskId": "87c2af87eb0649f99acd542ebf23b034",
+      "goal": "走到冰箱旁边",
+      "goalEn": "Walk to the refrigerator",
+      "instruction": "走到冰箱旁边",
+      "date": "2026-10-16T05:28:27.680871+00:00",
+      "duration": 35.4,
+      "wallDuration": 37.228657,
+      "endReason": "model_stop",
+      "success": null
+    }
   }
 ]
