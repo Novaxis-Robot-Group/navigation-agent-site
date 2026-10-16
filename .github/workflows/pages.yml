@@ -53,7 +53,7 @@ jobs:
           root = Path("_site")
           page = root / "index.html"
           html = page.read_text()
-          for name in ("styles.css", "site.js", "replay.css", "replay.js"):
+          for name in ("styles.css", "site.js", "replay.css", "replay.js", "media/fonts/fonts.css"):
               version = hashlib.sha256((root / name).read_bytes()).hexdigest()[:12]
               html = html.replace(f'./{name}"', f'./{name}?v={version}"')
           page.write_text(html)

@@ -11,7 +11,7 @@
   --control-radius: 10px;
   --card-border: rgba(0, 0, 0, .06);
   --card-shadow: 0 1px 3px rgba(0, 0, 0, .08); /* taste-skill-ignore: 用户指定参考页的轻阴影卡片。 */
-  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font: "IBM Plex Sans", "Nav Han Web", -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
 }
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; scroll-padding-top: 30px; }

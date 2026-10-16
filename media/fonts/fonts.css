@@ -1,0 +1,15 @@
+/* 由 prepare_fonts.py 生成；字形来自 IBM Plex Sans 与思源黑体。 */
+@font-face {
+  font-family: "IBM Plex Sans";
+  font-style: normal;
+  font-weight: 100 700;
+  font-display: swap;
+  src: url("./ibm-plex-sans-latin-056e4e2459f5.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Nav Han Web";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("./nav-han-web-4d77c77f28d0.woff2") format("woff2");
+}

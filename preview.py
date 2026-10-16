@@ -17,7 +17,7 @@ class PreviewHandler(SimpleHTTPRequestHandler):
         if page.name == "index.html" and page.is_file():
             # 本地预览也按内容更新资源地址，避免浏览器混用新页面和旧样式。
             html = page.read_text()
-            for name in ("styles.css", "site.js", "replay.css", "replay.js"):
+            for name in ("styles.css", "site.js", "replay.css", "replay.js", "media/fonts/fonts.css"):
                 version = hashlib.sha256((page.parent / name).read_bytes()).hexdigest()[:12]
                 html = html.replace(f'./{name}"', f'./{name}?v={version}"')
             content = html.encode()
