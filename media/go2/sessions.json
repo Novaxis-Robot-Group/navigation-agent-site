@@ -1,0 +1,62 @@
+{
+  "bin": {
+    "taskId": "f7c96bf5b77845f6a5da15dc9c0593f8",
+    "goal": "找到银色垃圾桶",
+    "goalEn": "Find the silver trash bin",
+    "date": "2026-10-16T07:01:31.350992+00:00",
+    "status": "completed",
+    "duration": 59.1,
+    "video": "./media/go2/bin/robot.mp4",
+    "poster": "./media/go2/bin/poster.jpg",
+    "nodes": [
+      {
+        "time": 0,
+        "label": "任务开始",
+        "labelEn": "Task started",
+        "reason": "找到银色垃圾桶",
+        "reasonEn": "Find the silver trash bin",
+        "instruction": ""
+      },
+      {
+        "time": 6.165,
+        "step": 1,
+        "action": "navigate",
+        "reason": "当前正前方视野开阔且无目标，先沿过道前进以获取更广阔的视野并接近潜在的目标区域（如墙角或远处）。",
+        "instruction": "Go to the open carpeted area in front near the glass wall.",
+        "label": "探索前方过道",
+        "labelEn": "Explore the aisle",
+        "reasonEn": "No target is visible ahead. Move along the open aisle for a wider view."
+      },
+      {
+        "time": 23.364,
+        "step": 2,
+        "action": "look",
+        "reason": "当前正对立柱，需查看左侧未看方向以寻找目标或新入口。",
+        "instruction": "",
+        "label": "向左观察",
+        "labelEn": "Look left",
+        "reasonEn": "The robot is facing a column. Look left to inspect an unexplored direction."
+      },
+      {
+        "time": 35.043,
+        "step": 3,
+        "action": "navigate",
+        "reason": "当前视野中发现走廊远处有一个疑似银色垃圾桶的物体，需前往核实身份。",
+        "instruction": "Go straight down the corridor towards the grey bin in the distance.",
+        "label": "接近疑似目标",
+        "labelEn": "Approach a possible target",
+        "reasonEn": "A possible silver trash bin is visible down the corridor. Move closer to verify it."
+      },
+      {
+        "time": 58.944,
+        "step": 4,
+        "action": "finish",
+        "reason": "当前画面正前方清晰可见一个银色金属垃圾桶，类别、颜色和形状均符合用户目标'银色垃圾桶'，且任务仅要求找到，当前证据充分。",
+        "instruction": "",
+        "label": "确认找到目标",
+        "labelEn": "Target verified",
+        "reasonEn": "A silver metal trash bin is clearly visible ahead. Its category, color and shape match the goal."
+      }
+    ]
+  }
+}

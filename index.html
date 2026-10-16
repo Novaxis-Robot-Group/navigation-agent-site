@@ -151,7 +151,7 @@
 
 
     </div>
-    <noscript><p>Enable JavaScript for interactive replay, or <a href="./media/replays/basketball/first.mp4">watch the Agent basketball recording</a> / <a href="./media/replays/basketball/vln/first.mp4">watch the VLN basketball recording</a> / <a href="./media/replays/bed/vln/first.mp4">watch the VLN bed recording</a>.</p></noscript>
+    <noscript><p>Enable JavaScript for interactive replay, or <a href="./media/replays/basketball/first.mp4">watch the Agent basketball recording</a> / <a href="./media/replays/basketball/vln/first.mp4">watch the VLN basketball recording</a> / <a href="./media/replays/bed/vln/first.mp4">watch the VLN bed recording</a> / <a href="./media/go2/bin/robot.mp4">watch the Go2 trash-bin recording</a>.</p></noscript>
       <section id="go2" aria-labelledby="go2-title">
         <div class="demo-section-heading">
           <h3 id="go2-title" data-en="Go2 · Real-world deployment" data-zh="Go2 · 真实场景适配">Go2 · Real-world deployment</h3>
@@ -159,30 +159,45 @@
         <div class="task-selector go2-tasks">
           <span data-en="Task" data-zh="任务选择">Task</span>
           <div class="session-list" role="group" aria-label="Choose a Go2 task" data-label-en="Choose a Go2 task" data-label-zh="选择 Go2 任务">
-            <button type="button" class="session-button" data-go2-task="bin" aria-pressed="true" data-en="Silver trash bin" data-zh="走到银色垃圾桶旁" data-goal-en="Go to the silver trash bin" data-goal-zh="走到银色垃圾桶旁">Silver trash bin</button>
-            <button type="button" class="session-button" data-go2-task="water" aria-pressed="false" data-en="Water dispenser" data-zh="走到饮水机旁" data-goal-en="Go to the water dispenser" data-goal-zh="走到饮水机旁">Water dispenser</button>
-            <button type="button" class="session-button" data-go2-task="meeting" aria-pressed="false" data-en="Meeting room" data-zh="走到会议室" data-goal-en="Go to the meeting room" data-goal-zh="走到会议室">Meeting room</button>
+            <button type="button" class="session-button" data-go2-task="bin" aria-pressed="true" data-en="Silver trash bin" data-zh="找到银色垃圾桶">Silver trash bin</button>
+            <button type="button" class="session-button" data-go2-task="water" aria-pressed="false" data-en="Water dispenser" data-zh="走到饮水机旁">Water dispenser</button>
+            <button type="button" class="session-button" data-go2-task="meeting" aria-pressed="false" data-en="Meeting room" data-zh="走到会议室">Meeting room</button>
           </div>
         </div>
         <div class="realworld-grid">
           <section class="realworld-column">
             <h4 class="comparison-heading" data-en="External camera" data-zh="实拍视角">External camera</h4>
-            <div class="baseline-player">
-              <div class="player-heading"><h5 class="go2-goal">Go to the silver trash bin</h5><span class="pending-label" data-en="Pending" data-zh="待加入">Pending</span></div>
-              <div class="baseline-stage"><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="3" y="7" width="26" height="18" rx="2"/><path d="m13 12 8 4-8 4Z"/></svg><p  data-en="Recording coming soon" data-zh="录像待加入">Recording coming soon</p></div>
+            <div class="baseline-player go2-placeholder">
+              <div class="baseline-stage"><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="3" y="7" width="26" height="18" rx="2"/><path d="m13 12 8 4-8 4Z"/></svg><p data-en="Recording coming soon" data-zh="录像待加入">Recording coming soon</p></div>
             </div>
           </section>
           <section class="realworld-column">
             <h4 class="comparison-heading" data-en="Robot camera" data-zh="相机视角">Robot camera</h4>
-            <div class="baseline-player">
-              <div class="player-heading"><h5 class="go2-goal">Go to the silver trash bin</h5><span class="pending-label" data-en="Pending" data-zh="待加入">Pending</span></div>
-              <div class="baseline-stage"><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="3" y="7" width="26" height="18" rx="2"/><path d="m13 12 8 4-8 4Z"/></svg><p  data-en="Recording coming soon" data-zh="录像待加入">Recording coming soon</p></div>
+            <div id="go2-placeholder" class="baseline-player go2-placeholder">
+              <div class="baseline-stage"><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="3" y="7" width="26" height="18" rx="2"/><path d="m13 12 8 4-8 4Z"/></svg><p data-en="Recording coming soon" data-zh="录像待加入">Recording coming soon</p></div>
+            </div>
+            <div id="go2-player" class="player" hidden>
+              <div class="video-stage">
+                <video id="go2-video" controls playsinline preload="none" aria-label="Go2 robot camera recording" data-label-en="Go2 robot camera recording" data-label-zh="Go2 相机录像"></video>
+                <p id="go2-error" class="media-error" role="alert" hidden></p>
+              </div>
+              <div class="transport">
+                <div class="timeline-wrap"><input id="go2-timeline" type="range" min="0" max="1" step="0.01" value="0" aria-label="Go2 recording progress" data-label-en="Go2 recording progress" data-label-zh="Go2 录像进度"></div>
+                <div class="transport-row">
+                  <button id="go2-play" class="play-button" type="button" aria-label="Play Go2 recording">▶</button>
+                  <span class="time-display"><span id="go2-elapsed">00:00</span><span class="time-divider">/</span><span id="go2-duration">00:00</span></span>
+                  <select id="go2-speed" class="playback-speed" aria-label="Go2 playback speed" data-label-en="Go2 playback speed" data-label-zh="Go2 播放倍速"><option value="0.5">0.5×</option><option value="1">1×</option><option value="1.5">1.5×</option><option value="2">2×</option><option value="4" selected>4×</option></select>
+                  <button id="go2-fullscreen" class="icon-button" type="button" aria-label="Go2 fullscreen" data-label-en="Go2 fullscreen" data-label-zh="Go2 全屏">⛶</button>
+                </div>
+              </div>
             </div>
           </section>
           <aside class="realworld-column">
             <h4 class="comparison-heading" data-en="Agent decisions" data-zh="Agent 节点与决策">Agent decisions</h4>
             <div class="realworld-notes">
-              <p class="empty-title" data-en="Decisions pending" data-zh="节点待加入">Decisions pending</p>
+              <p id="go2-empty" class="empty-title" data-en="Decisions pending" data-zh="节点待加入">Decisions pending</p>
+              <ol id="go2-chapters" aria-label="Go2 key moments" data-label-en="Go2 key moments" data-label-zh="Go2 关键节点" hidden></ol>
+              <p id="go2-data-error" role="alert" hidden></p>
             </div>
           </aside>
         </div>

@@ -125,7 +125,7 @@ function updateTime(time) {
   session.nodes.forEach((node, i) => { if (node.time <= time + .02) index = i; });
   if (index === activeNode) return;
   activeNode = index;
-  document.querySelectorAll(".chapter-button").forEach((button, i) => {
+  document.querySelectorAll("#chapter-list .chapter-button").forEach((button, i) => {
     if (i === index) button.setAttribute("aria-current", "step");
     else button.removeAttribute("aria-current");
   });
@@ -227,6 +227,26 @@ document.addEventListener("keydown", (event) => {
 window.addEventListener("resize", hideNote);
 window.addEventListener("scroll", hideNote, { passive: true });
 
+function createChapterButton(node, index, onSeek) {
+  const button = element("button", "chapter-button");
+  button.type = "button";
+  button.append(element("span", "chapter-index", String(index + 1)), element("span", "chapter-title", language === "zh" ? node.label : node.labelEn), element("span", "chapter-time", clock(node.time)));
+  button.setAttribute("aria-controls", "decision-note");
+  button.setAttribute("aria-expanded", "false");
+  button.addEventListener("pointerenter", (event) => {
+    if (event.pointerType === "mouse" && !notePinned) showNote(button, node);
+  });
+  button.addEventListener("pointerleave", scheduleNoteClose);
+  button.addEventListener("focus", () => showNote(button, node));
+  button.addEventListener("blur", scheduleNoteClose);
+  button.addEventListener("click", () => {
+    onSeek(node.time);
+    showNote(button, node);
+    notePinned = true;
+  });
+  return button;
+}
+
 function renderNodes() {
   hideNote();
   $("#chapter-list").replaceChildren();
@@ -234,22 +254,7 @@ function renderNodes() {
   $("#timeline-markers").replaceChildren();
   session.nodes.forEach((node, index) => {
     const item = element("li");
-    const button = element("button", "chapter-button");
-    button.type = "button";
-    button.append(element("span", "chapter-index", String(index + 1)), element("span", "chapter-title", language === "zh" ? node.label : node.labelEn), element("span", "chapter-time", clock(node.time)));
-    button.setAttribute("aria-controls", "decision-note");
-    button.setAttribute("aria-expanded", "false");
-    button.addEventListener("pointerenter", (event) => {
-      if (event.pointerType === "mouse" && !notePinned) showNote(button, node);
-    });
-    button.addEventListener("pointerleave", scheduleNoteClose);
-    button.addEventListener("focus", () => showNote(button, node));
-    button.addEventListener("blur", scheduleNoteClose);
-    button.addEventListener("click", () => {
-      seek(node.time);
-      showNote(button, node);
-      notePinned = true;
-    });
+    const button = createChapterButton(node, index, seek);
     item.append(button);
     $("#chapter-list").append(item);
     const segment = element("span");
@@ -483,3 +488,184 @@ async function initialize() {
   } catch { showDataError(); }
 }
 initialize();
+
+
+// Go2 使用独立播放状态，共用节点气泡；任务切换不会改变 MuJoCo 回放。
+async function initializeGo2Replay() {
+  const camera = $("#go2-video");
+  const controls = $("#go2-player");
+  const progress = $("#go2-timeline");
+  const chapters = $("#go2-chapters");
+  const speed = $("#go2-speed");
+  const tasks = [...document.querySelectorAll("[data-go2-task]")];
+  let recordings = {};
+  let run = null;
+  let selected = "bin";
+  let pending = 0;
+  let loading = false;
+  let wantsPlay = false;
+  let failed = false;
+  let version = 0;
+
+  function update() {
+    const time = loading ? pending : camera.currentTime;
+    progress.value = time;
+    progress.setAttribute("aria-valuetext", `${clock(time)} / ${clock(run?.duration)}`);
+    $("#go2-elapsed").textContent = clock(time);
+    $("#go2-duration").textContent = clock(run?.duration);
+    const playing = wantsPlay || !camera.paused;
+    $("#go2-play").textContent = playing ? "Ⅱ" : "▶";
+    $("#go2-play").setAttribute("aria-label", playing ? text("暂停 Go2 录像", "Pause Go2 recording") : text("播放 Go2 录像", "Play Go2 recording"));
+    let current = 0;
+    run?.nodes.forEach((node, index) => { if (node.time <= time + .02) current = index; });
+    chapters.querySelectorAll("button").forEach((button, index) => {
+      if (index === current) button.setAttribute("aria-current", "step");
+      else button.removeAttribute("aria-current");
+    });
+  }
+
+  function showError() {
+    if (!run) return;
+    failed = true;
+    loading = wantsPlay = false;
+    $("#go2-error").textContent = text("录像无法加载，点击播放重试。", "Recording unavailable. Press play to retry.");
+    $("#go2-error").hidden = false;
+    update();
+  }
+
+  async function play() {
+    const requestedVersion = version;
+    wantsPlay = true;
+    update();
+    try { await camera.play(); }
+    catch (error) {
+      if (requestedVersion !== version || error.name === "AbortError") return;
+      wantsPlay = false;
+      if (error.name !== "NotAllowedError") showError();
+      update();
+    }
+  }
+
+  function load(time = 0, resume = false, defer = false) {
+    const requestedVersion = ++version;
+    camera.pause();
+    pending = time;
+    loading = true;
+    wantsPlay = resume;
+    failed = false;
+    $("#go2-error").hidden = true;
+    camera.poster = run.poster;
+    camera.preload = defer ? "none" : "metadata";
+    camera.onloadedmetadata = () => {
+      if (requestedVersion !== version) return;
+      camera.currentTime = Math.min(pending, Math.max(0, camera.duration - .05));
+      camera.playbackRate = Number(speed.value);
+      loading = false;
+      update();
+      if (wantsPlay) play();
+    };
+    camera.src = run.video;
+    if (!defer) camera.load();
+    update();
+  }
+
+  function seekTo(time) {
+    if (!run) return;
+    pending = Math.max(0, Math.min(time, run.duration - .05));
+    if (loading || failed) load(pending, wantsPlay);
+    else camera.currentTime = pending;
+    update();
+  }
+
+  function toggle() {
+    if (!run) return;
+    if (failed) { load(pending, true); return; }
+    if (!camera.paused || wantsPlay) {
+      wantsPlay = false;
+      camera.pause();
+    } else {
+      if (camera.ended) camera.currentTime = 0;
+      play();
+    }
+    update();
+  }
+
+  function renderNodes() {
+    hideNote();
+    chapters.replaceChildren();
+    for (const [index, node] of (run?.nodes || []).entries()) {
+      const item = element("li");
+      item.append(createChapterButton(node, index, seekTo));
+      chapters.append(item);
+    }
+    update();
+  }
+
+  function selectTask(key) {
+    version++;
+    camera.pause();
+    camera.onloadedmetadata = null;
+    selected = key;
+    run = recordings[key] || null;
+    pending = 0;
+    loading = wantsPlay = failed = false;
+    tasks.forEach(button => button.setAttribute("aria-pressed", String(button.dataset.go2Task === key)));
+    controls.hidden = !run;
+    $("#go2-placeholder").hidden = !!run;
+    chapters.hidden = !run;
+    $("#go2-empty").hidden = !!run;
+    progress.max = run?.duration || 1;
+    if (run) load(0, false, true);
+    else { camera.removeAttribute("src"); camera.removeAttribute("poster"); camera.load(); }
+    renderNodes();
+  }
+
+  tasks.forEach(button => button.addEventListener("click", () => {
+    if (selected !== button.dataset.go2Task) selectTask(button.dataset.go2Task);
+  }));
+  $("#go2-play").addEventListener("click", toggle);
+  camera.addEventListener("click", toggle);
+  camera.addEventListener("timeupdate", () => { if (!loading) pending = camera.currentTime; update(); });
+  camera.addEventListener("play", update);
+  camera.addEventListener("pause", () => { if (!loading) wantsPlay = false; update(); });
+  camera.addEventListener("ended", () => { wantsPlay = false; update(); });
+  camera.addEventListener("error", showError);
+  progress.addEventListener("input", () => seekTo(Number(progress.value)));
+  speed.addEventListener("change", () => { camera.playbackRate = Number(speed.value); });
+  $("#go2-fullscreen").addEventListener("click", async () => {
+    try {
+      if (document.fullscreenElement) await document.exitFullscreen();
+      else if (camera.parentElement.requestFullscreen) await camera.parentElement.requestFullscreen();
+      else if (camera.webkitEnterFullscreen) camera.webkitEnterFullscreen();
+    } catch { /* 不支持全屏时继续使用内联控件。 */ }
+  });
+  document.addEventListener("fullscreenchange", () => { camera.controls = document.fullscreenElement === camera.parentElement; });
+  controls.tabIndex = 0;
+  controls.addEventListener("keydown", event => {
+    if (event.target.closest("button, input, select") || !run) return;
+    if (event.code === "Space" || event.key.toLowerCase() === "k") { event.preventDefault(); toggle(); }
+    if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+      event.preventDefault();
+      seekTo((loading ? pending : camera.currentTime) + (event.key === "ArrowLeft" ? -5 : 5));
+    }
+  });
+  document.addEventListener("site-language-change", () => {
+    renderNodes();
+    if (failed) showError();
+    if (!$("#go2-data-error").hidden) showDataError();
+  });
+  function showDataError() {
+    $("#go2-empty").hidden = true;
+    $("#go2-data-error").textContent = text("任务数据未能加载，请刷新重试。", "Task data could not be loaded. Please reload.");
+    $("#go2-data-error").hidden = false;
+  }
+  try {
+    const response = await fetch("./media/go2/sessions.json");
+    if (!response.ok) throw new Error("Go2 data unavailable");
+    recordings = await response.json();
+    camera.defaultPlaybackRate = camera.playbackRate = Number(speed.value);
+    camera.controls = false;
+    selectTask(selected);
+  } catch { showDataError(); }
+}
+initializeGo2Replay();

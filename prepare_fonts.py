@@ -48,7 +48,7 @@ def main():
         (OUTPUT / name).write_text('\n'.join(line.rstrip() for line in license_text.splitlines()) + '\n', encoding='utf-8')
 
     # 静态页面与动态任务文案共用同一份字形集合。
-    texts = ['index.html', 'site.js', 'replay.js', 'media/replays/sessions.json']
+    texts = ['index.html', 'site.js', 'replay.js', 'media/replays/sessions.json', 'media/go2/sessions.json']
     characters = set(''.join((ROOT / name).read_text() for name in texts))
     font = TTFont(source, recalcTimestamp=False)
     options = subset.Options()
