@@ -35,7 +35,7 @@
 #data-error { grid-column: 1 / -1; }
 .player { min-width: 0; overflow: hidden; border: 1px solid var(--card-border); border-radius: var(--card-radius); background: var(--replay-surface); color: var(--body); box-shadow: var(--card-shadow); display: grid; grid-template-rows: 48px auto 112px; } /* taste-skill-ignore: 真实播放器控件分界。 */
 .player-heading { min-height: 48px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 11px 14px; }
-.player-heading h4 { min-width: 0; font-size: 13px; line-height: 1.5; font-weight: 550; margin: 0; }
+.player-heading h5 { min-width: 0; font-size: 13px; line-height: 1.5; font-weight: 550; margin: 0; }
 .result-label { font-size: 10px; color: var(--muted); white-space: nowrap; }
 .video-stage { position: relative; background: var(--replay-soft); aspect-ratio: 16 / 9; }
 .video-stage video { display: block; width: 100%; height: 100%; object-fit: contain; }
@@ -72,7 +72,7 @@
 #videos :focus-visible { outline: 2px solid var(--replay-blue); outline-offset: 3px; }
 .replay-details { grid-column: 3; grid-row: 2 / 4; min-width: 0; display: grid; grid-template-rows: subgrid; }
 .decisions-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-.decisions-heading h3 { font-size: 18px; line-height: 1.6; font-weight: 550; }
+.decisions-heading h4 { font-size: 18px; line-height: 1.6; font-weight: 550; }
 .details-body { height: 0; min-height: 100%; padding: 14px; display: flex; flex-direction: column; gap: 12px; border: 1px solid var(--card-border); border-radius: var(--card-radius); background: var(--replay-surface); box-shadow: var(--card-shadow); } /* taste-skill-ignore: 用户要求对齐的圆角卡片。 */
 #chapter-count { color: var(--muted); font-size: 12px; }
 #chapter-list { flex-shrink: 0; list-style: none; margin: 0; padding: 0; }
@@ -107,7 +107,7 @@
   .agent-column::before { display: none; }
   .comparison-column, .replay-details { display: block; }
   .comparison-heading, .decisions-heading { font-size: 16px; margin-bottom: 12px; }
-  .decisions-heading h3 { font-size: 16px; }
+  .decisions-heading h4 { font-size: 16px; }
   .comparison-controls { order: 3; gap: 12px; }
   .replay-details { order: 4; }
   #data-error { order: 5; }
@@ -115,7 +115,7 @@
   .chapter-button { min-height: 42px; }
   .decision-note { margin-top: 16px; }
   .player-heading { padding: 10px 12px; }
-  .player-heading h4 { font-size: 12px; }
+  .player-heading h5 { font-size: 12px; }
   .result-label { font-size: 9px; }
 }
 

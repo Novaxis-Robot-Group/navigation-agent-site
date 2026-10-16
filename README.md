@@ -18,7 +18,7 @@ python3 preview.py
 
 打开 <http://127.0.0.1:4173/#videos>，在首页“视频演示”区域查看任务回放。预览服务支持视频分段读取（HTTP Range），可直接跳转到未播放的节点。普通 `python3 -m http.server` 不支持完整的录像跳转。
 
-首页按“简短介绍 → 真实回放 → 项目原理”组织。顶部横排选择任务。桌面左侧为 VLN 占位，中间为 Agent + VLN 回放，两种方法之间用竖线分隔；右侧常驻 Agent 节点与决策。两个视频等宽、同为16:9。平板将决策放到双视频下方，手机改为上下排列。VLN 尚未录制，“同时播放”暂不可用；倍速仍可控制现有 Agent 录像。Go2 在独立区域展示。回放采用灰白底与少量低饱和灰蓝选中状态，组件统一为圆角白色卡片，标题和卡片边缘对齐，整个对比区桌面最大宽度为 1240px。“关键节点与决策”直接显示，点击节点即可跳转。
+首页按“简短介绍 → From a goal to exploration → See it in action → Benchmarks”组织。效果演示包含 MuJoCo 方法对比和 Go2 真实场景两个小节。顶部横排选择任务。桌面左侧为 VLN 占位，中间为 Agent + VLN 回放，两种方法之间用竖线分隔；右侧常驻 Agent 节点与决策。两个视频等宽、同为16:9。平板将决策放到双视频下方，手机改为上下排列。VLN 尚未录制，“同时播放”暂不可用；倍速仍可控制现有 Agent 录像。Go2 展示同一任务的现场第三人称、机器人第一人称与 Agent 节点；当前均为素材占位，不与 VLN 对比。回放采用灰白底与少量低饱和灰蓝选中状态，组件统一为圆角白色卡片，标题和卡片边缘对齐，整个对比区桌面最大宽度为 1240px。“关键节点与决策”直接显示，点击节点即可跳转。
 
 确认视频可播放、节点可跳转、切换视角后保留进度，即回放预览成功。修改后刷新浏览器；按 `Ctrl+C` 停止服务。
 
@@ -33,9 +33,26 @@ python3 preview.py
 - `replay.css`、`replay.js`：首页内嵌回放的样式与交互。
 - `media/replays/sessions.json`：任务目录、双语节点说明和录像时间。
 
+## Benchmark 表格
+
+在 `index.html` 的 `#benchmarks` 中维护四行数据：
+
+| 页面名称 | 官方来源 |
+| --- | --- |
+| Room-to-Room（R2R） | [Matterport3D Simulator](https://github.com/peteanderson80/Matterport3DSimulator) |
+| Room-Across-Room（RxR） | [RxR 数据集](https://github.com/google-research-datasets/RxR) |
+| INSIGHT-Bench | [官方项目页](https://lightorigins.github.io/Light-INSIGHT-Bench/) |
+| HM3D ObjectNav v2 | [Habitat-Lab 数据集清单](https://github.com/facebookresearch/habitat-lab/blob/main/DATASETS.md) |
+
+表格比较 LightNav 与 Agent + LightNav，列为 SR（百分数）、SPL（0–1）和 LLM-judged SR（百分数）。**所有当前数值均为用户要求的布局示例，不是实测或官方成绩。** 保留表格上方的双语 mock 说明；换入完整实测结果后再移除。同步补充评测版本、split、任务数量和实验设置，不将各基准的分数直接横向比较。R2R / RxR 是否采用连续环境版本尚待确认；HM3D v2 对应官方 `objectnav_hm3d_v2.zip`（HM3DSem-v0.2）。
+
+场景中可能有多个符合指令的同类目标，如椅子、电视或桌子。当 SR 绑定特定标注实例时，其他有效目标可能不计成功；不能将这一限制泛化到所有基准。LLM-judged SR 根据原始指令和最终画面，从语义上补充评估任务是否完成，不替代官方 SR。评审模型须独立于导航 Agent；两组使用同一评审模型、提示词、判定标准与任务集合，以保证比较公平。发布时注明独立评审模型及其设置。不确定计失败并单列，API 错误先补评，不能删除失败任务。R2R / RxR 的过程性要求不能仅靠最终画面判定。
+
+SPL 同时衡量成功与路径效率。探索可能延长路径并导致部分 SPL 下降，但不代表每次下降都来自有效探索。换入实测分数后，结合轨迹说明原因，不根据示例分数下结论。页面将这些必要说明收进“评测口径”。
+
 ## 任务回放素材
 
-当前示例来自 2026-10-13、2026-10-14 的三段 MuJoCo 已完成任务：找到地上的篮球、走到床边、找到盆栽。完成状态来自原始任务日志，不表示独立人工评测。Go2 独立区域显示待加入状态。
+当前示例来自 2026-10-13、2026-10-14 的三段 MuJoCo 已完成任务：找到地上的篮球、走到床边、找到盆栽。完成状态来自原始任务日志，不表示独立人工评测。Go2 独立区域提供银色垃圾桶、饮水机、会议室三个任务选择；两路视频和决策均显示待加入状态。切换任务只更新展示目标，不连接机器人。
 
 每段素材放在 `media/replays/<slug>/`，包含 `first.mp4`、`third.mp4`、起始画面 `poster.jpg` 和最终观察画面 `cover.jpg`。`sessions.json` 中的 `taskId` 可追溯原始任务。只保留展示需要的节点文字和元数据，不复制原始配置、模型请求或环境信息。
 

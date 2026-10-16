@@ -21,7 +21,8 @@
     <a class="brand" href="#">Navigation Agent</a>
     <nav aria-label="Main navigation" data-label-en="Main navigation" data-label-zh="主导航">
       <a href="#about" data-en="About" data-zh="项目介绍">About</a>
-      <a href="#videos" data-en="Videos" data-zh="视频">Videos</a>
+      <a href="#videos" data-en="Demos" data-zh="效果演示">Demos</a>
+      <a href="#benchmarks" data-en="Benchmarks" data-zh="评测">Benchmarks</a>
       <a href="https://github.com/Novaxis-Robot-Group/navigation-agent/blob/main/README.md" target="_blank" rel="noopener noreferrer" data-en="Documentation" data-zh="技术文档 ↗">Documentation</a>
       <a href="https://github.com/Novaxis-Robot-Group/navigation-agent" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
     </nav>
@@ -37,11 +38,25 @@
       </div>
     </section>
 
+    <section class="text-section" id="about" aria-labelledby="about-title">
+      <div class="about-heading">
+        <h2 id="about-title" data-en="From a goal to exploration" data-zh="从一句目标，到持续探索">From a goal to exploration</h2>
+      </div>
+      <div class="about-copy">
+        <p data-en="“Find the brown sofa.” That tells the robot what you want, but not which room the sofa is in or which route to take. If the target is out of sight, the robot still needs to decide where to look first, which clues to follow, and when to try another direction." data-zh="“找到棕色沙发。”这告诉了机器人你想要什么，却没有说明沙发在哪个房间，也没有指定路线。如果目标不在视野中，机器人仍需决定先去哪里寻找、跟随哪些线索，以及何时换一个方向。">“Find the brown sofa.” That tells the robot what you want, but not which room the sofa is in or which route to take. If the target is out of sight, the robot still needs to decide where to look first, which clues to follow, and when to try another direction.</p>
+        <p data-en="Navigation Agent makes these decisions. It observes its surroundings and considers both the goal and the places it has already explored to choose where to look next. When the target is not visible, it can first move to a position that offers a better view. When it spots a possible match, it can move closer to inspect the details. You do not need to provide a new instruction for every step of the search." data-zh="Navigation Agent 负责这些决策。它观察周围环境，结合任务目标和已经探索过的位置，选择下一步去哪里寻找。目标不可见时，它可以先移动到视野更好的位置。发现可能匹配的目标时，它可以靠近检查细节。你不需要在搜索的每一步都提供新的指令。">Navigation Agent makes these decisions. It observes its surroundings and considers both the goal and the places it has already explored to choose where to look next. When the target is not visible, it can first move to a position that offers a better view. When it spots a possible match, it can move closer to inspect the details. You do not need to provide a new instruction for every step of the search.</p>
+        <p data-en="The agent and VLN have distinct roles. The agent decides where to go next and why, then turns that decision into a concrete instruction for the next local destination. VLN uses the instruction and visual input to generate navigation actions for the robot to execute. The project currently integrates LightNav for this navigation stage." data-zh="Agent 和 VLN 各有分工。Agent 决定下一步去哪里以及原因，再将决策转成前往下一个局部目标的具体指令。VLN 根据指令和视觉输入生成导航动作，由机器人执行。项目目前接入 LightNav 来完成这一导航环节。">The agent and VLN have distinct roles. The agent decides where to go next and why, then turns that decision into a concrete instruction for the next local destination. VLN uses the instruction and visual input to generate navigation actions for the robot to execute. The project currently integrates LightNav for this navigation stage.</p>
+        <p data-en="After each navigation step, the agent observes the environment again and checks for progress against earlier clues and action results. If it has gained no new information, it adjusts the direction of exploration. If it finds the target, it checks whether it matches the request. Finishing one navigation step does not by itself mean the whole task is complete." data-zh="每次导航结束后，Agent 都会重新观察环境，结合此前的线索和动作结果检查任务进展。如果没有获得新信息，它会调整探索方向。如果找到了目标，它会核验目标是否符合要求。完成一次导航，并不代表整个任务已经完成。">After each navigation step, the agent observes the environment again and checks for progress against earlier clues and action results. If it has gained no new information, it adjusts the direction of exploration. If it finds the target, it checks whether it matches the request. Finishing one navigation step does not by itself mean the whole task is complete.</p>
+        <p data-en="Together, these capabilities let you simply ask the robot to find something. The agent handles observation, decisions, and adjustments throughout the search, while VLN provides the navigation needed to carry out each step." data-zh="这些能力让你只需告诉机器人要找什么。Agent 负责整个搜索过程中的观察、决策与调整，VLN 则提供执行每一步所需的导航能力。">Together, these capabilities let you simply ask the robot to find something. The agent handles observation, decisions, and adjustments throughout the search, while VLN provides the navigation needed to carry out each step.</p>
+      </div>
+    </section>
+
     <section class="text-section" id="videos" aria-labelledby="videos-title">
       <div class="demo-intro">
-        <h2 id="videos-title" data-en="MuJoCo task replays" data-zh="MuJoCo 任务回放">MuJoCo task replays</h2>
-        <p data-en="Choose a task to compare the search with VLN and Agent + VLN." data-zh="选择同一个任务，对比 VLN 与 Agent + VLN 的寻找过程。">Choose a task to compare the search with VLN and Agent + VLN.</p>
-
+        <h2 id="videos-title" data-en="See it in action" data-zh="效果演示">See it in action</h2>
+      </div>
+      <div class="demo-section-heading">
+        <h3 id="simulation-title" data-en="MuJoCo · Method comparison" data-zh="MuJoCo · 方法对比">MuJoCo · Method comparison</h3>
       </div>
       <div class="demo-replay" data-ui>
     <section id="simulation" aria-label="MuJoCo task replay" data-label-zh="MuJoCo 任务回放" data-label-en="MuJoCo task replay">
@@ -50,21 +65,21 @@
         <div id="session-list" class="session-list" role="group" aria-label="Choose a task" data-label-zh="切换任务" data-label-en="Choose a task"></div>
       </div>
       <section class="comparison-column baseline-column" aria-labelledby="baseline-title">
-        <h3 id="baseline-title" class="comparison-heading">VLN</h3>
+        <h4 id="baseline-title" class="comparison-heading">VLN</h4>
         <div class="baseline-player">
-          <div class="player-heading"><h4 id="baseline-task">Loading task…</h4><span class="pending-label" data-en="Not recorded" data-zh="待录制">Not recorded</span></div>
+          <div class="player-heading"><h5 id="baseline-task">Loading task…</h5><span class="pending-label" data-en="Not recorded" data-zh="待录制">Not recorded</span></div>
           <div class="baseline-stage">
             <svg viewBox="0 0 32 32" aria-hidden="true"><rect x="3" y="7" width="26" height="18" rx="2"/><path d="m13 12 8 4-8 4Z"/></svg>
             <p data-en="VLN recording coming soon" data-zh="VLN 录像待加入">VLN recording coming soon</p>
           </div>
-          <p class="baseline-status" data-en="Progress and results will appear after recording." data-zh="录制后展示独立进度与结果">Progress and results will appear after recording.</p>
+          <p class="baseline-status" data-en="—" data-zh="—">—</p>
         </div>
       </section>
       <section class="comparison-column agent-column" aria-labelledby="agent-title">
-        <h3 id="agent-title" class="comparison-heading">Agent + VLN</h3>
+        <h4 id="agent-title" class="comparison-heading">Agent + VLN</h4>
       <div class="player" id="player" aria-busy="true">
         <div class="player-heading">
-          <h4 id="task-title">Loading task…</h4>
+          <h5 id="task-title">Loading task…</h5>
           <span class="result-label" id="result-label" data-en="Completed · as logged" data-zh="已完成 · 日志记录">Completed · as logged</span>
         </div>
         <div class="player-body">
@@ -107,7 +122,7 @@
       </section>
 
         <aside class="replay-details" aria-labelledby="decisions-title">
-          <div class="decisions-heading"><h3 id="decisions-title" data-en="Agent decisions" data-zh="Agent 节点与决策">Agent decisions</h3><span id="chapter-count">7</span></div>
+          <div class="decisions-heading"><h4 id="decisions-title" data-en="Agent decisions" data-zh="Agent 节点与决策">Agent decisions</h4><span id="chapter-count">7</span></div>
           <div class="details-body">
             <ol id="chapter-list" aria-label="Jump to a key moment" data-label-zh="跳转到关键节点" data-label-en="Jump to a key moment"></ol>
             <div class="decision-note" aria-live="polite">
@@ -120,7 +135,6 @@
       <div class="comparison-controls">
         <button class="sync-play" type="button" disabled data-en="Play both" data-zh="同时播放">Play both</button>
         <label class="speed-label"><span data-en="Speed" data-zh="倍速">Speed</span><select id="speed" aria-label="Playback speed" data-label-zh="播放速度" data-label-en="Playback speed"><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="1.5">1.5×</option><option value="2">2×</option><option value="4">4×</option></select></label>
-        <span class="sync-hint" data-en="Both videos can play together once VLN is recorded." data-zh="VLN 录制后可同时播放">Both videos can play together once VLN is recorded.</span>
       </div>
       <p id="data-error" role="alert" hidden></p>
 
@@ -129,30 +143,81 @@
 
     </div>
     <noscript><p>Enable JavaScript for interactive replay, or <a href="./media/replays/basketball/first.mp4">watch the basketball recording</a>.</p></noscript>
-    </section>
-
-    <section class="text-section" id="go2" aria-labelledby="go2-title">
-      <h2 id="go2-title" data-en="Go2 on the real robot" data-zh="Go2 真机演示">Go2 on the real robot</h2>
-      <p data-en="Real-robot recordings will be added here." data-zh="真机录像待加入，将在这里单独展示。">Real-robot recordings will be added here.</p>
-    </section>
-
-    <section class="text-section" id="about" aria-labelledby="about-title">
-      <div class="about-heading">
-      <h2 id="about-title" data-en="From a goal to exploration" data-zh="从一句目标，到持续探索">From a goal to exploration</h2>
-      </div>
-      <div class="about-copy">
-        <div>
-      <p data-en="“Find the brown sofa.” That tells the robot what you want, but not which room the sofa is in or which route to take. If the target is out of sight, the robot still needs to decide where to look first, which clues to follow, and when to try another direction." data-zh="“找到棕色沙发。”这句话说明了你想要什么，却没有告诉机器人沙发在哪个房间、应该走哪条路。如果目标不在眼前，机器人还需要判断：先去哪里看看，哪些线索值得跟进，什么时候应该换个方向。">“Find the brown sofa.” That tells the robot what you want, but not which room the sofa is in or which route to take. If the target is out of sight, the robot still needs to decide where to look first, which clues to follow, and when to try another direction.</p>
-      <p data-en="Navigation Agent makes these decisions. It observes its surroundings and considers both the goal and the places it has already explored to choose where to look next. When the target is not visible, it can first move to a position that offers a better view. When it spots a possible match, it can move closer to inspect the details. You do not need to provide a new instruction for every step of the search." data-zh="Navigation Agent 负责这部分决策。它观察周围环境，结合任务目标和已经探索过的地方，选择值得继续查看的位置。目标尚未出现时，它可以先接近一个能够获得更多视野的地方；发现疑似目标后，再靠近观察、确认细节。用户无需为每一步探索补充指令。">Navigation Agent makes these decisions. It observes its surroundings and considers both the goal and the places it has already explored to choose where to look next. When the target is not visible, it can first move to a position that offers a better view. When it spots a possible match, it can move closer to inspect the details. You do not need to provide a new instruction for every step of the search.</p>
+      <section id="go2" aria-labelledby="go2-title">
+        <div class="demo-section-heading">
+          <h3 id="go2-title" data-en="Go2 · Real-world deployment" data-zh="Go2 · 真实场景适配">Go2 · Real-world deployment</h3>
         </div>
-        <div>
-      <p data-en="The agent and VLN have distinct roles. The agent decides where to go next and why, then turns that decision into a concrete instruction for the next local destination. VLN uses the instruction and visual input to generate navigation actions for the robot to execute. The project currently integrates LightNav for this navigation stage." data-zh="在这个过程中，Agent 与 VLN 各有分工。Agent 负责判断“下一步去哪里、为什么去”，并将探索决策转化为具体的局部导航指令；VLN 根据指令和视觉输入生成导航动作，由机器人执行。当前项目已接入 LightNav，承担这一导航环节。">The agent and VLN have distinct roles. The agent decides where to go next and why, then turns that decision into a concrete instruction for the next local destination. VLN uses the instruction and visual input to generate navigation actions for the robot to execute. The project currently integrates LightNav for this navigation stage.</p>
-      <p data-en="After each navigation step, the agent observes the environment again and checks for progress against earlier clues and action results. If it has gained no new information, it adjusts the direction of exploration. If it finds the target, it checks whether it matches the request. Finishing one navigation step does not by itself mean the whole task is complete." data-zh="每次导航之后，Agent 都会重新观察环境，结合之前的线索与执行结果判断是否取得进展。如果没有获得新的信息，就调整探索方向；如果发现目标，就进一步核对是否符合用户的要求。一次导航结束，并不直接代表整个任务完成。">After each navigation step, the agent observes the environment again and checks for progress against earlier clues and action results. If it has gained no new information, it adjusts the direction of exploration. If it finds the target, it checks whether it matches the request. Finishing one navigation step does not by itself mean the whole task is complete.</p>
-      <p data-en="Together, these capabilities let you simply ask the robot to find something. The agent handles observation, decisions, and adjustments throughout the search, while VLN provides the navigation needed to carry out each step." data-zh="这种协作让用户可以直接提出找物需求，把寻找过程中的观察、选择与调整交给 Agent，同时由 VLN 提供具体的导航能力。">Together, these capabilities let you simply ask the robot to find something. The agent handles observation, decisions, and adjustments throughout the search, while VLN provides the navigation needed to carry out each step.</p>
+        <div class="task-selector go2-tasks">
+          <span data-en="Task" data-zh="任务选择">Task</span>
+          <div class="session-list" role="group" aria-label="Choose a Go2 task" data-label-en="Choose a Go2 task" data-label-zh="选择 Go2 任务">
+            <button type="button" class="session-button" data-go2-task="bin" aria-pressed="true" data-en="Silver trash bin" data-zh="走到银色垃圾桶旁" data-goal-en="Go to the silver trash bin" data-goal-zh="走到银色垃圾桶旁">Silver trash bin</button>
+            <button type="button" class="session-button" data-go2-task="water" aria-pressed="false" data-en="Water dispenser" data-zh="走到饮水机旁" data-goal-en="Go to the water dispenser" data-goal-zh="走到饮水机旁">Water dispenser</button>
+            <button type="button" class="session-button" data-go2-task="meeting" aria-pressed="false" data-en="Meeting room" data-zh="走到会议室" data-goal-en="Go to the meeting room" data-goal-zh="走到会议室">Meeting room</button>
+          </div>
         </div>
-      </div>
+        <div class="realworld-grid">
+          <section class="realworld-column">
+            <h4 class="comparison-heading" data-en="Third-person view" data-zh="第三人称视角">Third-person view</h4>
+            <div class="baseline-player">
+              <div class="player-heading"><h5 class="go2-goal">Go to the silver trash bin</h5><span class="pending-label" data-en="Pending" data-zh="待加入">Pending</span></div>
+              <div class="baseline-stage"><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="3" y="7" width="26" height="18" rx="2"/><path d="m13 12 8 4-8 4Z"/></svg><p  data-en="Recording coming soon" data-zh="录像待加入">Recording coming soon</p></div>
+            </div>
+          </section>
+          <section class="realworld-column">
+            <h4 class="comparison-heading" data-en="First-person view" data-zh="第一人称视角">First-person view</h4>
+            <div class="baseline-player">
+              <div class="player-heading"><h5 class="go2-goal">Go to the silver trash bin</h5><span class="pending-label" data-en="Pending" data-zh="待加入">Pending</span></div>
+              <div class="baseline-stage"><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="3" y="7" width="26" height="18" rx="2"/><path d="m13 12 8 4-8 4Z"/></svg><p  data-en="Recording coming soon" data-zh="录像待加入">Recording coming soon</p></div>
+            </div>
+          </section>
+          <aside class="realworld-column">
+            <h4 class="comparison-heading" data-en="Agent decisions" data-zh="Agent 节点与决策">Agent decisions</h4>
+            <div class="realworld-notes">
+              <p class="empty-title" data-en="Decisions pending" data-zh="节点待加入">Decisions pending</p>
+            </div>
+          </aside>
+        </div>
+      </section>
+
     </section>
 
+
+
+
+
+    <section class="text-section" id="benchmarks" aria-labelledby="benchmarks-title">
+      <div class="demo-intro">
+        <h2 id="benchmarks-title" data-en="Benchmarks" data-zh="基准评测">Benchmarks</h2>
+      </div>
+      <div class="benchmark-card">
+        <div class="mock-notice" id="mock-notice">
+          <strong  data-en="Mock data · Not measured results" data-zh="示例数据 · 非实测结果">Mock data · Not measured results</strong>
+        </div>
+        <div class="table-scroll" role="region" tabindex="0" aria-label="Benchmark scores, mock data" data-label-en="Benchmark scores, mock data" data-label-zh="基准分数表，示例数据">
+          <table class="benchmark-table" aria-describedby="mock-notice benchmark-protocol">
+            <caption class="sr-only"><span  data-en="Illustrative benchmark comparison — not experimental results" data-zh="基准对比示例表，非实验结果">Illustrative benchmark comparison — not experimental results</span></caption>
+            <thead>
+              <tr><th rowspan="2" scope="col" data-en="Benchmark" data-zh="基准">Benchmark</th><th colspan="3" scope="colgroup">LightNav</th><th colspan="3" scope="colgroup">Agent + LightNav</th></tr>
+              <tr><th scope="col">SR (%) ↑</th><th scope="col">SPL ↑</th><th scope="col">LLM-judged SR<br>(%) ↑</th><th scope="col">SR (%) ↑</th><th scope="col">SPL ↑</th><th scope="col">LLM-judged SR<br>(%) ↑</th></tr>
+            </thead>
+            <tbody>
+              <tr><th scope="row"><a href="https://github.com/peteanderson80/Matterport3DSimulator" target="_blank" rel="noopener noreferrer">R2R ↗</a><span class="benchmark-name">Room-to-Room</span></th><td>62.0</td><td>0.54</td><td>66.0</td><td>64.0</td><td>0.51</td><td>70.0</td></tr>
+              <tr><th scope="row"><a href="https://github.com/google-research-datasets/RxR" target="_blank" rel="noopener noreferrer">RxR ↗</a><span class="benchmark-name">Room-Across-Room</span></th><td>48.0</td><td>0.39</td><td>52.0</td><td>50.0</td><td>0.37</td><td>57.0</td></tr>
+              <tr><th scope="row"><a href="https://lightorigins.github.io/Light-INSIGHT-Bench/" target="_blank" rel="noopener noreferrer">INSIGHT-Bench ↗</a></th><td>58.0</td><td>0.43</td><td>62.0</td><td>63.0</td><td>0.41</td><td>69.0</td></tr>
+              <tr><th scope="row"><a href="https://github.com/facebookresearch/habitat-lab/blob/main/DATASETS.md" target="_blank" rel="noopener noreferrer">HM3D ObjectNav v2 ↗</a></th><td>42.0</td><td>0.29</td><td>46.0</td><td>49.0</td><td>0.27</td><td>55.0</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <details class="benchmark-notes">
+          <summary data-en="Metrics &amp; evaluation" data-zh="评测口径">Metrics &amp; evaluation</summary>
+          <div class="metric-definitions" id="benchmark-protocol">
+            <p data-en="SR measures task success; SPL also accounts for path efficiency. Exploration can lengthen paths and partly reduce SPL; attribution requires measured trajectories." data-zh="SR 衡量任务成功率；SPL 同时考虑路径效率。探索会延长路径，可能导致部分 SPL 下降；具体原因需结合实测轨迹分析。">SR measures task success; SPL also accounts for path efficiency. Exploration can lengthen paths and partly reduce SPL; attribution requires measured trajectories.</p>
+            <p data-en="A scene may contain multiple valid targets, such as chairs, TVs or tables. If SR is tied to a specific annotated instance, another valid match may not count. LLM-judged SR assesses task completion purely through semantic judgment of the instruction and final image. A separate model, independent of the navigation agent, judges both methods with the same criteria for a fair comparison." data-zh="场景中可能有多把椅子、多台电视或多张桌子。当 SR 绑定特定标注实例时，到达另一个符合指令的目标也可能不计成功。LLM-judged SR 仅根据指令与最终画面，从语义上判断任务是否完成。评审使用独立于导航 Agent 的模型，并以相同标准评估两种方法，以保证比较公平。">A scene may contain multiple valid targets, such as chairs, TVs or tables. If SR is tied to a specific annotated instance, another valid match may not count. LLM-judged SR assesses task completion purely through semantic judgment of the instruction and final image. A separate model, independent of the navigation agent, judges both methods with the same criteria for a fair comparison.</p>
+            <p class="protocol-pending" data-en="Evaluation splits, episode counts and judge settings will accompany measured results." data-zh="实测结果将同时注明数据划分、任务数与评审模型设置。">Evaluation splits, episode counts and judge settings will accompany measured results.</p>
+          </div>
+        </details>
+      </div>
+    </section>
   </main>
 
   <footer class="site-footer">
