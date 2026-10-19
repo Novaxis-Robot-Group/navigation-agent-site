@@ -1,6 +1,5 @@
 "use strict";
 
-const translatedElements = [...document.querySelectorAll("[data-en]")];
 const languageButton = document.querySelector(".language");
 let language = "en";
 
@@ -8,7 +7,7 @@ let language = "en";
 function setLanguage(nextLanguage) {
   language = nextLanguage;
   document.documentElement.lang = language === "zh" ? "zh-CN" : "en";
-  for (const element of translatedElements) {
+  for (const element of document.querySelectorAll("[data-en]")) {
     element.textContent = element.dataset[language];
   }
   for (const element of document.querySelectorAll("[data-label-en]")) {
@@ -29,3 +28,31 @@ function setLanguage(nextLanguage) {
 languageButton.addEventListener("click", () => setLanguage(language === "zh" ? "en" : "zh"));
 
 setLanguage(language);
+
+// 导航换行或切换语言后，用实际高度为章节跳转留出空间。
+const siteNavigation = document.querySelector('.site-navigation');
+const navigationResizeObserver = new ResizeObserver(() => {
+  document.documentElement.style.setProperty('--header-height', `${siteNavigation.offsetHeight}px`);
+});
+navigationResizeObserver.observe(siteNavigation);
+
+const initialTaskHash = location.hash;
+let tasksReady = false;
+let initialAnchorRestored = false;
+
+function restoreTaskAnchor() {
+  if (initialAnchorRestored || !tasksReady || document.readyState !== 'complete') return;
+  initialAnchorRestored = true;
+  // 等待页面恢复滚动位置后，再定位异步创建的任务。
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    if (location.hash !== initialTaskHash) return;
+    const target = document.getElementById(initialTaskHash.slice(1));
+    if (target?.hasAttribute('data-task')) target.scrollIntoView({ behavior: 'instant' });
+  }));
+}
+
+document.addEventListener('replay-tasks-ready', () => {
+  tasksReady = true;
+  restoreTaskAnchor();
+});
+window.addEventListener('load', restoreTaskAnchor);

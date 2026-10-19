@@ -1,137 +1,20 @@
 "use strict";
 
-const $ = (selector) => document.querySelector(selector);
-const video = $("#video");
-const timeline = $("#timeline");
-const player = $("#player");
-let language = document.documentElement.lang === "en" ? "en" : "zh";
-let sessions = [];
-let session = null;
-let view = "first";
-let activeNode = -1;
-let sourceVersion = 0;
-let pendingTime = 0;
-let loading = false;
-let wantPlay = false;
-let mediaFailed = false;
-const baselineVideo = $("#baseline-video");
-const baseline = { view: "first", time: 0, loading: false, wantPlay: false, failed: false, version: 0 };
+const $ = selector => document.querySelector(selector);
+let language = document.documentElement.lang === 'en' ? 'en' : 'zh';
+document.addEventListener('site-language-change', event => { language = event.detail; });
 
 const text = (zh, en) => language === "zh" ? zh : en;
 const clock = (seconds) => {
   const total = Math.floor(Math.max(0, seconds || 0));
   return `${String(Math.floor(total / 60)).padStart(2, "0")}:${String(total % 60).padStart(2, "0")}`;
 };
-const currentTime = () => loading ? pendingTime : video.currentTime;
 
 function element(tag, className, content) {
   const node = document.createElement(tag);
   if (className) node.className = className;
   if (content !== undefined) node.textContent = content;
   return node;
-}
-
-function showMediaError() {
-  mediaFailed = true;
-  wantPlay = false;
-  loading = false;
-  $("#media-error").textContent = text("录像无法加载。请检查素材文件，再点击播放重试。", "Recording unavailable. Check the media files, then press play to retry.");
-  $("#media-error").hidden = false;
-  updatePlayState();
-}
-
-async function playMedia() {
-  const version = sourceVersion;
-  try {
-    await video.play();
-  } catch (error) {
-    // 快速换任务或暂停会取消尚未完成的播放，不将取消显示为素材故障。
-    if (version !== sourceVersion || error.name === "AbortError") return;
-    wantPlay = false;
-    if (error.name !== "NotAllowedError") showMediaError();
-    updatePlayState();
-  }
-}
-
-function updatePlayState() {
-  const playing = !video.paused || (loading && wantPlay);
-  $("#toggle-play").textContent = playing ? "Ⅱ" : "▶";
-  $("#toggle-play").setAttribute("aria-label", playing ? text("暂停", "Pause") : text("播放", "Play"));
-}
-
-function loadSource(time = 0, resume = false, defer = false) {
-  sourceVersion += 1;
-  const version = sourceVersion;
-  video.pause();
-  loading = true;
-  pendingTime = time;
-  wantPlay = resume;
-  mediaFailed = false;
-  $("#media-error").hidden = true;
-  video.poster = view === "first" ? `./media/replays/${session.slug}/poster.jpg` : "";
-  video.onloadedmetadata = () => {
-    if (version !== sourceVersion) return;
-    video.currentTime = Math.min(pendingTime, Math.max(0, video.duration - .05));
-    loading = false;
-    video.playbackRate = Number($("#speed").value);
-    updateTime(video.currentTime);
-    if (wantPlay) playMedia();
-  };
-  video.src = `./media/replays/${session.slug}/${view}.mp4`;
-  video.preload = defer ? "none" : "metadata";
-  if (!defer) video.load();
-  updateTime(time);
-  updatePlayState();
-}
-
-function togglePlay() {
-  if (!session) return;
-  if (mediaFailed) {
-    loadSource(pendingTime, true);
-    return;
-  }
-  if (!video.paused || wantPlay) {
-    wantPlay = false;
-    video.pause();
-  } else {
-    wantPlay = true;
-    if (loading) {
-      video.preload = "auto";
-      // play() 保留当前用户手势，移动浏览器也可启动首次播放。
-      playMedia();
-    } else {
-      if (video.ended) video.currentTime = 0;
-      playMedia();
-    }
-  }
-  updatePlayState();
-}
-
-function seek(time) {
-  if (!session) return;
-  const destination = Math.max(0, Math.min(time, session.duration - .05));
-  if (loading || mediaFailed) loadSource(destination, wantPlay);
-  else video.currentTime = Math.min(destination, video.duration - .05);
-  updateTime(destination);
-  updatePlayState();
-}
-
-function updateTime(time) {
-  if (!session) return;
-  timeline.value = time;
-  timeline.setAttribute("aria-valuetext", `${clock(time)} / ${clock(session.duration)}`);
-  $("#elapsed").textContent = clock(time);
-  let index = 0;
-  session.nodes.forEach((node, i) => { if (node.time <= time + .02) index = i; });
-  if (index === activeNode) return;
-  activeNode = index;
-  document.querySelectorAll("#chapter-list .chapter-button").forEach((button, i) => {
-    if (i === index) button.setAttribute("aria-current", "step");
-    else button.removeAttribute("aria-current");
-  });
-  document.querySelectorAll(".timeline-segments span").forEach((segment, i) => segment.classList.toggle("passed", i <= index));
-  $("#previous").disabled = index === 0;
-  $("#next").disabled = index === session.nodes.length - 1;
 }
 
 // 详情按需贴着节点展示，不占用列表高度；靠近窗口边缘时自动换边。
@@ -247,295 +130,451 @@ function createChapterButton(node, index, onSeek) {
   return button;
 }
 
-function renderNodes() {
-  hideNote();
-  $("#chapter-list").replaceChildren();
-  $("#timeline-segments").replaceChildren();
-  $("#timeline-markers").replaceChildren();
-  session.nodes.forEach((node, index) => {
-    const item = element("li");
-    const button = createChapterButton(node, index, seek);
-    item.append(button);
-    $("#chapter-list").append(item);
-    const segment = element("span");
-    segment.style.flex = String((session.nodes[index + 1]?.time ?? session.duration) - node.time);
-    $("#timeline-segments").append(segment);
-    const marker = element("span");
-    marker.style.left = `${node.time / session.duration * 100}%`;
-    $("#timeline-markers").append(marker);
-  });
-  $("#chapter-count").textContent = String(session.nodes.length);
-  activeNode = -1;
-  updateTime(currentTime());
-}
-
-function renderSessions() {
-  $("#session-list").replaceChildren();
-  sessions.forEach((item) => {
-    const button = element("button", "session-button", language === "zh" ? item.goal : item.goalEn);
-    button.type = "button";
-    button.setAttribute("aria-pressed", String(item === session));
-    button.addEventListener("click", () => { if (session !== item) selectSession(item); });
-    $("#session-list").append(button);
-  });
-}
-
-function renderSessionText() {
-  video.setAttribute("aria-label", text("Agent 录像：", "Agent recording: ") + (language === "zh" ? session.goal : session.goalEn));
-  renderBaselineText();
-  $("#duration").textContent = clock(session.duration);
-}
-
-function selectSession(item, initial = false) {
-  session = item;
-  activeNode = -1;
-  timeline.max = item.duration;
-  timeline.disabled = false;
-  $("#toggle-play").disabled = false;
-  selectBaseline();
-  renderSessionText();
-  loadSource(0, false, initial);
-  renderNodes();
-  renderSessions();
-  player.setAttribute("aria-busy", "false");
-}
-
-function renderBaselineText() {
-  const run = session.baseline;
-  baselineVideo.title = run ? text("原始指令：", "Recorded instruction: ") + run.instruction : "";
-  $("#baseline-duration").textContent = clock(run?.duration);
-  if (baseline.failed) baselineError();
-  updateBaselineState();
-}
-
-function updateBaselineState() {
-  const playing = !baselineVideo.paused || baseline.wantPlay;
-  $("#baseline-play").textContent = playing ? "Ⅱ" : "▶";
-  $("#baseline-play").setAttribute("aria-label", playing ? text("暂停 VLN", "Pause VLN") : text("播放 VLN", "Play VLN"));
-  const time = baseline.loading ? baseline.time : baselineVideo.currentTime;
-  $("#baseline-timeline").value = time;
-  $("#baseline-elapsed").textContent = clock(time);
-}
-
-function baselineError() {
-  baseline.failed = true;
-  baseline.loading = baseline.wantPlay = false;
-  $("#baseline-error").textContent = text("录像无法加载，点击播放重试。", "Recording unavailable. Press play to retry.");
-  $("#baseline-error").hidden = false;
-}
-
-function loadBaseline(time = 0, resume = false, defer = false) {
-  const version = ++baseline.version;
-  baselineVideo.pause();
-  baseline.loading = true;
-  baseline.time = time;
-  baseline.wantPlay = resume;
-  baseline.failed = false;
-  $("#baseline-error").hidden = true;
-  baselineVideo.poster = baseline.view === "first" ? `./media/replays/${session.slug}/vln/poster.jpg` : "";
-  baselineVideo.onloadedmetadata = () => {
-    if (version !== baseline.version) return;
-    baselineVideo.currentTime = Math.min(baseline.time, Math.max(0, baselineVideo.duration - .05));
-    baseline.loading = false;
-    baselineVideo.playbackRate = Number($("#baseline-speed").value);
-    if (baseline.wantPlay) playBaseline();
-    updateBaselineState();
+// 控件查询限定在当前任务内；实际 ID 保持全页唯一，供无障碍标题引用。
+function taskQueries(root) {
+  const selector = value => value.replace(/#([\w-]+)/g, '[data-ref="$1"]');
+  return {
+    one: value => root.querySelector(selector(value)),
+    all: value => root.querySelectorAll(selector(value)),
   };
-  baselineVideo.preload = defer ? "none" : "metadata";
-  baselineVideo.src = `./media/replays/${session.slug}/vln/${baseline.view}.mp4`;
-  if (!defer) baselineVideo.load();
-  updateBaselineState();
 }
 
-async function playBaseline() {
-  const version = baseline.version;
-  baseline.wantPlay = true;
-  try { await baselineVideo.play(); }
-  catch (error) {
-    if (version !== baseline.version || error.name === "AbortError") return;
-    baseline.wantPlay = false;
-    if (error.name !== "NotAllowedError") baselineError();
+function createTask(templateId, containerId, key, index, goal, goalEn) {
+  const card = $(templateId).content.firstElementChild.cloneNode(true);
+  card.id = key;
+  const title = card.querySelector('[data-task-title]');
+  title.id = `${key}-title`;
+  card.setAttribute('aria-labelledby', title.id);
+  title.dataset.zh = `Task ${index + 1} · ${goal}`;
+  title.dataset.en = `Task ${index + 1} · ${goalEn}`;
+  title.textContent = text(title.dataset.zh, title.dataset.en);
+  for (const node of card.querySelectorAll('[data-ref]')) node.id = `${key}-${node.dataset.ref}`;
+  for (const node of card.querySelectorAll('[aria-labelledby]')) {
+    node.setAttribute('aria-labelledby', node.getAttribute('aria-labelledby').split(' ').map(id => `${key}-${id}`).join(' '));
   }
-  updateBaselineState();
+  $(containerId).append(card);
+  // 数据可能在用户切换语言之后返回，插入时立即使用当前语言。
+  for (const node of card.querySelectorAll('[data-en]')) node.textContent = text(node.dataset.zh, node.dataset.en);
+  for (const node of card.querySelectorAll('[data-label-en]')) node.setAttribute('aria-label', text(node.dataset.labelZh, node.dataset.labelEn));
+  return card;
 }
 
-function toggleBaseline() {
-  if (!session?.baseline) return;
-  if (baseline.failed) { loadBaseline(baseline.time, true); return; }
-  if (!baselineVideo.paused || baseline.wantPlay) {
-    baseline.wantPlay = false;
-    baselineVideo.pause();
-  } else {
-    if (baselineVideo.ended) baselineVideo.currentTime = 0;
-    playBaseline();
-  }
-  updateBaselineState();
-}
-
-function selectBaseline() {
-  baseline.version++;
-  baselineVideo.pause();
-  Object.assign(baseline, { time: 0, failed: false, wantPlay: false, loading: false });
-  const available = !!session.baseline;
-  $("#baseline-placeholder").hidden = available;
-  $("#baseline-empty-status").hidden = available;
-  $("#baseline-stage").hidden = !available;
-  $("#baseline-transport").hidden = !available;
-  $("#baseline-timeline").max = session.baseline?.duration || 1;
-  if (available) loadBaseline(0, false, true);
-  else { baselineVideo.onloadedmetadata = null; baselineVideo.removeAttribute("src"); baselineVideo.load(); }
-}
-
-$("#baseline-play").addEventListener("click", toggleBaseline);
-baselineVideo.addEventListener("click", toggleBaseline);
-baselineVideo.addEventListener("timeupdate", () => {
-  if (!baseline.loading) baseline.time = baselineVideo.currentTime;
-  updateBaselineState();
-});
-baselineVideo.addEventListener("play", updateBaselineState);
-baselineVideo.addEventListener("pause", () => { if (!baseline.loading) baseline.wantPlay = false; updateBaselineState(); });
-baselineVideo.addEventListener("ended", () => { baseline.wantPlay = false; updateBaselineState(); });
-baselineVideo.addEventListener("error", () => { if (session?.baseline) { baselineError(); updateBaselineState(); } });
-$("#baseline-timeline").addEventListener("input", () => {
-  const time = Number($("#baseline-timeline").value);
-  if (baseline.loading || baseline.failed) loadBaseline(time, baseline.wantPlay);
-  else baselineVideo.currentTime = time;
-});
-document.querySelectorAll("[data-baseline-view]").forEach(button => button.addEventListener("click", () => {
-  if (!session?.baseline || baseline.view === button.dataset.baselineView) return;
-  const time = baseline.loading ? baseline.time : baselineVideo.currentTime;
-  const resume = baseline.wantPlay || !baselineVideo.paused;
-  baseline.view = button.dataset.baselineView;
-  document.querySelectorAll("[data-baseline-view]").forEach(option => option.setAttribute("aria-pressed", String(option === button)));
-  renderBaselineText();
-  loadBaseline(time, resume);
-}));
-function setLanguage(next) {
-  language = next;
-  if (session) { renderSessionText(); renderNodes(); renderSessions(); }
-  if (mediaFailed) showMediaError();
-  if (!$("#data-error").hidden) showDataError();
-  updatePlayState();
-}
-
-// 首页统一管理静态文案和语言偏好，回放只同步动态内容。
-document.addEventListener("site-language-change", (event) => setLanguage(event.detail));
-$("#toggle-play").addEventListener("click", togglePlay);
-video.addEventListener("click", togglePlay);
-video.addEventListener("timeupdate", () => { if (!loading) updateTime(video.currentTime); });
-video.addEventListener("play", updatePlayState);
-video.addEventListener("pause", () => {
-  if (!loading) wantPlay = false;
-  updatePlayState();
-});
-video.addEventListener("ended", () => { wantPlay = false; updatePlayState(); });
-video.addEventListener("error", showMediaError);
-timeline.addEventListener("input", () => seek(Number(timeline.value)));
-$("#previous").addEventListener("click", () => seek(session.nodes[Math.max(0, activeNode - 1)].time));
-$("#next").addEventListener("click", () => seek(session.nodes[Math.min(session.nodes.length - 1, activeNode + 1)].time));
-$("#speed").addEventListener("change", () => {
-  video.playbackRate = Number($("#speed").value);
-});
-$("#baseline-speed").addEventListener("change", () => {
-  baselineVideo.playbackRate = Number($("#baseline-speed").value);
-});
-document.querySelectorAll("[data-view]").forEach((button) => button.addEventListener("click", () => {
-  if (!session || button.dataset.view === view) return;
-  const time = currentTime();
-  const playing = wantPlay || !video.paused;
-  view = button.dataset.view;
-  document.querySelectorAll("[data-view]").forEach((option) => option.setAttribute("aria-pressed", String(option === button)));
-  renderSessionText();
-  loadSource(time, playing);
-}));
-$("#fullscreen").addEventListener("click", async () => {
-  try {
-    if (document.fullscreenElement) await document.exitFullscreen();
-    else if ($("#player .video-stage").requestFullscreen) await $("#player .video-stage").requestFullscreen();
-    else if (video.webkitEnterFullscreen) video.webkitEnterFullscreen();
-  } catch { /* 浏览器拒绝全屏时保留内联播放。 */ }
-});
-document.addEventListener("fullscreenchange", () => {
-  // 全屏只显示画面时，启用原生控制条，保留暂停和拖动入口。
-  video.controls = document.fullscreenElement === $("#player .video-stage");
-});
-player.addEventListener("keydown", (event) => {
-  if (event.target.closest("button, input, select") || !session) return;
-  if (event.code === "Space" || event.key.toLowerCase() === "k") { event.preventDefault(); togglePlay(); }
-  if (event.key === "ArrowLeft" || event.key === "ArrowRight") { event.preventDefault(); seek(currentTime() + (event.key === "ArrowLeft" ? -5 : 5)); }
-});
-player.tabIndex = 0;
-
-function showDataError() {
-  $("#data-error").textContent = text("任务数据未能加载，请刷新页面重试。", "Task data could not be loaded. Please reload the page.");
-  $("#data-error").hidden = false;
-  player.setAttribute("aria-busy", "false");
-}
-
-async function initialize() {
-  setLanguage(language);
-  try {
-    const response = await fetch("./media/replays/sessions.json");
-    if (!response.ok) throw new Error("Task data unavailable");
-    sessions = await response.json();
-    if (!sessions.length) throw new Error("No recordings");
-    // 原生控制条作为未增强时的后备；增强后统一使用带节点的时间轴。
-    video.defaultPlaybackRate = video.playbackRate = Number($("#speed").value);
-    baselineVideo.defaultPlaybackRate = baselineVideo.playbackRate = Number($("#baseline-speed").value);
-    video.controls = false;
-    baselineVideo.controls = false;
-    selectSession(sessions.find(item => item.baseline) || sessions[0], true);
-  } catch { showDataError(); }
-}
-initialize();
-
-
-// Go2 使用独立播放状态，共用节点气泡；任务切换不会改变 MuJoCo 回放。
-async function initializeGo2Replay() {
-  const camera = $("#go2-video");
-  const controls = $("#go2-player");
-  const progress = $("#go2-timeline");
-  const chapters = $("#go2-chapters");
-  const speed = $("#go2-speed");
-  const tasks = [...document.querySelectorAll("[data-go2-task]")];
-  let recordings = {};
-  let run = null;
-  let selected = "bin";
-  let pending = 0;
+// 每个 MuJoCo 任务独立维护视角、进度和倍速。
+function initializeReplay(root, item) {
+  const { one: $, all } = taskQueries(root);
+  const video = $("#video");
+  const timeline = $("#timeline");
+  const player = $("#player");
+  let session = null;
+  let view = "first";
+  let activeNode = -1;
+  let sourceVersion = 0;
+  let pendingTime = 0;
   let loading = false;
-  let wantsPlay = false;
-  let failed = false;
-  let version = 0;
+  let wantPlay = false;
+  let mediaFailed = false;
+  const baselineVideo = $("#baseline-video");
+  const baseline = { view: "first", time: 0, loading: false, wantPlay: false, failed: false, version: 0 };
+
+  const currentTime = () => loading ? pendingTime : video.currentTime;
+  function showMediaError() {
+    mediaFailed = true;
+    wantPlay = false;
+    loading = false;
+    $("#media-error").textContent = text("录像无法加载。请检查素材文件，再点击播放重试。", "Recording unavailable. Check the media files, then press play to retry.");
+    $("#media-error").hidden = false;
+    updatePlayState();
+  }
+
+  async function playMedia() {
+    const version = sourceVersion;
+    try {
+      await video.play();
+    } catch (error) {
+      // 快速切换视角或暂停会取消尚未完成的播放，不将取消显示为素材故障。
+      if (version !== sourceVersion || error.name === "AbortError") return;
+      wantPlay = false;
+      if (error.name !== "NotAllowedError") showMediaError();
+      updatePlayState();
+    }
+  }
+
+  function updatePlayState() {
+    const playing = !video.paused || (loading && wantPlay);
+    $("#toggle-play").textContent = playing ? "Ⅱ" : "▶";
+    $("#toggle-play").setAttribute("aria-label", playing ? text("暂停", "Pause") : text("播放", "Play"));
+  }
+
+  function loadSource(time = 0, resume = false, defer = false) {
+    sourceVersion += 1;
+    const version = sourceVersion;
+    video.pause();
+    loading = true;
+    pendingTime = time;
+    wantPlay = resume;
+    mediaFailed = false;
+    $("#media-error").hidden = true;
+    video.poster = view === "first" ? `./media/replays/${session.slug}/poster.jpg` : "";
+    video.onloadedmetadata = () => {
+      if (version !== sourceVersion) return;
+      video.currentTime = Math.min(pendingTime, Math.max(0, video.duration - .05));
+      loading = false;
+      video.playbackRate = Number($("#speed").value);
+      updateTime(video.currentTime);
+      if (wantPlay) playMedia();
+    };
+    video.src = `./media/replays/${session.slug}/${view}.mp4`;
+    video.preload = defer ? "none" : "metadata";
+    if (!defer) video.load();
+    updateTime(time);
+    updatePlayState();
+  }
+
+  function togglePlay() {
+    if (!session) return;
+    if (mediaFailed) {
+      loadSource(pendingTime, true);
+      return;
+    }
+    if (!video.paused || wantPlay) {
+      wantPlay = false;
+      video.pause();
+    } else {
+      wantPlay = true;
+      if (loading) {
+        video.preload = "auto";
+        // play() 保留当前用户手势，移动浏览器也可启动首次播放。
+        playMedia();
+      } else {
+        if (video.ended) video.currentTime = 0;
+        playMedia();
+      }
+    }
+    updatePlayState();
+  }
+
+  function seek(time) {
+    if (!session) return;
+    const destination = Math.max(0, Math.min(time, session.duration - .05));
+    if (loading || mediaFailed) loadSource(destination, wantPlay);
+    else video.currentTime = Math.min(destination, video.duration - .05);
+    updateTime(destination);
+    updatePlayState();
+  }
+
+  function updateTime(time) {
+    if (!session) return;
+    timeline.value = time;
+    timeline.setAttribute("aria-valuetext", `${clock(time)} / ${clock(session.duration)}`);
+    $("#elapsed").textContent = clock(time);
+    let index = 0;
+    session.nodes.forEach((node, i) => { if (node.time <= time + .02) index = i; });
+    if (index === activeNode) return;
+    activeNode = index;
+    all("#chapter-list .chapter-button").forEach((button, i) => {
+      if (i === index) button.setAttribute("aria-current", "step");
+      else button.removeAttribute("aria-current");
+    });
+    all(".timeline-segments span").forEach((segment, i) => segment.classList.toggle("passed", i <= index));
+    $("#previous").disabled = index === 0;
+    $("#next").disabled = index === session.nodes.length - 1;
+  }
+
+  function renderNodes() {
+    hideNote();
+    $("#chapter-list").replaceChildren();
+    $("#timeline-segments").replaceChildren();
+    $("#timeline-markers").replaceChildren();
+    session.nodes.forEach((node, index) => {
+      const item = element("li");
+      const button = createChapterButton(node, index, seek);
+      item.append(button);
+      $("#chapter-list").append(item);
+      const segment = element("span");
+      segment.style.flex = String((session.nodes[index + 1]?.time ?? session.duration) - node.time);
+      $("#timeline-segments").append(segment);
+      const marker = element("span");
+      marker.style.left = `${node.time / session.duration * 100}%`;
+      $("#timeline-markers").append(marker);
+    });
+    $("#chapter-count").textContent = String(session.nodes.length);
+    activeNode = -1;
+    updateTime(currentTime());
+  }
+
+  function renderSessionText() {
+    video.setAttribute("aria-label", text("Agent 录像：", "Agent recording: ") + (language === "zh" ? session.goal : session.goalEn));
+    renderBaselineText();
+    $("#duration").textContent = clock(session.duration);
+  }
+
+  function selectSession(item, initial = false) {
+    session = item;
+    activeNode = -1;
+    timeline.max = item.duration;
+    timeline.disabled = false;
+    $("#toggle-play").disabled = false;
+    selectBaseline();
+    renderSessionText();
+    loadSource(0, false, initial);
+    renderNodes();
+    player.setAttribute("aria-busy", "false");
+  }
+
+  function renderBaselineText() {
+    const run = session.baseline;
+    baselineVideo.title = run ? text("原始指令：", "Recorded instruction: ") + run.instruction : "";
+    $("#baseline-duration").textContent = clock(run?.duration);
+    if (baseline.failed) baselineError();
+    updateBaselineState();
+  }
+
+  function updateBaselineState() {
+    const playing = !baselineVideo.paused || baseline.wantPlay;
+    $("#baseline-play").textContent = playing ? "Ⅱ" : "▶";
+    $("#baseline-play").setAttribute("aria-label", playing ? text("暂停 VLN", "Pause VLN") : text("播放 VLN", "Play VLN"));
+    const time = baseline.loading ? baseline.time : baselineVideo.currentTime;
+    $("#baseline-timeline").value = time;
+    $("#baseline-elapsed").textContent = clock(time);
+  }
+
+  function baselineError() {
+    baseline.failed = true;
+    baseline.loading = baseline.wantPlay = false;
+    $("#baseline-error").textContent = text("录像无法加载，点击播放重试。", "Recording unavailable. Press play to retry.");
+    $("#baseline-error").hidden = false;
+  }
+
+  function loadBaseline(time = 0, resume = false, defer = false) {
+    const version = ++baseline.version;
+    baselineVideo.pause();
+    baseline.loading = true;
+    baseline.time = time;
+    baseline.wantPlay = resume;
+    baseline.failed = false;
+    $("#baseline-error").hidden = true;
+    baselineVideo.poster = baseline.view === "first" ? `./media/replays/${session.slug}/vln/poster.jpg` : "";
+    baselineVideo.onloadedmetadata = () => {
+      if (version !== baseline.version) return;
+      baselineVideo.currentTime = Math.min(baseline.time, Math.max(0, baselineVideo.duration - .05));
+      baseline.loading = false;
+      baselineVideo.playbackRate = Number($("#baseline-speed").value);
+      if (baseline.wantPlay) playBaseline();
+      updateBaselineState();
+    };
+    baselineVideo.preload = defer ? "none" : "metadata";
+    baselineVideo.src = `./media/replays/${session.slug}/vln/${baseline.view}.mp4`;
+    if (!defer) baselineVideo.load();
+    updateBaselineState();
+  }
+
+  async function playBaseline() {
+    const version = baseline.version;
+    baseline.wantPlay = true;
+    try { await baselineVideo.play(); }
+    catch (error) {
+      if (version !== baseline.version || error.name === "AbortError") return;
+      baseline.wantPlay = false;
+      if (error.name !== "NotAllowedError") baselineError();
+    }
+    updateBaselineState();
+  }
+
+  function toggleBaseline() {
+    if (!session?.baseline) return;
+    if (baseline.failed) { loadBaseline(baseline.time, true); return; }
+    if (!baselineVideo.paused || baseline.wantPlay) {
+      baseline.wantPlay = false;
+      baselineVideo.pause();
+    } else {
+      if (baselineVideo.ended) baselineVideo.currentTime = 0;
+      playBaseline();
+    }
+    updateBaselineState();
+  }
+
+  function selectBaseline() {
+    baseline.version++;
+    baselineVideo.pause();
+    Object.assign(baseline, { time: 0, failed: false, wantPlay: false, loading: false });
+    const available = !!session.baseline;
+    $("#baseline-placeholder").hidden = available;
+    $("#baseline-empty-status").hidden = available;
+    $("#baseline-stage").hidden = !available;
+    $("#baseline-transport").hidden = !available;
+    $("#baseline-timeline").max = session.baseline?.duration || 1;
+    if (available) loadBaseline(0, false, true);
+    else { baselineVideo.onloadedmetadata = null; baselineVideo.removeAttribute("src"); baselineVideo.load(); }
+  }
+
+  $("#baseline-play").addEventListener("click", toggleBaseline);
+  baselineVideo.addEventListener("click", toggleBaseline);
+  baselineVideo.addEventListener("timeupdate", () => {
+    if (!baseline.loading) baseline.time = baselineVideo.currentTime;
+    updateBaselineState();
+  });
+  baselineVideo.addEventListener("play", updateBaselineState);
+  baselineVideo.addEventListener("pause", () => { if (!baseline.loading) baseline.wantPlay = false; updateBaselineState(); });
+  baselineVideo.addEventListener("ended", () => { baseline.wantPlay = false; updateBaselineState(); });
+  baselineVideo.addEventListener("error", () => { if (session?.baseline) { baselineError(); updateBaselineState(); } });
+  $("#baseline-timeline").addEventListener("input", () => {
+    const time = Number($("#baseline-timeline").value);
+    if (baseline.loading || baseline.failed) loadBaseline(time, baseline.wantPlay);
+    else baselineVideo.currentTime = time;
+  });
+  all("[data-baseline-view]").forEach(button => button.addEventListener("click", () => {
+    if (!session?.baseline || baseline.view === button.dataset.baselineView) return;
+    const time = baseline.loading ? baseline.time : baselineVideo.currentTime;
+    const resume = baseline.wantPlay || !baselineVideo.paused;
+    baseline.view = button.dataset.baselineView;
+    all("[data-baseline-view]").forEach(option => option.setAttribute("aria-pressed", String(option === button)));
+    renderBaselineText();
+    loadBaseline(time, resume);
+  }));
+  function setLanguage(next) {
+    language = next;
+    if (session) { renderSessionText(); renderNodes(); }
+    if (mediaFailed) showMediaError();
+    updatePlayState();
+  }
+
+  // 首页统一管理静态文案和语言偏好，回放只同步动态内容。
+  document.addEventListener("site-language-change", (event) => setLanguage(event.detail));
+  $("#toggle-play").addEventListener("click", togglePlay);
+  video.addEventListener("click", togglePlay);
+  video.addEventListener("timeupdate", () => { if (!loading) updateTime(video.currentTime); });
+  video.addEventListener("play", updatePlayState);
+  video.addEventListener("pause", () => {
+    if (!loading) wantPlay = false;
+    updatePlayState();
+  });
+  video.addEventListener("ended", () => { wantPlay = false; updatePlayState(); });
+  video.addEventListener("error", showMediaError);
+  timeline.addEventListener("input", () => seek(Number(timeline.value)));
+  $("#previous").addEventListener("click", () => seek(session.nodes[Math.max(0, activeNode - 1)].time));
+  $("#next").addEventListener("click", () => seek(session.nodes[Math.min(session.nodes.length - 1, activeNode + 1)].time));
+  $("#speed").addEventListener("change", () => {
+    video.playbackRate = Number($("#speed").value);
+  });
+  $("#baseline-speed").addEventListener("change", () => {
+    baselineVideo.playbackRate = Number($("#baseline-speed").value);
+  });
+  all("[data-view]").forEach((button) => button.addEventListener("click", () => {
+    if (!session || button.dataset.view === view) return;
+    const time = currentTime();
+    const playing = wantPlay || !video.paused;
+    view = button.dataset.view;
+    all("[data-view]").forEach((option) => option.setAttribute("aria-pressed", String(option === button)));
+    renderSessionText();
+    loadSource(time, playing);
+  }));
+  $("#fullscreen").addEventListener("click", async () => {
+    try {
+      if (document.fullscreenElement) await document.exitFullscreen();
+      else if ($("#player .video-stage").requestFullscreen) await $("#player .video-stage").requestFullscreen();
+      else if (video.webkitEnterFullscreen) video.webkitEnterFullscreen();
+    } catch { /* 浏览器拒绝全屏时保留内联播放。 */ }
+  });
+  document.addEventListener("fullscreenchange", () => {
+    // 全屏只显示画面时，启用原生控制条，保留暂停和拖动入口。
+    video.controls = document.fullscreenElement === $("#player .video-stage");
+  });
+  player.addEventListener("keydown", (event) => {
+    if (event.target.closest("button, input, select") || !session) return;
+    if (event.code === "Space" || event.key.toLowerCase() === "k") { event.preventDefault(); togglePlay(); }
+    if (event.key === "ArrowLeft" || event.key === "ArrowRight") { event.preventDefault(); seek(currentTime() + (event.key === "ArrowLeft" ? -5 : 5)); }
+  });
+  player.tabIndex = 0;
+
+  video.defaultPlaybackRate = video.playbackRate = Number($("#speed").value);
+  baselineVideo.defaultPlaybackRate = baselineVideo.playbackRate = Number($("#baseline-speed").value);
+  video.controls = baselineVideo.controls = false;
+  selectSession(item, true);
+}
+
+// Go2 双视角共用展示时间轴；素材按采图时间恢复，再统一裁剪对齐。
+function initializeGo2Replay(root, run) {
+  const { one: $ } = taskQueries(root);
+  const camera = $("#go2-video"), external = $("#go2-external-video");
+  const controls = $("#go2-player"), externalControls = $("#go2-external-player");
+  const chapters = $("#go2-chapters");
+  const prefixes = ["go2", "go2-external"];
+  let pending = 0, loading = false, wantsPlay = false, failed = false, externalFailed = false;
+  let version = 0, rate = 4, externalTarget = 0;
+
+  function currentTime() { return loading ? pending : camera.currentTime; }
+
+  function syncExternal(force = false) {
+    if (!run?.external) return;
+    const time = currentTime(), start = run.external.start;
+    const covered = time >= start && time <= start + run.external.duration + .02;
+    const coverage = $("#go2-external-coverage");
+    coverage.hidden = covered || externalFailed;
+    coverage.textContent = time < start
+      ? text(`实拍从 ${clock(start)} 开始`, `External recording starts at ${clock(start)}`)
+      : text("实拍录像已结束", "External recording has ended");
+    external.style.visibility = covered ? "visible" : "hidden";
+    if (!external.readyState || externalFailed) return;
+    externalTarget = Math.max(0, Math.min(time - start, external.duration - .05));
+    if (force || Math.abs(external.currentTime - externalTarget) > .3) external.currentTime = externalTarget;
+    external.playbackRate = rate;
+    if (covered && !camera.paused && !camera.seeking && camera.readyState >= 3) {
+      if (external.paused) external.play().catch(error => {
+        if (error.name !== "AbortError" && error.name !== "NotAllowedError") showExternalError();
+      });
+    } else external.pause();
+  }
 
   function update() {
-    const time = loading ? pending : camera.currentTime;
-    progress.value = time;
-    progress.setAttribute("aria-valuetext", `${clock(time)} / ${clock(run?.duration)}`);
-    $("#go2-elapsed").textContent = clock(time);
-    $("#go2-duration").textContent = clock(run?.duration);
-    const playing = wantsPlay || !camera.paused;
-    $("#go2-play").textContent = playing ? "Ⅱ" : "▶";
-    $("#go2-play").setAttribute("aria-label", playing ? text("暂停 Go2 录像", "Pause Go2 recording") : text("播放 Go2 录像", "Play Go2 recording"));
+    const time = currentTime(), playing = wantsPlay || !camera.paused;
+    for (const prefix of prefixes) {
+      $(`#${prefix}-timeline`).value = time;
+      $(`#${prefix}-timeline`).setAttribute("aria-valuetext", `${clock(time)} / ${clock(run?.duration)}`);
+      $(`#${prefix}-elapsed`).textContent = clock(time);
+      $(`#${prefix}-duration`).textContent = clock(run?.duration);
+      $(`#${prefix}-play`).textContent = playing ? "Ⅱ" : "▶";
+      $(`#${prefix}-play`).setAttribute("aria-label", playing ? text("暂停 Go2 双视角", "Pause Go2 views") : text("播放 Go2 双视角", "Play Go2 views"));
+    }
     let current = 0;
     run?.nodes.forEach((node, index) => { if (node.time <= time + .02) current = index; });
     chapters.querySelectorAll("button").forEach((button, index) => {
       if (index === current) button.setAttribute("aria-current", "step");
       else button.removeAttribute("aria-current");
     });
+    syncExternal();
+  }
+
+  function showExternalError() {
+    if (!run?.external) return;
+    externalFailed = true;
+    external.pause();
+    $("#go2-external-coverage").hidden = true;
+    $("#go2-external-error").textContent = text("实拍录像无法加载，点击播放重试。", "External recording unavailable. Press play to retry.");
+    $("#go2-external-error").hidden = false;
   }
 
   function showError() {
     if (!run) return;
     failed = true;
     loading = wantsPlay = false;
+    camera.pause(); external.pause();
     $("#go2-error").textContent = text("录像无法加载，点击播放重试。", "Recording unavailable. Press play to retry.");
     $("#go2-error").hidden = false;
     update();
   }
 
+  function loadExternal() {
+    if (!run?.external) return;
+    externalFailed = false;
+    $("#go2-external-error").hidden = true;
+    external.preload = "auto";
+    external.load();
+  }
+
   async function play() {
     const requestedVersion = version;
     wantsPlay = true;
+    if (run?.external && (!external.readyState || externalFailed)) loadExternal();
     update();
     try { await camera.play(); }
     catch (error) {
@@ -548,18 +587,15 @@ async function initializeGo2Replay() {
 
   function load(time = 0, resume = false, defer = false) {
     const requestedVersion = ++version;
-    camera.pause();
-    pending = time;
-    loading = true;
-    wantsPlay = resume;
-    failed = false;
+    camera.pause(); external.pause();
+    pending = time; loading = true; wantsPlay = resume; failed = false;
     $("#go2-error").hidden = true;
     camera.poster = run.poster;
     camera.preload = defer ? "none" : "metadata";
     camera.onloadedmetadata = () => {
       if (requestedVersion !== version) return;
       camera.currentTime = Math.min(pending, Math.max(0, camera.duration - .05));
-      camera.playbackRate = Number(speed.value);
+      camera.playbackRate = rate;
       loading = false;
       update();
       if (wantsPlay) play();
@@ -572,8 +608,10 @@ async function initializeGo2Replay() {
   function seekTo(time) {
     if (!run) return;
     pending = Math.max(0, Math.min(time, run.duration - .05));
+    if (run.external && !external.readyState) loadExternal();
     if (loading || failed) load(pending, wantsPlay);
     else camera.currentTime = pending;
+    syncExternal(true);
     update();
   }
 
@@ -581,8 +619,7 @@ async function initializeGo2Replay() {
     if (!run) return;
     if (failed) { load(pending, true); return; }
     if (!camera.paused || wantsPlay) {
-      wantsPlay = false;
-      camera.pause();
+      wantsPlay = false; camera.pause(); external.pause();
     } else {
       if (camera.ended) camera.currentTime = 0;
       play();
@@ -591,81 +628,127 @@ async function initializeGo2Replay() {
   }
 
   function renderNodes() {
-    hideNote();
-    chapters.replaceChildren();
+    hideNote(); chapters.replaceChildren();
     for (const [index, node] of (run?.nodes || []).entries()) {
       const item = element("li");
       item.append(createChapterButton(node, index, seekTo));
       chapters.append(item);
     }
+    $("#go2-provenance").hidden = !run?.provenance;
+    $("#go2-provenance").textContent = run ? text(run.provenanceZh || "", run.provenanceEn || "") : "";
     update();
   }
 
-  function selectTask(key) {
-    version++;
-    camera.pause();
+  function setupTask() {
+    version++; camera.pause(); external.pause();
     camera.onloadedmetadata = null;
-    selected = key;
-    run = recordings[key] || null;
-    pending = 0;
-    loading = wantsPlay = failed = false;
-    tasks.forEach(button => button.setAttribute("aria-pressed", String(button.dataset.go2Task === key)));
+    pending = 0; loading = wantsPlay = failed = externalFailed = false;
     controls.hidden = !run;
+    externalControls.hidden = !run?.external;
     $("#go2-placeholder").hidden = !!run;
-    chapters.hidden = !run;
-    $("#go2-empty").hidden = !!run;
-    progress.max = run?.duration || 1;
+    $("#go2-external-placeholder").hidden = !!run?.external;
+    $("#go2-external-error").hidden = true;
+    chapters.hidden = !run; $("#go2-empty").hidden = !!run;
+    for (const prefix of prefixes) $(`#${prefix}-timeline`).max = run?.duration || 1;
+    external.preload = "none";
+    if (run?.external) { external.src = run.external.video; external.poster = run.external.poster; }
+    else { external.removeAttribute("src"); external.removeAttribute("poster"); external.load(); }
     if (run) load(0, false, true);
     else { camera.removeAttribute("src"); camera.removeAttribute("poster"); camera.load(); }
     renderNodes();
   }
 
-  tasks.forEach(button => button.addEventListener("click", () => {
-    if (selected !== button.dataset.go2Task) selectTask(button.dataset.go2Task);
-  }));
-  $("#go2-play").addEventListener("click", toggle);
-  camera.addEventListener("click", toggle);
+  for (const prefix of prefixes) {
+    const media = prefix === "go2" ? camera : external;
+    const panel = $(`#${prefix}-player`);
+    $(`#${prefix}-play`).addEventListener("click", toggle);
+    media.addEventListener("click", toggle);
+    $(`#${prefix}-timeline`).addEventListener("input", event => seekTo(Number(event.target.value)));
+    $(`#${prefix}-speed`).addEventListener("change", event => {
+      rate = Number(event.target.value);
+      camera.playbackRate = external.playbackRate = rate;
+      for (const name of prefixes) $(`#${name}-speed`).value = String(rate);
+    });
+    $(`#${prefix}-fullscreen`).addEventListener("click", async () => {
+      try {
+        if (document.fullscreenElement) await document.exitFullscreen();
+        else if (panel.requestFullscreen) await panel.requestFullscreen();
+        else if (media.webkitEnterFullscreen) media.webkitEnterFullscreen();
+      } catch { /* 不支持全屏时继续使用内联控件。 */ }
+    });
+    panel.tabIndex = 0;
+    panel.addEventListener("keydown", event => {
+      if (event.target.closest("button, input, select") || !run) return;
+      if (event.code === "Space" || event.key.toLowerCase() === "k") { event.preventDefault(); toggle(); }
+      if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+        event.preventDefault(); seekTo(currentTime() + (event.key === "ArrowLeft" ? -5 : 5));
+      }
+    });
+  }
   camera.addEventListener("timeupdate", () => { if (!loading) pending = camera.currentTime; update(); });
   camera.addEventListener("play", update);
+  camera.addEventListener("playing", update);
+  camera.addEventListener("waiting", () => external.pause());
+  camera.addEventListener("seeking", () => { external.pause(); syncExternal(true); });
+  camera.addEventListener("seeked", update);
   camera.addEventListener("pause", () => { if (!loading) wantsPlay = false; update(); });
   camera.addEventListener("ended", () => { wantsPlay = false; update(); });
   camera.addEventListener("error", showError);
-  progress.addEventListener("input", () => seekTo(Number(progress.value)));
-  speed.addEventListener("change", () => { camera.playbackRate = Number(speed.value); });
-  $("#go2-fullscreen").addEventListener("click", async () => {
-    try {
-      if (document.fullscreenElement) await document.exitFullscreen();
-      else if (camera.parentElement.requestFullscreen) await camera.parentElement.requestFullscreen();
-      else if (camera.webkitEnterFullscreen) camera.webkitEnterFullscreen();
-    } catch { /* 不支持全屏时继续使用内联控件。 */ }
-  });
-  document.addEventListener("fullscreenchange", () => { camera.controls = document.fullscreenElement === camera.parentElement; });
-  controls.tabIndex = 0;
-  controls.addEventListener("keydown", event => {
-    if (event.target.closest("button, input, select") || !run) return;
-    if (event.code === "Space" || event.key.toLowerCase() === "k") { event.preventDefault(); toggle(); }
-    if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
-      event.preventDefault();
-      seekTo((loading ? pending : camera.currentTime) + (event.key === "ArrowLeft" ? -5 : 5));
-    }
-  });
+  external.addEventListener("loadedmetadata", () => syncExternal(true));
+  external.addEventListener("canplay", () => syncExternal());
+  external.addEventListener("error", showExternalError);
   document.addEventListener("site-language-change", () => {
     renderNodes();
     if (failed) showError();
-    if (!$("#go2-data-error").hidden) showDataError();
+    if (externalFailed) showExternalError();
   });
-  function showDataError() {
-    $("#go2-empty").hidden = true;
-    $("#go2-data-error").textContent = text("任务数据未能加载，请刷新重试。", "Task data could not be loaded. Please reload.");
-    $("#go2-data-error").hidden = false;
+  for (const media of [camera, external]) {
+    media.defaultPlaybackRate = media.playbackRate = rate;
+    media.controls = false;
+    media.muted = true;
   }
-  try {
-    const response = await fetch("./media/go2/sessions.json");
-    if (!response.ok) throw new Error("Go2 data unavailable");
-    recordings = await response.json();
-    camera.defaultPlaybackRate = camera.playbackRate = Number(speed.value);
-    camera.controls = false;
-    selectTask(selected);
-  } catch { showDataError(); }
+  setupTask();
 }
-initializeGo2Replay();
+async function initializeTasks() {
+  await Promise.all([
+    (async () => {
+      try {
+        const response = await fetch('./media/replays/sessions.json');
+        if (!response.ok) throw new Error('Task data unavailable');
+        const sessions = await response.json();
+        if (!sessions.length) throw new Error('No recordings');
+        sessions.forEach((item, index) => {
+          const card = createTask('#simulation-template', '#simulation', `simulation-${item.slug}`, index, item.goal, item.goalEn);
+          initializeReplay(card, item);
+        });
+      } catch {
+        const error = $('#simulation-load-error');
+        error.textContent = text(error.dataset.zh, error.dataset.en);
+        error.hidden = false;
+      }
+    })(),
+    (async () => {
+      try {
+        const response = await fetch('./media/go2/sessions.json', { cache: 'no-cache' });
+        if (!response.ok) throw new Error('Go2 data unavailable');
+        const recordings = await response.json();
+        const tasks = [
+          { key: 'bin', goal: '走到银色垃圾桶旁', goalEn: 'Walk to the silver trash bin' },
+          { key: 'water', goal: '走到饮水机旁', goalEn: 'Walk to the water dispenser' },
+          { key: 'meeting', goal: '走到会议室', goalEn: 'Walk to the meeting room' },
+        ];
+        tasks.forEach((task, index) => {
+          const run = recordings[task.key] || null;
+          const card = createTask('#go2-template', '#go2-tasks', `go2-${task.key}`, index, run?.goal || task.goal, run?.goalEn || task.goalEn);
+          initializeGo2Replay(card, run);
+        });
+      } catch {
+        const error = $('#go2-load-error');
+        error.textContent = text(error.dataset.zh, error.dataset.en);
+        error.hidden = false;
+      }
+    })(),
+  ]);
+  document.dispatchEvent(new CustomEvent('replay-tasks-ready'));
+}
+initializeTasks();

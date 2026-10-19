@@ -1,61 +1,79 @@
 {
   "bin": {
-    "taskId": "f7c96bf5b77845f6a5da15dc9c0593f8",
-    "goal": "找到银色垃圾桶",
-    "goalEn": "Find the silver trash bin",
-    "date": "2026-10-16T07:01:31.350992+00:00",
+    "taskId": "81dc3a3670e540698b428cc2c7986a08",
+    "goal": "走到银色垃圾桶旁",
+    "goalEn": "Walk to the silver trash bin",
+    "date": "2026-10-19T03:56:57.614859+00:00",
     "status": "completed",
-    "duration": 59.1,
-    "video": "./media/go2/bin/robot.mp4",
-    "poster": "./media/go2/bin/poster.jpg",
+    "duration": 66,
+    "video": "./media/go2/bin/robot.mp4?v=81dc3a36",
+    "poster": "./media/go2/bin/poster.jpg?v=81dc3a36",
+    "external": {
+      "video": "./media/go2/bin/external.mp4?v=81dc3a36",
+      "poster": "./media/go2/bin/external-poster.jpg?v=81dc3a36",
+      "start": 0,
+      "duration": 66
+    },
+    "edit": {
+      "sourceTaskStart": 11.385141,
+      "sourceTaskEnd": 77.385141,
+      "externalSourceStart": 3,
+      "externalSourceEnd": 69,
+      "alignment": "Capture timestamps, checked against walking, turning and stopping.",
+      "completionDecisionAt": "2026-10-19T03:58:31.559479+00:00"
+    },
+    "provenance": "posthoc_video_review",
+    "provenanceZh": "节点说明依据录像与运行记录复盘。",
+    "provenanceEn": "Decision notes reconstructed from the recording and run log.",
     "nodes": [
       {
         "time": 0,
-        "label": "任务开始",
-        "labelEn": "Task started",
-        "reason": "找到银色垃圾桶",
-        "reasonEn": "Find the silver trash bin",
+        "label": "任务目标",
+        "labelEn": "Task goal",
+        "reason": "走到银色垃圾桶旁",
+        "reasonEn": "Walk to the silver trash bin",
         "instruction": ""
       },
       {
-        "time": 6.165,
+        "time": 1.742,
         "step": 1,
         "action": "navigate",
-        "reason": "当前正前方视野开阔且无目标，先沿过道前进以获取更广阔的视野并接近潜在的目标区域（如墙角或远处）。",
-        "instruction": "Go to the open carpeted area in front near the glass wall.",
-        "label": "探索前方过道",
-        "labelEn": "Explore the aisle",
-        "reasonEn": "No target is visible ahead. Move along the open aisle for a wider view."
+        "label": "接近立柱前的观察点",
+        "labelEn": "Approach the column",
+        "reason": "当前视野尚未出现银色垃圾桶。前方白色立柱上有绿色安全出口标志，中间过道通畅。先接近立柱前的空地，检查两侧被遮挡的区域。",
+        "reasonEn": "The silver trash bin is not visible yet. An open aisle leads to a white column with a green exit sign. Move closer to inspect the areas hidden beside it.",
+        "instruction": "Go straight to the white pillar with the green exit sign."
       },
       {
-        "time": 23.364,
+        "time": 28.261,
         "step": 2,
         "action": "look",
-        "reason": "当前正对立柱，需查看左侧未看方向以寻找目标或新入口。",
-        "instruction": "",
-        "label": "向左观察",
-        "labelEn": "Look left",
-        "reasonEn": "The robot is facing a column. Look left to inspect an unexplored direction."
+        "label": "向左观察走廊",
+        "labelEn": "Look left into the corridor",
+        "reason": "已到达立柱前，正前方主要是立柱和玻璃窗，仍未看到目标。向左转动观察，展开沿窗走廊的视野。",
+        "reasonEn": "The robot has reached the column, but the target is still out of view. Turn left to inspect the corridor along the windows.",
+        "instruction": ""
       },
       {
-        "time": 35.043,
+        "time": 45.648,
         "step": 3,
         "action": "navigate",
-        "reason": "当前视野中发现走廊远处有一个疑似银色垃圾桶的物体，需前往核实身份。",
-        "instruction": "Go straight down the corridor towards the grey bin in the distance.",
-        "label": "接近疑似目标",
-        "labelEn": "Approach a possible target",
-        "reasonEn": "A possible silver trash bin is visible down the corridor. Move closer to verify it."
+        "label": "接近银色桶状物体",
+        "labelEn": "Approach the possible target",
+        "reason": "左转后，走廊右侧白墙与玻璃窗之间出现灰银色桶状物体，与目标外观相符。前方瓷砖通道可通行，沿走廊接近并核实。",
+        "reasonEn": "A grey-silver bin-shaped object is visible between the white wall and the windows on the right. Follow the clear tiled corridor to inspect it up close.",
+        "instruction": "Go straight down the corridor towards the grey cylindrical bin near the glass wall on the right."
       },
       {
-        "time": 58.944,
+        "time": 62.513,
         "step": 4,
         "action": "finish",
-        "reason": "当前画面正前方清晰可见一个银色金属垃圾桶，类别、颜色和形状均符合用户目标'银色垃圾桶'，且任务仅要求找到，当前证据充分。",
+        "label": "到达垃圾桶旁",
+        "labelEn": "Arrive beside the trash bin",
+        "reason": "停车后的画面中，银色金属垃圾桶清楚可见，位于机器人右前方的白墙旁。实拍也显示机器人停在桶旁，已到达目标位置。",
+        "reasonEn": "The stopped camera view clearly shows the silver metal trash bin beside the white wall at the front-right. The external view also shows the robot stopped beside it.",
         "instruction": "",
-        "label": "确认找到目标",
-        "labelEn": "Target verified",
-        "reasonEn": "A silver metal trash bin is clearly visible ahead. Its category, color and shape match the goal."
+        "sourceObservationAt": "2026-10-19T03:58:11.513155+00:00"
       }
     ]
   }

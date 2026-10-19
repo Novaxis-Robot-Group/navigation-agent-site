@@ -12,12 +12,7 @@
 #videos button:disabled { cursor: default; opacity: .4; }
 [hidden] { display: none !important; }
 /* 两个同画幅视频并排，Agent 的节点说明独立置于右侧。 */
-#simulation { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 264px; gap: 16px 24px; align-items: stretch; }
-.task-selector { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; margin-bottom: 4px; font-size: 14px; }
-.session-list { display: flex; flex-wrap: wrap; gap: 8px; }
-.session-button { min-height: 40px; padding: 9px 15px; border: 0; border-radius: var(--control-radius); background: transparent; color: var(--body); font-size: 14px; }
-.session-button:hover { background: var(--replay-soft); }
-.session-button[aria-pressed="true"] { background: #e8ecef; color: #4b5865; }
+.simulation-task { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 264px; gap: 16px 24px; align-items: stretch; }
 .comparison-column { min-width: 0; display: grid; grid-template-rows: subgrid; grid-row: 2 / 4; }
 .baseline-column { grid-column: 1; }
 .comparison-heading { margin: 0; font-size: 18px; line-height: 1.6; font-weight: 550; }
@@ -29,7 +24,6 @@
 .baseline-stage p { font-size: 14px; }
 .pending-label { font-size: 11px; color: var(--muted); white-space: nowrap; }
 .baseline-status { min-height: 112px; display: flex; align-items: center; justify-content: center; padding: 15px; font-size: 12px; color: var(--muted); background: var(--replay-surface); }
-#data-error { grid-column: 1 / -1; }
 .player { min-width: 0; overflow: hidden; border: 1px solid var(--card-border); border-radius: var(--card-radius); background: var(--replay-surface); color: var(--body); box-shadow: var(--card-shadow); display: grid; grid-template-rows: 48px auto 112px; } /* taste-skill-ignore: 真实播放器控件分界。 */
 .player-heading { min-height: 48px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 11px 14px; }
 .player-heading h5 { min-width: 0; font-size: 13px; line-height: 1.5; font-weight: 550; margin: 0; }
@@ -41,11 +35,11 @@
 .timeline-segments { position: absolute; inset: 8px 0 auto; height: 3px; display: flex; gap: 3px; }
 .timeline-segments span { background: #dedfe0; border-radius: 1px; min-width: 2px; } /* taste-skill-ignore: 真实播放器控件分界。 */
 .timeline-segments span.passed { background: #8995a1; }
-:is(#timeline, #baseline-timeline) { position: relative; z-index: 2; appearance: none; display: block; width: 100%; margin: 0; height: 20px; background: transparent; cursor: pointer; }
-:is(#timeline, #baseline-timeline)::-webkit-slider-runnable-track { height: 3px; background: transparent; }
-:is(#timeline, #baseline-timeline)::-webkit-slider-thumb { appearance: none; width: 10px; height: 10px; background: var(--replay-accent); border-radius: 50%; margin-top: -3.5px; }
-:is(#timeline, #baseline-timeline)::-moz-range-track { height: 3px; background: transparent; }
-:is(#timeline, #baseline-timeline)::-moz-range-thumb { width: 10px; height: 10px; border: 0; background: var(--replay-accent); border-radius: 50%; }
+:is([data-ref="timeline"], [data-ref="baseline-timeline"]) { position: relative; z-index: 2; appearance: none; display: block; width: 100%; margin: 0; height: 20px; background: transparent; cursor: pointer; }
+:is([data-ref="timeline"], [data-ref="baseline-timeline"])::-webkit-slider-runnable-track { height: 3px; background: transparent; }
+:is([data-ref="timeline"], [data-ref="baseline-timeline"])::-webkit-slider-thumb { appearance: none; width: 10px; height: 10px; background: var(--replay-accent); border-radius: 50%; margin-top: -3.5px; }
+:is([data-ref="timeline"], [data-ref="baseline-timeline"])::-moz-range-track { height: 3px; background: transparent; }
+:is([data-ref="timeline"], [data-ref="baseline-timeline"])::-moz-range-thumb { width: 10px; height: 10px; border: 0; background: var(--replay-accent); border-radius: 50%; }
 .timeline-markers { position: absolute; inset: 1px 5px auto; pointer-events: none; }
 .timeline-markers span { position: absolute; width: 2px; height: 2px; border-radius: 50%; background: #929ba4; }
 .transport-row, .transport-options { display: flex; align-items: center; gap: 9px; }
@@ -54,17 +48,17 @@
 .play-button { width: 30px; height: 30px; border: 0; border-radius: 50%; background: #e8ecef; color: #4b5865; font-size: 12px; flex-shrink: 0; }
 .icon-button { padding: 3px; border: 0; background: none; color: var(--replay-blue); font-size: 18px; min-width: 24px; min-height: 28px; }
 .time-display { display: flex; gap: 5px; color: var(--body); font-size: 10px; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.time-divider, #duration { color: var(--muted); }
+.time-divider, [data-ref="duration"] { color: var(--muted); }
 .view-switch { display: flex; padding: 2px; border: 1px solid var(--replay-line); border-radius: var(--control-radius); gap: 2px; } /* taste-skill-ignore: 真实播放器控件分界。 */
 .view-switch button { border: 0; border-radius: 8px; padding: 5px 7px; color: #66717b; background: transparent; font-size: 10px; white-space: nowrap; }
 .view-switch button[aria-pressed="true"] { background: #e8ecef; color: #4b5865; }
 #videos :focus-visible { outline: 2px solid var(--replay-blue); outline-offset: 3px; }
 .replay-details { grid-column: 3; grid-row: 2 / 4; min-width: 0; display: grid; grid-template-rows: subgrid; }
 .decisions-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-.decisions-heading h4 { font-size: 18px; line-height: 1.6; font-weight: 550; }
+.decisions-heading h5 { font-size: 18px; line-height: 1.6; font-weight: 550; }
 .details-body { height: 0; min-height: 100%; padding: 14px; display: flex; flex-direction: column; gap: 12px; border: 1px solid var(--card-border); border-radius: var(--card-radius); background: var(--replay-surface); box-shadow: var(--card-shadow); } /* taste-skill-ignore: 用户要求对齐的圆角卡片。 */
-#chapter-count { color: var(--muted); font-size: 12px; }
-#chapter-list { flex: 1; min-height: 0; display: grid; grid-auto-rows: minmax(0, 1fr); gap: 3px; list-style: none; margin: 0; padding: 0; }
+[data-ref="chapter-count"] { color: var(--muted); font-size: 12px; }
+[data-ref="chapter-list"] { flex: 1; min-height: 0; display: grid; grid-auto-rows: minmax(0, 1fr); gap: 3px; list-style: none; margin: 0; padding: 0; }
 .chapter-button { display: grid; grid-template-columns: 14px minmax(0, 1fr) 34px; align-items: center; gap: 6px; width: 100%; height: 100%; min-height: 34px; padding: 5px 8px; text-align: left; border: 0; border-radius: var(--control-radius); background: transparent; color: var(--body); }
 .chapter-button:hover { background: #eae9e7; }
 .chapter-button[aria-current="step"] { background: #e2e7eb; color: #4b5865; }
@@ -89,62 +83,71 @@
   .transport-options { display: contents; }
   .view-switch { order: 3; flex-basis: 100%; justify-content: center; margin-top: 4px; border: 0; }
   .view-switch button { padding: 6px 12px; }
-  #fullscreen { margin-left: auto; }
-@media (max-width: 1000px) {
-  #simulation { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  [data-ref="fullscreen"] { margin-left: auto; }
+@container tasks (max-width: 1000px) {
+  .simulation-task { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .replay-details { grid-column: 1 / -1; grid-row: 4 / 6; }
   .details-body { height: auto; min-height: 0; }
-  #chapter-list { grid-auto-rows: auto; }
+  [data-ref="chapter-list"] { grid-auto-rows: auto; }
   .chapter-button { min-height: 42px; }
 }
 @media (max-width: 600px) {
-  #simulation { display: flex; flex-direction: column; gap: 24px; }
-  .task-selector, .comparison-column, .replay-details { width: 100%; }
-  .task-selector { gap: 8px; }
-  .session-list { gap: 4px; }
-  .session-button { padding: 8px 10px; font-size: 12px; }
+  .simulation-task { display: flex; flex-direction: column; gap: 24px; }
+  .comparison-column, .replay-details { width: 100%; }
   .agent-column::before { display: none; }
   .comparison-column, .replay-details { display: block; }
   .comparison-heading, .decisions-heading { font-size: 16px; margin-bottom: 12px; }
-  .decisions-heading h4 { font-size: 16px; }
+  .decisions-heading h5 { font-size: 16px; }
   .replay-details { order: 4; }
-  #data-error { order: 5; }
   .details-body { height: auto; min-height: 0; display: block; }
   .chapter-button { min-height: 42px; }
   .player-heading { padding: 10px 12px; }
   .player-heading h5 { font-size: 12px; }
 }
 
-#fullscreen svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; }
+.icon-button svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; }
 
 /* VLN 与 Agent 保持同一控制区高度，进度独立。 */
-#baseline-timeline { display: block; width: 100%; margin: 0; height: 20px; accent-color: var(--replay-accent); cursor: pointer; }
-#baseline-timeline::-webkit-slider-runnable-track { background: #dedfe0; }
-#baseline-timeline::-moz-range-track { background: #dedfe0; }
+[data-ref="baseline-timeline"] { display: block; width: 100%; margin: 0; height: 20px; accent-color: var(--replay-accent); cursor: pointer; }
+[data-ref="baseline-timeline"]::-webkit-slider-runnable-track { background: #dedfe0; }
+[data-ref="baseline-timeline"]::-moz-range-track { background: #dedfe0; }
 
 /* 两个播放器共用固定控制列，时间与独立倍速逐列对齐。 */
-#simulation .transport-row { display: grid; grid-template-columns: 30px 72px 56px minmax(0, 1fr) 24px 24px 24px; gap: 6px; align-items: center; }
-#simulation .transport-row > .play-button { grid-column: 1; grid-row: 1; }
-#simulation .time-display { grid-column: 2; grid-row: 1; }
+.simulation-task .transport-row { display: grid; grid-template-columns: 30px 72px 56px minmax(0, 1fr) 24px 24px 24px; gap: 6px; align-items: center; }
+.simulation-task .transport-row > .play-button { grid-column: 1; grid-row: 1; }
+.simulation-task .time-display { grid-column: 2; grid-row: 1; }
 .playback-speed { grid-column: 3; grid-row: 1; width: 56px; color: var(--accent); background: var(--surface); border: 1px solid var(--line); padding: 5px; border-radius: var(--control-radius); font-size: 11px; }
-#simulation .transport-options { display: contents; }
-#simulation .view-switch { grid-column: 1 / -1; grid-row: 2; justify-self: center; margin-top: 4px; }
-#previous { grid-column: 5; grid-row: 1; }
-#next { grid-column: 6; grid-row: 1; }
-#fullscreen { grid-column: 7; grid-row: 1; }
+.simulation-task .transport-options { display: contents; }
+.simulation-task .view-switch { grid-column: 1 / -1; grid-row: 2; justify-self: center; margin-top: 4px; }
+[data-ref="previous"] { grid-column: 5; grid-row: 1; }
+[data-ref="next"] { grid-column: 6; grid-row: 1; }
+[data-ref="fullscreen"] { grid-column: 7; grid-row: 1; }
 
-#simulation .player, #simulation .baseline-player { grid-template-rows: auto 112px; }
+.simulation-task .player, .simulation-task .baseline-player { grid-template-rows: auto 112px; }
 
 /* Go2 沿用播放器和节点组件，缺少的实拍素材继续占位。 */
 #go2 .go2-placeholder { grid-template-rows: 1fr; min-height: 0; }
 #go2 .go2-placeholder .baseline-stage { height: 100%; aspect-ratio: auto; min-height: 240px; }
-#go2-player { grid-template-rows: auto 76px; }
+[data-ref="go2-player"], [data-ref="go2-external-player"] { grid-template-rows: auto 76px; }
 #go2 .transport-row { display: grid; grid-template-columns: 30px 72px 56px 1fr 24px; gap: 6px; }
-#go2-fullscreen { grid-column: 5; }
+[data-ref="go2-fullscreen"], [data-ref="go2-external-fullscreen"] { grid-column: 5; }
 #go2 .realworld-notes { padding: 14px; }
-#go2-chapters { align-self: stretch; flex: 1; display: grid; grid-auto-rows: minmax(42px, 1fr); gap: 3px; list-style: none; padding: 0; margin: 0; }
-#go2-timeline { appearance: none; display: block; width: 100%; height: 20px; margin: 0; background: transparent; cursor: pointer; }
-#go2-timeline::-webkit-slider-runnable-track { height: 3px; background: #dedfe0; }
-#go2-timeline::-webkit-slider-thumb { appearance: none; width: 10px; height: 10px; margin-top: -3.5px; border-radius: 50%; background: var(--replay-accent); }
-#go2-timeline::-moz-range-track { height: 3px; background: #dedfe0; }
-#go2-timeline::-moz-range-thumb { width: 10px; height: 10px; border: 0; border-radius: 50%; background: var(--replay-accent); }
+[data-ref="go2-chapters"] { align-self: stretch; flex: 1; display: grid; grid-auto-rows: minmax(42px, 1fr); gap: 3px; list-style: none; padding: 0; margin: 0; }
+[data-ref="go2-timeline"], [data-ref="go2-external-timeline"] { appearance: none; display: block; width: 100%; height: 20px; margin: 0; background: transparent; cursor: pointer; }
+[data-ref="go2-timeline"]::-webkit-slider-runnable-track, [data-ref="go2-external-timeline"]::-webkit-slider-runnable-track { height: 3px; background: #dedfe0; }
+[data-ref="go2-timeline"]::-webkit-slider-thumb, [data-ref="go2-external-timeline"]::-webkit-slider-thumb { appearance: none; width: 10px; height: 10px; margin-top: -3.5px; border-radius: 50%; background: var(--replay-accent); }
+[data-ref="go2-timeline"]::-moz-range-track, [data-ref="go2-external-timeline"]::-moz-range-track { height: 3px; background: #dedfe0; }
+[data-ref="go2-timeline"]::-moz-range-thumb, [data-ref="go2-external-timeline"]::-moz-range-thumb { width: 10px; height: 10px; border: 0; border-radius: 50%; background: var(--replay-accent); }
+
+[data-ref="go2-external-video"] { object-fit: contain; background: var(--surface); }
+.go2-provenance { color: var(--muted); font-size: 12px; margin: 10px 0 0; }
+[data-ref="go2-external-coverage"] { inset: 0; border: 0; border-radius: 0; background: var(--surface); color: var(--muted); margin: 0; display: grid; place-items: center; }
+
+/* 任务常驻展开，每个标题对应下方完整的一组播放器。 */
+.task-stack { display: grid; gap: 56px; container-type: inline-size; container-name: tasks; }
+.task-heading { grid-column: 1 / -1; margin: 0 0 8px; font-size: 20px; line-height: 1.5; font-weight: 550; }
+.go2-task > .task-heading { margin-bottom: 24px; }
+@media (max-width: 600px) {
+  .task-stack { gap: 44px; }
+  .task-heading { font-size: 18px; }
+}
