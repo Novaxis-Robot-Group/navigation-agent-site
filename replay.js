@@ -74,8 +74,10 @@ function showNote(button, node) {
   $("#note-kind").textContent = language === "zh" ? node.label : node.labelEn;
   $("#note-time").textContent = clock(node.time);
   $("#note-text").textContent = language === "zh" ? node.reason : node.reasonEn;
+  const editedInstruction = node.sourceInstruction && node.sourceInstruction !== node.instruction;
   $("#instruction").hidden = !node.instruction;
   $("#instruction").textContent = node.instruction ? `VLN → ${node.instruction}` : "";
+  $("#instruction").title = editedInstruction ? text("原始发送指令：", "Recorded instruction: ") + node.sourceInstruction : "";
   note.hidden = false;
   button.setAttribute("aria-expanded", "true");
   button.setAttribute("aria-describedby", "note-text");
@@ -486,6 +488,13 @@ function initializeReplay(root, item) {
   });
   player.tabIndex = 0;
 
+  if (item.edit?.kind === 'thinking_trim') {
+    const label = element('span', 'replay-edit-label');
+    label.dataset.zh = '精简回放';
+    label.dataset.en = 'Edited replay';
+    label.textContent = text(label.dataset.zh, label.dataset.en);
+    $("#agent-title").append(label);
+  }
   video.defaultPlaybackRate = video.playbackRate = Number($("#speed").value);
   baselineVideo.defaultPlaybackRate = baselineVideo.playbackRate = Number($("#baseline-speed").value);
   video.controls = baselineVideo.controls = false;
@@ -496,9 +505,8 @@ function initializeReplay(root, item) {
 function initializeGo2Replay(root, run) {
   const { one: $ } = taskQueries(root);
   const camera = $("#go2-video"), external = $("#go2-external-video");
-  const controls = $("#go2-player"), externalControls = $("#go2-external-player");
+  const controls = $("#go2-player");
   const chapters = $("#go2-chapters");
-  const prefixes = ["go2", "go2-external"];
   let pending = 0, loading = false, wantsPlay = false, failed = false, externalFailed = false;
   let version = 0, rate = 4, externalTarget = 0;
 
@@ -527,19 +535,26 @@ function initializeGo2Replay(root, run) {
 
   function update() {
     const time = currentTime(), playing = wantsPlay || !camera.paused;
-    for (const prefix of prefixes) {
-      $(`#${prefix}-timeline`).value = time;
-      $(`#${prefix}-timeline`).setAttribute("aria-valuetext", `${clock(time)} / ${clock(run?.duration)}`);
-      $(`#${prefix}-elapsed`).textContent = clock(time);
-      $(`#${prefix}-duration`).textContent = clock(run?.duration);
-      $(`#${prefix}-play`).textContent = playing ? "Ⅱ" : "▶";
-      $(`#${prefix}-play`).setAttribute("aria-label", playing ? text("暂停 Go2 双视角", "Pause Go2 views") : text("播放 Go2 双视角", "Play Go2 views"));
-    }
+    $("#go2-timeline").value = time;
+    $("#go2-timeline").setAttribute("aria-valuetext", `${clock(time)} / ${clock(run?.duration)}`);
+    $("#go2-elapsed").textContent = clock(time);
+    $("#go2-duration").textContent = clock(run?.duration);
+    $("#go2-play").textContent = playing ? "Ⅱ" : "▶";
+    $("#go2-play").setAttribute("aria-label", playing ? text("暂停 Go2 双视角", "Pause Go2 views") : text("播放 Go2 双视角", "Play Go2 views"));
     let current = 0;
     run?.nodes.forEach((node, index) => { if (node.time <= time + .02) current = index; });
     chapters.querySelectorAll("button").forEach((button, index) => {
-      if (index === current) button.setAttribute("aria-current", "step");
-      else button.removeAttribute("aria-current");
+      if (index === current) {
+        const changed = button.getAttribute("aria-current") !== "step";
+        button.setAttribute("aria-current", "step");
+        // 只滚动桌面节点栏，不带动整页；播放进入新节点时保持其可见。
+        if (changed && chapters.scrollHeight > chapters.clientHeight) {
+          const item = button.getBoundingClientRect();
+          const list = chapters.getBoundingClientRect();
+          if (item.top < list.top) chapters.scrollTop += item.top - list.top;
+          else if (item.bottom > list.bottom) chapters.scrollTop += item.bottom - list.bottom;
+        }
+      } else button.removeAttribute("aria-current");
     });
     syncExternal();
   }
@@ -636,6 +651,9 @@ function initializeGo2Replay(root, run) {
     }
     $("#go2-provenance").hidden = !run?.provenance;
     $("#go2-provenance").textContent = run ? text(run.provenanceZh || "", run.provenanceEn || "") : "";
+    if (run?.edit?.kind === "thinking_trim") {
+      $("#go2-provenance").textContent = text("精简回放 · ", "Edited replay · ") + $("#go2-provenance").textContent;
+    }
     update();
   }
 
@@ -644,12 +662,10 @@ function initializeGo2Replay(root, run) {
     camera.onloadedmetadata = null;
     pending = 0; loading = wantsPlay = failed = externalFailed = false;
     controls.hidden = !run;
-    externalControls.hidden = !run?.external;
-    $("#go2-placeholder").hidden = !!run;
-    $("#go2-external-placeholder").hidden = !!run?.external;
     $("#go2-external-error").hidden = true;
     chapters.hidden = !run; $("#go2-empty").hidden = !!run;
-    for (const prefix of prefixes) $(`#${prefix}-timeline`).max = run?.duration || 1;
+    $("#go2-timeline").max = run?.duration || 1;
+    $("#go2-speed").value = String(rate);
     external.preload = "none";
     if (run?.external) { external.src = run.external.video; external.poster = run.external.poster; }
     else { external.removeAttribute("src"); external.removeAttribute("poster"); external.load(); }
@@ -658,33 +674,29 @@ function initializeGo2Replay(root, run) {
     renderNodes();
   }
 
-  for (const prefix of prefixes) {
-    const media = prefix === "go2" ? camera : external;
-    const panel = $(`#${prefix}-player`);
-    $(`#${prefix}-play`).addEventListener("click", toggle);
-    media.addEventListener("click", toggle);
-    $(`#${prefix}-timeline`).addEventListener("input", event => seekTo(Number(event.target.value)));
-    $(`#${prefix}-speed`).addEventListener("change", event => {
-      rate = Number(event.target.value);
-      camera.playbackRate = external.playbackRate = rate;
-      for (const name of prefixes) $(`#${name}-speed`).value = String(rate);
-    });
-    $(`#${prefix}-fullscreen`).addEventListener("click", async () => {
-      try {
-        if (document.fullscreenElement) await document.exitFullscreen();
-        else if (panel.requestFullscreen) await panel.requestFullscreen();
-        else if (media.webkitEnterFullscreen) media.webkitEnterFullscreen();
-      } catch { /* 不支持全屏时继续使用内联控件。 */ }
-    });
-    panel.tabIndex = 0;
-    panel.addEventListener("keydown", event => {
-      if (event.target.closest("button, input, select") || !run) return;
-      if (event.code === "Space" || event.key.toLowerCase() === "k") { event.preventDefault(); toggle(); }
-      if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
-        event.preventDefault(); seekTo(currentTime() + (event.key === "ArrowLeft" ? -5 : 5));
-      }
-    });
-  }
+  // 两个画面与键盘操作都使用同一套播放控件。
+  $("#go2-play").addEventListener("click", toggle);
+  for (const media of [camera, external]) media.addEventListener("click", toggle);
+  $("#go2-timeline").addEventListener("input", event => seekTo(Number(event.target.value)));
+  $("#go2-speed").addEventListener("change", event => {
+    rate = Number(event.target.value);
+    camera.playbackRate = external.playbackRate = rate;
+  });
+  $("#go2-fullscreen").addEventListener("click", async () => {
+    try {
+      if (document.fullscreenElement) await document.exitFullscreen();
+      else if (controls.requestFullscreen) await controls.requestFullscreen();
+      else if (camera.webkitEnterFullscreen) camera.webkitEnterFullscreen();
+    } catch { /* 不支持全屏时继续使用内联控件。 */ }
+  });
+  controls.tabIndex = 0;
+  controls.addEventListener("keydown", event => {
+    if (event.target.closest("button, input, select") || !run) return;
+    if (event.code === "Space" || event.key.toLowerCase() === "k") { event.preventDefault(); toggle(); }
+    if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+      event.preventDefault(); seekTo(currentTime() + (event.key === "ArrowLeft" ? -5 : 5));
+    }
+  });
   camera.addEventListener("timeupdate", () => { if (!loading) pending = camera.currentTime; update(); });
   camera.addEventListener("play", update);
   camera.addEventListener("playing", update);
@@ -734,8 +746,7 @@ async function initializeTasks() {
         const recordings = await response.json();
         const tasks = [
           { key: 'bin', goal: '走到银色垃圾桶旁', goalEn: 'Walk to the silver trash bin' },
-          { key: 'water', goal: '走到饮水机旁', goalEn: 'Walk to the water dispenser' },
-          { key: 'meeting', goal: '走到会议室', goalEn: 'Walk to the meeting room' },
+          { key: 'pantry', goal: '走到茶水间吧台', goalEn: 'Walk to the pantry counter' },
         ];
         tasks.forEach((task, index) => {
           const run = recordings[task.key] || null;

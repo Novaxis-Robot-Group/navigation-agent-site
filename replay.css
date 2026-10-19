@@ -16,6 +16,7 @@
 .comparison-column { min-width: 0; display: grid; grid-template-rows: subgrid; grid-row: 2 / 4; }
 .baseline-column { grid-column: 1; }
 .comparison-heading { margin: 0; font-size: 18px; line-height: 1.6; font-weight: 550; }
+.replay-edit-label { margin-left: 10px; color: var(--muted); font-size: 12px; font-weight: 400; white-space: nowrap; }
 .agent-column { grid-column: 2; position: relative; }
 .agent-column::before { content: ""; position: absolute; left: -12px; top: 0; bottom: 0; width: 1px; background: var(--replay-line); } /* taste-skill-ignore: 用户要求两个方法之间用竖线分隔。 */
 .baseline-player { overflow: hidden; border: 1px solid var(--card-border); border-radius: var(--card-radius); box-shadow: var(--card-shadow); display: grid; grid-template-rows: 48px auto 112px; } /* taste-skill-ignore: 与真实播放器同画幅的占位。 */
@@ -125,19 +126,25 @@
 
 .simulation-task .player, .simulation-task .baseline-player { grid-template-rows: auto 112px; }
 
-/* Go2 沿用播放器和节点组件，缺少的实拍素材继续占位。 */
-#go2 .go2-placeholder { grid-template-rows: 1fr; min-height: 0; }
-#go2 .go2-placeholder .baseline-stage { height: 100%; aspect-ratio: auto; min-height: 240px; }
-[data-ref="go2-player"], [data-ref="go2-external-player"] { grid-template-rows: auto 76px; }
+/* Go2 同次录像左右分屏，只保留一套公共控制区。 */
+.go2-view-headings, .go2-views { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2px; }
+.go2-view-headings h5:last-child { padding-left: 12px; }
+.go2-player { grid-template-rows: auto 76px; }
+.go2-player:fullscreen { grid-template-rows: minmax(0, 1fr) 76px; }
+.go2-player:fullscreen .go2-views { align-self: center; justify-self: center; width: min(100%, calc((100dvh - 76px) * 32 / 9)); }
 #go2 .transport-row { display: grid; grid-template-columns: 30px 72px 56px 1fr 24px; gap: 6px; }
-[data-ref="go2-fullscreen"], [data-ref="go2-external-fullscreen"] { grid-column: 5; }
-#go2 .realworld-notes { padding: 14px; }
-[data-ref="go2-chapters"] { align-self: stretch; flex: 1; display: grid; grid-auto-rows: minmax(42px, 1fr); gap: 3px; list-style: none; padding: 0; margin: 0; }
-[data-ref="go2-timeline"], [data-ref="go2-external-timeline"] { appearance: none; display: block; width: 100%; height: 20px; margin: 0; background: transparent; cursor: pointer; }
-[data-ref="go2-timeline"]::-webkit-slider-runnable-track, [data-ref="go2-external-timeline"]::-webkit-slider-runnable-track { height: 3px; background: #dedfe0; }
-[data-ref="go2-timeline"]::-webkit-slider-thumb, [data-ref="go2-external-timeline"]::-webkit-slider-thumb { appearance: none; width: 10px; height: 10px; margin-top: -3.5px; border-radius: 50%; background: var(--replay-accent); }
-[data-ref="go2-timeline"]::-moz-range-track, [data-ref="go2-external-timeline"]::-moz-range-track { height: 3px; background: #dedfe0; }
-[data-ref="go2-timeline"]::-moz-range-thumb, [data-ref="go2-external-timeline"]::-moz-range-thumb { width: 10px; height: 10px; border: 0; border-radius: 50%; background: var(--replay-accent); }
+[data-ref="go2-fullscreen"] { grid-column: 5; }
+@media (max-width: 600px) {
+  .go2-view-headings .comparison-heading { font-size: 14px; }
+  .go2-view-headings h5:last-child { padding-left: 6px; }
+}
+#go2 .realworld-notes { padding: 14px; height: 0; min-height: 100%; }
+[data-ref="go2-chapters"] { align-self: stretch; flex: 1; min-height: 0; overflow-y: auto; display: grid; grid-auto-rows: minmax(42px, 1fr); gap: 3px; list-style: none; padding: 0; margin: 0; }
+[data-ref="go2-timeline"] { appearance: none; display: block; width: 100%; height: 20px; margin: 0; background: transparent; cursor: pointer; }
+[data-ref="go2-timeline"]::-webkit-slider-runnable-track { height: 3px; background: #dedfe0; }
+[data-ref="go2-timeline"]::-webkit-slider-thumb { appearance: none; width: 10px; height: 10px; margin-top: -3.5px; border-radius: 50%; background: var(--replay-accent); }
+[data-ref="go2-timeline"]::-moz-range-track { height: 3px; background: #dedfe0; }
+[data-ref="go2-timeline"]::-moz-range-thumb { width: 10px; height: 10px; border: 0; border-radius: 50%; background: var(--replay-accent); }
 
 [data-ref="go2-external-video"] { object-fit: contain; background: var(--surface); }
 .go2-provenance { color: var(--muted); font-size: 12px; margin: 10px 0 0; }
@@ -150,4 +157,10 @@
 @media (max-width: 600px) {
   .task-stack { gap: 44px; }
   .task-heading { font-size: 18px; }
+}
+
+/* 多节点在桌面栏内滚动，保持双视频为 16:9；窄屏完整展开。 */
+@container tasks (max-width: 1000px) {
+  #go2 .realworld-notes { height: auto; min-height: 150px; }
+  [data-ref="go2-chapters"] { overflow-y: visible; }
 }
