@@ -1,13 +1,13 @@
 [
   {
     "slug": "basketball",
-    "taskId": "59754b86cacb40eca6654e541e790ecf",
+    "taskId": "2bce368f19624a8fa37ddcd70f0f6fe2",
     "goal": "找到地上的篮球",
     "status": "completed",
-    "date": "2026-10-13T01:11:51.305674+00:00",
-    "summary": "当前图(O12)右侧透过白色玻璃门，清晰可见隔壁房间橙色地板上有一个深褐色圆形篮球，符合任务目标特征。",
-    "duration": 85.4,
-    "wallDuration": 186.86,
+    "date": "2026-10-20T10:26:48.847824+00:00",
+    "summary": "当前图O7中，木门与远处门洞之间的橙色地面上清晰可见橙棕色圆形篮球，距离很近，已走到其旁边",
+    "duration": 90.0,
+    "wallDuration": 149.203,
     "goalEn": "Find the basketball",
     "nodes": [
       {
@@ -21,88 +21,102 @@
         "sourceTime": 0
       },
       {
-        "time": 2.084,
         "type": "decision",
         "step": 1,
-        "action": "look",
-        "reason": "当前正面地面未见目标，先向左观察以覆盖房间左侧区域，寻找篮球或更多线索",
-        "instruction": "",
-        "region": "带木桌和窗户的房间",
-        "confirmed": null,
-        "label": "观察起始房间",
-        "labelEn": "Scan the room",
-        "reasonEn": "No target is visible ahead. Look left to inspect the rest of the room.",
-        "sourceTime": 6.184
-      },
-      {
-        "time": 20.408,
-        "type": "decision",
-        "step": 6,
         "action": "navigate",
-        "reason": "当前房间主要地面已检查未发现目标，右前方可见明确通往隔壁房间的门洞C1，应前往探索新区域寻找篮球",
-        "instruction": "Go to the front-right doorway.",
-        "region": "带木桌和窗户的房间",
+        "reason": "当前未见篮球，右侧门洞是明确可通行入口，前往查看门内区域",
+        "instruction": "Go to the doorway on the right.",
+        "region": "木地板与右侧门洞",
         "confirmed": null,
-        "label": "选择新的入口",
-        "labelEn": "Choose a doorway",
-        "reasonEn": "The visible floor has been searched. Explore the front-right doorway to find new clues.",
-        "sourceTime": 51.008
+        "label": "前往右侧门洞",
+        "labelEn": "Explore the right doorway",
+        "reasonEn": "No basketball is visible. Explore the open doorway on the right.",
+        "time": 2.063,
+        "sourceTime": 7.363
       },
       {
-        "time": 57.703,
         "type": "decision",
-        "step": 8,
+        "step": 2,
         "action": "navigate",
-        "reason": "已进入新房间（卧室），当前正前方地面开阔且未检查，需向前移动以扩大视野并搜索篮球，同时启用目标检测。",
-        "instruction": "Go to the open floor area in front of the bed.",
-        "region": "带白色玻璃门和床的卧室",
+        "reason": "门内房间已看清但未见篮球，进入该房间继续搜索地面",
+        "instruction": "Go to the doorway on the left.",
+        "region": "木地板与右侧门洞",
         "confirmed": null,
-        "label": "进入卧室搜索",
-        "labelEn": "Search the bedroom",
-        "reasonEn": "The robot has entered a bedroom. Move forward to inspect the floor.",
-        "sourceTime": 107.703
+        "label": "进入门内继续搜索",
+        "labelEn": "Enter the next room",
+        "reasonEn": "The room beyond the doorway is visible, but no basketball is in sight. Enter to search the floor.",
+        "time": 20.117,
+        "sourceTime": 29.717
       },
       {
-        "time": 75.401,
         "type": "decision",
-        "step": 10,
+        "step": 3,
         "action": "navigate",
-        "reason": "床铺周围可见地面已检查未发现篮球，根据探索记忆，右侧白色玻璃门（C7）是 R2 内剩余的主要未查入口，需前往检查门后区域。",
-        "instruction": "Go to the white glass door on the right.",
-        "region": "黑框床, 棕色小窗",
+        "reason": "已穿过门洞进入新房间，前方可见开阔地面与远处门洞，继续搜索篮球",
+        "instruction": "Walk to the open floor ahead.",
+        "region": "白色置物架与木门",
         "confirmed": null,
-        "label": "查看玻璃门后",
-        "labelEn": "Explore beyond the door",
-        "reasonEn": "No basketball was found around the bed. Explore the white glass door on the right.",
-        "sourceTime": 144.801
+        "label": "前移扩大观察范围",
+        "labelEn": "Move forward to search",
+        "reasonEn": "The robot has entered another room. Move onto the open floor to inspect more of the room.",
+        "time": 50.386,
+        "sourceTime": 64.986
       },
       {
-        "time": 83.051,
+        "type": "decision",
+        "step": 4,
+        "action": "navigate",
+        "reason": "当前房间地面已看清未见篮球，右侧门洞是明确可通行入口，前往查看门内区域",
+        "instruction": "Go to the doorway on the right.",
+        "region": "白色格栅门、深色床",
+        "confirmed": null,
+        "label": "继续探索右侧门洞",
+        "labelEn": "Explore another doorway",
+        "reasonEn": "No basketball was found on the visible floor. Explore the open doorway on the right.",
+        "time": 63.411,
+        "sourceTime": 87.011
+      },
+      {
         "type": "target_detection_hit",
-        "step": 11,
+        "step": 5,
         "action": null,
         "reason": "目标检测器产生篮球候选，等待 Agent 复核。",
         "instruction": "",
         "region": "",
         "confirmed": null,
-        "label": "发现目标线索",
-        "labelEn": "Detect a possible target",
+        "label": "发现篮球线索",
+        "labelEn": "Detect a possible basketball",
         "reasonEn": "The detector reports a possible basketball. Agent verification is still pending.",
-        "sourceTime": 152.451
+        "time": 75.177,
+        "sourceTime": 98.777
       },
       {
-        "time": 85.201,
+        "type": "decision",
+        "step": 6,
+        "action": "navigate",
+        "reason": "已确认地上的篮球，走向其附近可通行地面以完成找到目标",
+        "instruction": "Walk to the basketball on the floor.",
+        "region": "白色格栅门、木门",
+        "confirmed": null,
+        "label": "确认篮球并接近",
+        "labelEn": "Confirm and approach the ball",
+        "reasonEn": "The Agent confirms the detected basketball on the floor and moves closer.",
+        "time": 77.368,
+        "sourceTime": 122.668
+      },
+      {
         "type": "completion_check",
-        "step": 12,
+        "step": 7,
         "action": null,
-        "reason": "当前图像（O12）显示机器人位于卧室区域，右侧白框玻璃门后的橙色地板房间内清晰可见一个深褐色球体（篮球）。结合历史图 O11 及其检测框（detection-011.jpg）确认该物体为篮球。虽然目标在相邻房间且有一定距离，但在当前视野中明确可见，符合'找到'的视觉确认条件。",
+        "reason": "当前图O7中，木门与远处门洞之间的橙棕色圆形球体清晰可见，与历史图O6中标注的篮球在类别、形状和颜色上一致，确认为同一目标。机器人已从P5移动到P6，位移2.44米，当前视角正对篮球且距离很近，满足“找到地上的篮球”的完成条件。",
         "instruction": "",
         "region": "",
         "confirmed": true,
         "label": "完成条件核验通过",
         "labelEn": "Completion verified",
-        "reasonEn": "The basketball is visible on the orange floor beyond the glass door. Visual confirmation satisfies this find task.",
-        "sourceTime": 178.601
+        "reasonEn": "The basketball is clearly visible nearby on the floor. The Agent verifies completion using the current and earlier views.",
+        "time": 89.9,
+        "sourceTime": 142.1
       }
     ],
     "baseline": {
@@ -119,108 +133,63 @@
     "edit": {
       "kind": "thinking_trim",
       "keepThinkingSeconds": 2,
-      "sourceDuration": 178.8,
+      "sourceDuration": 142.2,
       "removedRanges": [
         [
           2.0,
-          6.1
+          7.3
         ],
         [
-          9.7,
-          15.0
+          25.4,
+          29.7
         ],
         [
-          18.6,
-          22.6
+          59.9,
+          64.9
         ],
         [
-          26.1,
-          31.1
+          78.0,
+          87.0
         ],
         [
-          34.7,
-          40.4
+          100.9,
+          122.6
         ],
         [
-          44.5,
-          51.0
-        ],
-        [
-          72.2,
-          80.5
-        ],
-        [
-          96.6,
-          107.7
-        ],
-        [
-          116.5,
-          126.2
-        ],
-        [
-          135.1,
-          144.8
-        ],
-        [
-          154.6,
-          178.6
+          135.2,
+          142.1
         ]
       ],
       "waitingPeriods": [
         {
           "step": 1,
           "start": 0.0,
-          "end": 6.184
+          "end": 7.363
         },
         {
           "step": 2,
-          "start": 7.664,
-          "end": 15.054
+          "start": 23.347,
+          "end": 29.717
         },
         {
           "step": 3,
-          "start": 16.542,
-          "end": 22.642
+          "start": 57.884,
+          "end": 64.986
         },
         {
           "step": 4,
-          "start": 24.094,
-          "end": 31.112
-        },
-        {
-          "step": 5,
-          "start": 32.61,
-          "end": 40.47
+          "start": 75.99,
+          "end": 87.011
         },
         {
           "step": 6,
-          "start": 42.484,
-          "end": 51.008
+          "start": 98.801,
+          "end": 122.668
         },
         {
           "step": 7,
-          "start": 70.122,
-          "end": 80.557
-        },
-        {
-          "step": 8,
-          "start": 94.594,
-          "end": 107.703
-        },
-        {
-          "step": 9,
-          "start": 114.403,
-          "end": 126.297
-        },
-        {
-          "step": 10,
-          "start": 133.037,
-          "end": 144.801
-        },
-        {
-          "step": 12,
-          "start": 152.537,
-          "end": 178.684
+          "start": 133.189,
+          "end": 142.1
         }
       ]
     }
