@@ -55,7 +55,7 @@ class Media extends Element {
     this.emit('seeked');
     this.emit('canplay');
   }
-  load() { this.emit('loadedmetadata'); }
+  load() { this.loadCount = (this.loadCount || 0) + 1; this.emit('loadedmetadata'); }
   play() {
     if (this.paused) {
       this.paused = false;
@@ -329,4 +329,22 @@ test('加载失败显示重试提示，重试与取消不会丢失播放控制',
   await replay.advance(.2);
   assert.equal(replay.one('#go2-error').hidden, true);
   assert.equal(replay.camera.paused, false);
+});
+
+
+test('打开页面即预加载 Go2 4× 两路，保持暂停，点击不会重新下载', async () => {
+  const replay = setup(4, true);
+  assert.equal(replay.camera.preload, 'auto');
+  assert.equal(replay.external.preload, 'auto');
+  assert.equal(replay.camera.loadCount, 1);
+  assert.equal(replay.external.loadCount, 1);
+  await replay.advance(5);
+  assert.equal(replay.camera.currentTime, 0);
+  assert.equal(replay.camera.paused, true);
+  assert.equal(replay.external.paused, true);
+  replay.start();
+  await replay.advance(.2);
+  assert.equal(replay.camera.paused, false);
+  assert.equal(replay.camera.loadCount, 1);
+  assert.equal(replay.external.loadCount, 1);
 });

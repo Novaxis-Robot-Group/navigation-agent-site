@@ -620,7 +620,7 @@ function initializeGo2Replay(root, run) {
     // 只检查实际播放余量，不再人为等待固定时长。
     if (buffering) {
       if (performance.now() - bufferingSince < 300) return;
-      if (!media.every(video => hasBuffer(video, mediaRate() * (hasPlayed ? 1 : .75)))) return;
+      if (!media.every(video => hasBuffer(video, mediaRate() * (hasPlayed ? 1 : 2.5)))) return;
       const requestedVersion = version;
       starting = true;
       buffering = false;
@@ -818,7 +818,8 @@ function initializeGo2Replay(root, run) {
   $("#go2-speed").value = String(rate);
   if (run) { setSources(); camera.poster = run.poster; }
   if (run?.external) external.poster = run.external.poster;
-  // 轻量素材在点击后再下载，避免相邻任务的预加载抢占首播带宽。
+  // 打开页面就准备轻量 4× 素材，访客阅读介绍时完成下载；不自动播放。
+  if (run?.playback4x) prepare();
   renderNodes();
 }
 async function initializeTasks() {
