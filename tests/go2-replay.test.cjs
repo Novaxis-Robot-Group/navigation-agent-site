@@ -37,6 +37,8 @@ class Media extends Element {
     this.seeking = false;
     this.seekCount = 0;
     this.seekRemaining = 0;
+    this.bufferEnd = 150;
+    this.buffered = {length: 1, start: () => 0, end: () => this.bufferEnd};
   }
   get currentTime() { return this.time; }
   set currentTime(value) {
@@ -82,6 +84,8 @@ function setup(rate = 4) {
     return elements.get(selector);
   };
   let now = 0;
+  const timers = new Map();
+  let timerId = 0;
   const context = vm.createContext({
     taskQueries: () => ({ one }),
     clock: String,
@@ -89,6 +93,8 @@ function setup(rate = 4) {
     hideNote() {},
     document: new Element(),
     performance: { now: () => now * 1000 },
+    setInterval(callback) { const id = ++timerId; timers.set(id, callback); return id; },
+    clearInterval(id) { timers.delete(id); },
   });
   vm.runInContext(go2, context);
   context.initializeGo2Replay({}, { duration: 150, video: 'robot.mp4', nodes: [], external: { start: 0, duration: 150, video: 'external.mp4' } });
@@ -101,13 +107,16 @@ function setup(rate = 4) {
   return {
     camera, external, one,
     start() { one('#go2-play').emit('click'); },
-    advance(seconds) {
+    async advance(seconds) {
       for (let step = 0; step < Math.round(seconds / .01); step++) {
         now += .01;
         camera.advance(.01);
         external.advance(.01);
         // timeupdate 的触发间隔按墙钟计，4× 时每次约跨越一秒录像。
         if (step % 25 === 0) camera.emit('timeupdate');
+        if (step % 20 === 0) for (const callback of timers.values()) callback();
+        await Promise.resolve();
+        await Promise.resolve();
       }
     },
   };
@@ -122,22 +131,22 @@ test('4× 跳转尚未完成时，不重复重设实拍进度', () => {
   assert.equal(external.seekCount, seeks);
 });
 
-test('4× 解码延迟后能恢复同步，不陷入连续跳转', () => {
+test('4× 解码延迟后能恢复同步，不陷入连续跳转', async () => {
   const replay = setup();
   replay.start();
   replay.camera.time = 5;
   replay.external.time = 3.8;
-  replay.advance(6);
+  await replay.advance(6);
   assert.ok(replay.external.seekCount <= 2, `实拍被打断 ${replay.external.seekCount} 次`);
   assert.ok(Math.abs(replay.camera.time - replay.external.time) < .35);
 });
 
-test('小幅偏差通过速度纠正，暂停和切速仍保留用户设置', () => {
+test('小幅偏差通过速度纠正，暂停和切速仍保留用户设置', async () => {
   const replay = setup();
   replay.start();
   replay.camera.time = 5;
   replay.external.time = 4.6;
-  replay.advance(4);
+  await replay.advance(4);
   assert.equal(replay.external.seekCount, 0);
   assert.ok(Math.abs(replay.camera.time - replay.external.time) < .25);
   replay.one('#go2-play').emit('click');
@@ -149,13 +158,110 @@ test('小幅偏差通过速度纠正，暂停和切速仍保留用户设置', ()
   assert.equal(replay.external.playbackRate, 1);
 });
 
-test('1× 正常播放不跳转，主动拖动立即对齐两路', () => {
+test('1× 正常播放不跳转，主动拖动立即对齐两路', async () => {
   const replay = setup(1);
   replay.start();
-  replay.advance(3);
+  await replay.advance(3);
   assert.equal(replay.external.seekCount, 0);
   replay.one('#go2-timeline').value = 25;
   replay.one('#go2-timeline').emit('input');
   assert.equal(replay.camera.time, 25);
   assert.equal(replay.external.time, 25);
+});
+
+
+test('4× 首播优先等待两路六秒录像，进度不足时不提前启动相机', async () => {
+  const replay = setup();
+  replay.external.bufferEnd = 1;
+  replay.external.readyState = 3;
+  replay.start();
+  await replay.advance(1);
+  assert.equal(replay.camera.paused, true);
+  assert.equal(replay.external.paused, true);
+  assert.equal(replay.one('#go2-buffering').hidden, false);
+  replay.external.bufferEnd = 20;
+  replay.external.emit('progress');
+  await replay.advance(5);
+  assert.equal(replay.camera.paused, false);
+  assert.equal(replay.external.paused, false);
+});
+
+test('实拍断流时两路一起等待，补足缓存后自动恢复', async () => {
+  const replay = setup();
+  replay.start();
+  await replay.advance(.5);
+  replay.external.bufferEnd = replay.external.time;
+  replay.external.readyState = 2;
+  replay.external.emit('waiting');
+  assert.equal(replay.camera.paused, true);
+  assert.equal(replay.external.paused, true);
+  const time = replay.camera.time;
+  await replay.advance(1);
+  assert.equal(replay.camera.time, time);
+  assert.equal(replay.external.seekCount, 0);
+  replay.external.readyState = 4;
+  replay.external.bufferEnd = 150;
+  replay.external.emit('canplay');
+  await replay.advance(.5);
+  assert.equal(replay.camera.paused, false);
+  assert.equal(replay.external.paused, false);
+});
+
+test('用户取消缓冲后，迟到的加载事件不会自动开播', async () => {
+  const replay = setup();
+  replay.external.bufferEnd = 0;
+  replay.external.readyState = 2;
+  replay.start();
+  replay.one('#go2-play').emit('click');
+  replay.external.bufferEnd = 150;
+  replay.external.readyState = 4;
+  replay.external.emit('canplay');
+  await replay.advance(.5);
+  assert.equal(replay.camera.paused, true);
+  assert.equal(replay.external.paused, true);
+  assert.equal(replay.one('#go2-buffering').hidden, true);
+});
+
+test('临近片尾仅等待剩余录像，不要求固定缓存长度', async () => {
+  const replay = setup();
+  replay.camera.time = replay.external.time = 147;
+  replay.start();
+  await replay.advance(.2);
+  assert.equal(replay.camera.paused, false);
+  assert.equal(replay.external.paused, false);
+});
+
+test('Safari 确认能连续播放时，不因短缓存范围主动打断播放', async () => {
+  const replay = setup();
+  replay.external.bufferEnd = 2.4;
+  replay.start();
+  await replay.advance(6);
+  assert.equal(replay.camera.paused, false);
+  assert.equal(replay.external.paused, false);
+  assert.equal(replay.one('#go2-buffering').hidden, true);
+});
+
+test('原生全屏控件暂停相机后，实拍也停止并保持暂停', async () => {
+  const replay = setup();
+  replay.start();
+  await replay.advance(.5);
+  replay.camera.pause();
+  await replay.advance(.5);
+  assert.equal(replay.camera.paused, true);
+  assert.equal(replay.external.paused, true);
+});
+
+test('冷启动高倍速留出加载时间，完整缓存的播放直接开始', async () => {
+  const cold = setup();
+  cold.external.bufferEnd = 20;
+  cold.start();
+  await cold.advance(4);
+  assert.equal(cold.camera.paused, true);
+  await cold.advance(1.5);
+  assert.equal(cold.camera.paused, false);
+
+  const cached = setup();
+  cached.start();
+  await cached.advance(.2);
+  assert.equal(cached.camera.paused, false);
 });

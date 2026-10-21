@@ -505,17 +505,52 @@ function initializeReplay(root, item) {
 function initializeGo2Replay(root, run) {
   const { one: $ } = taskQueries(root);
   const camera = $("#go2-video"), external = $("#go2-external-video");
-  const controls = $("#go2-player");
-  const chapters = $("#go2-chapters");
-  let pending = 0, loading = false, wantsPlay = false, failed = false, externalFailed = false;
-  let version = 0, rate = 4, lastExternalSeek = -Infinity;
+  const controls = $("#go2-player"), chapters = $("#go2-chapters");
+  let pending = 0, loading = true, prepared = false, wantsPlay = false;
+  let failed = false, externalFailed = false, buffering = false, starting = false, hasPlayed = false;
+  let version = 0, rate = 4, lastExternalSeek = -Infinity, monitor;
+  let bufferingSince = -Infinity;
+  let requestedAt = -Infinity;
 
   function currentTime() { return loading ? pending : camera.currentTime; }
+  function externalCovered(time = currentTime()) {
+    return run?.external && time >= run.external.start && time <= run.external.start + run.external.duration + .02;
+  }
+  function activeMedia() {
+    return externalCovered() && !externalFailed && !external.ended ? [camera, external] : [camera];
+  }
+  function bufferedAhead(media) {
+    for (let i = 0; i < media.buffered.length; i++) {
+      if (media.buffered.start(i) <= media.currentTime + .05 && media.buffered.end(i) >= media.currentTime) {
+        return media.buffered.end(i) - media.currentTime;
+      }
+    }
+    return 0;
+  }
+  function hasBuffer(media, seconds) {
+    if (media.readyState < 3 || media.seeking) return false;
+    const remaining = Math.max(0, media.duration - media.currentTime);
+    // 再缓冲时采信 Safari 的连续播放判断，避免暂停预载时等到完整文件。
+    const canTrustEstimate = hasPlayed || performance.now() - requestedAt >= 1500;
+    return (canTrustEstimate && media.readyState === 4) || bufferedAhead(media) + .1 >= Math.min(seconds, remaining);
+  }
+  function stopMonitor() {
+    clearInterval(monitor);
+    monitor = undefined;
+  }
+  function waitForBuffer() {
+    if (!wantsPlay || buffering) return;
+    // 保留播放意图，两路一起等待，避免相机先走而实拍反复追帧。
+    buffering = true;
+    bufferingSince = performance.now();
+    camera.pause(); external.pause();
+    update();
+  }
 
   function syncExternal(force = false) {
     if (!run?.external) return;
     const time = currentTime(), start = run.external.start;
-    const covered = time >= start && time <= start + run.external.duration + .02;
+    const covered = externalCovered(time);
     const coverage = $("#go2-external-coverage");
     coverage.hidden = covered || externalFailed;
     coverage.textContent = time < start
@@ -523,38 +558,37 @@ function initializeGo2Replay(root, run) {
       : text("实拍录像已结束", "External recording has ended");
     external.style.visibility = covered ? "visible" : "hidden";
     if (!external.readyState || externalFailed) return;
-    const target = Math.max(0, Math.min(time - start, external.duration - .05));
+    if (!covered) external.pause();
+    const target = Math.max(0, Math.min(time - start, external.duration));
     const drift = target - external.currentTime;
-    const shouldPlay = covered && !camera.paused && !camera.seeking && camera.readyState >= 3;
     const now = performance.now();
-    if (!shouldPlay) external.pause();
-
-    // 4× 会放大解码延迟；小偏差调速追齐，避免反复跳转打断解码。
-    const needsSeek = Math.abs(drift) > Math.max(.5, rate * .25) && now - lastExternalSeek >= 1000;
-    if ((force && Math.abs(drift) > .02) || (!external.seeking && needsSeek)) {
+    const needsSeek = !buffering && wantsPlay && covered && !external.seeking &&
+      Math.abs(drift) > Math.max(.5, rate * .25) && now - lastExternalSeek >= 1000;
+    if ((force && Math.abs(drift) > .02) || needsSeek) {
+      if (needsSeek) waitForBuffer();
       lastExternalSeek = now;
       external.currentTime = target;
+      return;
     }
-    if (external.seeking) return;
-
-    const correction = shouldPlay && Math.abs(drift) > .05
+    // 已缓冲的两路只作小幅调速，不用跳转弥补下载不足。
+    const correction = !buffering && wantsPlay && Math.abs(drift) > .05
       ? Math.max(-.05, Math.min(.05, drift * .25)) : 0;
     external.playbackRate = rate * (1 + correction);
-    if (shouldPlay) {
-      if (external.paused) external.play().catch(error => {
-        if (error.name !== "AbortError" && error.name !== "NotAllowedError") showExternalError();
-      });
-    } else external.pause();
   }
 
   function update() {
-    const time = currentTime(), playing = wantsPlay || !camera.paused;
+    const time = currentTime();
     $("#go2-timeline").value = time;
     $("#go2-timeline").setAttribute("aria-valuetext", `${clock(time)} / ${clock(run?.duration)}`);
     $("#go2-elapsed").textContent = clock(time);
     $("#go2-duration").textContent = clock(run?.duration);
-    $("#go2-play").textContent = playing ? "Ⅱ" : "▶";
-    $("#go2-play").setAttribute("aria-label", playing ? text("暂停 Go2 双视角", "Pause Go2 views") : text("播放 Go2 双视角", "Play Go2 views"));
+    $("#go2-play").textContent = buffering ? "…" : wantsPlay ? "Ⅱ" : "▶";
+    $("#go2-play").setAttribute("aria-label", buffering
+      ? text("取消缓冲", "Cancel buffering")
+      : wantsPlay ? text("暂停 Go2 双视角", "Pause Go2 views") : text("播放 Go2 双视角", "Play Go2 views"));
+    controls.setAttribute('aria-busy', String(buffering));
+    $("#go2-buffering").hidden = !buffering;
+    $("#go2-buffering").textContent = text("正在缓冲…", "Buffering…");
     let current = 0;
     run?.nodes.forEach((node, index) => { if (node.time <= time + .02) current = index; });
     chapters.querySelectorAll("button").forEach((button, index) => {
@@ -570,7 +604,44 @@ function initializeGo2Replay(root, run) {
         }
       } else button.removeAttribute("aria-current");
     });
-    syncExternal();
+  }
+
+  async function checkPlayback() {
+    if (!wantsPlay || loading || failed || starting) return;
+    const media = activeMedia();
+    // 首播优先留一点五秒实际余量；Safari 短缓存的连续播放判断稍后再采信。
+    if (buffering) {
+      if (performance.now() - bufferingSince < 300) return;
+      // 冷启动的高倍速先积累下载余量；已完整缓冲的重播无需等待。
+      const fullyBuffered = media.every(video => bufferedAhead(video) + .1 >= video.duration - video.currentTime);
+      if (!hasPlayed && rate >= 2 && !fullyBuffered && performance.now() - requestedAt < 5000) return;
+      if (!media.every(video => hasBuffer(video, rate * (hasPlayed ? 1 : 1.5)))) return;
+      const requestedVersion = version;
+      starting = true;
+      buffering = false;
+      try {
+        await Promise.all(media.map(video => video.play().catch(error => {
+          if (video === external && error.name !== 'AbortError' && error.name !== 'NotAllowedError') {
+            showExternalError();
+          } else throw error;
+        })));
+        if (requestedVersion === version) hasPlayed = true;
+      } catch (error) {
+        if (requestedVersion === version && error.name !== 'AbortError') {
+          wantsPlay = false;
+          camera.pause(); external.pause(); stopMonitor();
+          if (error.name !== 'NotAllowedError') showError();
+        }
+      } finally {
+        starting = false;
+        update();
+      }
+    } else if (media.some(video => video.readyState < 3 || video.seeking)) {
+      waitForBuffer();
+    } else {
+      syncExternal();
+      if (externalCovered() && !externalFailed && !external.ended && external.paused) waitForBuffer();
+    }
   }
 
   function showExternalError() {
@@ -580,77 +651,61 @@ function initializeGo2Replay(root, run) {
     $("#go2-external-coverage").hidden = true;
     $("#go2-external-error").textContent = text("实拍录像无法加载，点击播放重试。", "External recording unavailable. Press play to retry.");
     $("#go2-external-error").hidden = false;
+    checkPlayback();
   }
-
   function showError() {
     if (!run) return;
     failed = true;
-    loading = wantsPlay = false;
-    camera.pause(); external.pause();
+    loading = wantsPlay = buffering = false;
+    camera.pause(); external.pause(); stopMonitor();
     $("#go2-error").textContent = text("录像无法加载，点击播放重试。", "Recording unavailable. Press play to retry.");
     $("#go2-error").hidden = false;
     update();
   }
-
-  function loadExternal() {
-    if (!run?.external) return;
-    externalFailed = false;
-    $("#go2-external-error").hidden = true;
-    external.preload = "auto";
-    external.load();
-  }
-
-  async function play() {
-    const requestedVersion = version;
-    wantsPlay = true;
-    if (run?.external && (!external.readyState || externalFailed)) loadExternal();
-    update();
-    try { await camera.play(); }
-    catch (error) {
-      if (requestedVersion !== version || error.name === "AbortError") return;
-      wantsPlay = false;
-      if (error.name !== "NotAllowedError") showError();
-      update();
+  function prepare() {
+    if (!prepared || failed) {
+      version++;
+      prepared = true; loading = true; failed = false;
+      $("#go2-error").hidden = true;
+      camera.preload = 'auto';
+      camera.load();
+    }
+    if (run?.external && (!external.readyState || externalFailed)) {
+      externalFailed = false;
+      $("#go2-external-error").hidden = true;
+      external.preload = 'auto';
+      external.load();
     }
   }
-
-  function load(time = 0, resume = false, defer = false) {
-    const requestedVersion = ++version;
+  function play() {
+    requestedAt = performance.now();
+    wantsPlay = buffering = true;
     camera.pause(); external.pause();
-    pending = time; loading = true; wantsPlay = resume; failed = false;
-    $("#go2-error").hidden = true;
-    camera.poster = run.poster;
-    camera.preload = defer ? "none" : "metadata";
-    camera.onloadedmetadata = () => {
-      if (requestedVersion !== version) return;
-      camera.currentTime = Math.min(pending, Math.max(0, camera.duration - .05));
-      camera.playbackRate = rate;
-      loading = false;
-      update();
-      if (wantsPlay) play();
-    };
-    camera.src = run.video;
-    if (!defer) camera.load();
+    prepare();
+    if (monitor == null) monitor = setInterval(checkPlayback, 200);
     update();
+    checkPlayback();
   }
-
   function seekTo(time) {
     if (!run) return;
+    version++;
+    hasPlayed = false;
     pending = Math.max(0, Math.min(time, run.duration - .05));
-    if (run.external && !external.readyState) loadExternal();
-    if (loading || failed) load(pending, wantsPlay);
-    else camera.currentTime = pending;
+    if (wantsPlay) waitForBuffer();
+    prepare();
+    if (!loading) camera.currentTime = pending;
     syncExternal(true);
     update();
+    checkPlayback();
   }
-
   function toggle() {
     if (!run) return;
-    if (failed) { load(pending, true); return; }
-    if (!camera.paused || wantsPlay) {
-      wantsPlay = false; camera.pause(); external.pause();
+    if (wantsPlay) {
+      version++;
+      wantsPlay = buffering = false;
+      camera.pause(); external.pause(); stopMonitor();
     } else {
-      if (camera.ended) camera.currentTime = 0;
+      if (camera.ended) seekTo(0);
       play();
     }
     update();
@@ -671,23 +726,6 @@ function initializeGo2Replay(root, run) {
     update();
   }
 
-  function setupTask() {
-    version++; camera.pause(); external.pause();
-    camera.onloadedmetadata = null;
-    pending = 0; loading = wantsPlay = failed = externalFailed = false;
-    controls.hidden = !run;
-    $("#go2-external-error").hidden = true;
-    chapters.hidden = !run; $("#go2-empty").hidden = !!run;
-    $("#go2-timeline").max = run?.duration || 1;
-    $("#go2-speed").value = String(rate);
-    external.preload = "none";
-    if (run?.external) { external.src = run.external.video; external.poster = run.external.poster; }
-    else { external.removeAttribute("src"); external.removeAttribute("poster"); external.load(); }
-    if (run) load(0, false, true);
-    else { camera.removeAttribute("src"); camera.removeAttribute("poster"); camera.load(); }
-    renderNodes();
-  }
-
   // 两个画面与键盘操作都使用同一套播放控件。
   $("#go2-play").addEventListener("click", toggle);
   for (const media of [camera, external]) media.addEventListener("click", toggle);
@@ -695,6 +733,7 @@ function initializeGo2Replay(root, run) {
   $("#go2-speed").addEventListener("change", event => {
     rate = Number(event.target.value);
     camera.playbackRate = external.playbackRate = rate;
+    checkPlayback();
   });
   $("#go2-fullscreen").addEventListener("click", async () => {
     try {
@@ -711,30 +750,54 @@ function initializeGo2Replay(root, run) {
       event.preventDefault(); seekTo(currentTime() + (event.key === "ArrowLeft" ? -5 : 5));
     }
   });
-  camera.addEventListener("timeupdate", () => { if (!loading) pending = camera.currentTime; update(); });
-  camera.addEventListener("play", update);
-  camera.addEventListener("playing", update);
-  camera.addEventListener("waiting", () => external.pause());
-  camera.addEventListener("seeking", () => { external.pause(); syncExternal(true); });
-  camera.addEventListener("seeked", update);
-  camera.addEventListener("pause", () => { if (!loading) wantsPlay = false; update(); });
-  camera.addEventListener("ended", () => { wantsPlay = false; update(); });
+  camera.addEventListener('loadedmetadata', () => {
+    loading = false;
+    if (Math.abs(camera.currentTime - pending) > .02) camera.currentTime = pending;
+    camera.playbackRate = rate;
+    syncExternal(true); update(); checkPlayback();
+  });
+  camera.addEventListener("timeupdate", () => {
+    if (!loading) pending = camera.currentTime;
+    syncExternal(); update(); checkPlayback();
+  });
+  camera.addEventListener('play', () => { if (!wantsPlay) play(); update(); });
+  camera.addEventListener("pause", () => {
+    if (!loading && !buffering && !starting) {
+      wantsPlay = false;
+      external.pause(); stopMonitor();
+    }
+    update();
+  });
+  camera.addEventListener("ended", () => {
+    wantsPlay = buffering = false; external.pause(); stopMonitor(); update();
+  });
   camera.addEventListener("error", showError);
-  external.addEventListener("loadedmetadata", () => syncExternal(true));
-  external.addEventListener("seeked", () => syncExternal());
-  external.addEventListener("canplay", () => syncExternal());
+  external.addEventListener('loadedmetadata', () => { syncExternal(true); checkPlayback(); });
   external.addEventListener("error", showExternalError);
+  for (const media of [camera, external]) {
+    media.addEventListener('waiting', waitForBuffer);
+    media.addEventListener('seeking', () => {
+      waitForBuffer();
+      if (media === camera) syncExternal(true);
+    });
+    for (const event of ['progress', 'canplay', 'seeked', 'playing']) media.addEventListener(event, checkPlayback);
+    media.defaultPlaybackRate = media.playbackRate = rate;
+    media.controls = false;
+    media.muted = true;
+    media.preload = 'none';
+  }
   document.addEventListener("site-language-change", () => {
     renderNodes();
     if (failed) showError();
     if (externalFailed) showExternalError();
   });
-  for (const media of [camera, external]) {
-    media.defaultPlaybackRate = media.playbackRate = rate;
-    media.controls = false;
-    media.muted = true;
-  }
-  setupTask();
+  controls.hidden = chapters.hidden = !run;
+  $("#go2-empty").hidden = !!run;
+  $("#go2-timeline").max = run?.duration || 1;
+  $("#go2-speed").value = String(rate);
+  if (run) { camera.src = run.video; camera.poster = run.poster; }
+  if (run?.external) { external.src = run.external.video; external.poster = run.external.poster; }
+  renderNodes();
 }
 async function initializeTasks() {
   await Promise.all([

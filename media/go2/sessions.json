@@ -9,7 +9,7 @@
     "video": "./media/go2/bin/robot.mp4?v=face-70c87b978d3a",
     "poster": "./media/go2/bin/poster.jpg?v=face-d546203155c6",
     "external": {
-      "video": "./media/go2/bin/external.mp4?v=81dc3a36-trim2",
+      "video": "./media/go2/bin/external.mp4?v=web-ca9a411e9e08",
       "poster": "./media/go2/bin/external-poster.jpg?v=81dc3a36",
       "start": 0,
       "duration": 41.2
@@ -133,7 +133,7 @@
     "video": "./media/go2/pantry/robot.mp4?v=face-eb1870d43202",
     "poster": "./media/go2/pantry/poster.jpg?v=face-a94edf0e6dba",
     "external": {
-      "video": "./media/go2/pantry/external.mp4?v=7c765cfd-continuous1",
+      "video": "./media/go2/pantry/external.mp4?v=web-45f69022770d",
       "poster": "./media/go2/pantry/external-poster.jpg?v=7c765cfd",
       "start": 0,
       "duration": 148.333333

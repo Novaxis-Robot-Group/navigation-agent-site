@@ -164,3 +164,5 @@
   #go2 .realworld-notes { height: auto; min-height: 150px; }
   [data-ref="go2-chapters"] { overflow-y: visible; }
 }
+
+.buffering-status { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; color: var(--muted); }
