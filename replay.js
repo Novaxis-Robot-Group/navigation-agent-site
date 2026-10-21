@@ -624,6 +624,8 @@ function initializeGo2Replay(root, run) {
       const requestedVersion = version;
       starting = true;
       buffering = false;
+      // 预加载后首次唤醒解码器可能有短暂差异，先让两路起播，避免立即跳转。
+      lastExternalSeek = performance.now();
       try {
         await Promise.all(media.map(video => video.play().catch(error => {
           if (video === external && error.name !== 'AbortError' && error.name !== 'NotAllowedError') {

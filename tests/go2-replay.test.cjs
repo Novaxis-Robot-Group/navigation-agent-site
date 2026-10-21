@@ -348,3 +348,17 @@ test('打开页面即预加载 Go2 4× 两路，保持暂停，点击不会重�
   assert.equal(replay.camera.loadCount, 1);
   assert.equal(replay.external.loadCount, 1);
 });
+
+test('预加载后起播的短暂解码差异，不触发跳转或暂停', async () => {
+  const replay = setup(4, true);
+  replay.start();
+  await replay.advance(.1);
+  replay.camera.time = .4;
+  replay.external.time = 0;
+  replay.camera.emit('timeupdate');
+  assert.equal(replay.external.seekCount, 0);
+  assert.equal(replay.camera.paused, false);
+  replay.external.time = replay.camera.time;
+  await replay.advance(.5);
+  assert.equal(replay.external.seekCount, 0);
+});
