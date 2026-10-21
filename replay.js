@@ -508,7 +508,7 @@ function initializeGo2Replay(root, run) {
   const controls = $("#go2-player");
   const chapters = $("#go2-chapters");
   let pending = 0, loading = false, wantsPlay = false, failed = false, externalFailed = false;
-  let version = 0, rate = 4, externalTarget = 0;
+  let version = 0, rate = 4, lastExternalSeek = -Infinity;
 
   function currentTime() { return loading ? pending : camera.currentTime; }
 
@@ -523,10 +523,24 @@ function initializeGo2Replay(root, run) {
       : text("实拍录像已结束", "External recording has ended");
     external.style.visibility = covered ? "visible" : "hidden";
     if (!external.readyState || externalFailed) return;
-    externalTarget = Math.max(0, Math.min(time - start, external.duration - .05));
-    if (force || Math.abs(external.currentTime - externalTarget) > .3) external.currentTime = externalTarget;
-    external.playbackRate = rate;
-    if (covered && !camera.paused && !camera.seeking && camera.readyState >= 3) {
+    const target = Math.max(0, Math.min(time - start, external.duration - .05));
+    const drift = target - external.currentTime;
+    const shouldPlay = covered && !camera.paused && !camera.seeking && camera.readyState >= 3;
+    const now = performance.now();
+    if (!shouldPlay) external.pause();
+
+    // 4× 会放大解码延迟；小偏差调速追齐，避免反复跳转打断解码。
+    const needsSeek = Math.abs(drift) > Math.max(.5, rate * .25) && now - lastExternalSeek >= 1000;
+    if ((force && Math.abs(drift) > .02) || (!external.seeking && needsSeek)) {
+      lastExternalSeek = now;
+      external.currentTime = target;
+    }
+    if (external.seeking) return;
+
+    const correction = shouldPlay && Math.abs(drift) > .05
+      ? Math.max(-.05, Math.min(.05, drift * .25)) : 0;
+    external.playbackRate = rate * (1 + correction);
+    if (shouldPlay) {
       if (external.paused) external.play().catch(error => {
         if (error.name !== "AbortError" && error.name !== "NotAllowedError") showExternalError();
       });
@@ -707,6 +721,7 @@ function initializeGo2Replay(root, run) {
   camera.addEventListener("ended", () => { wantsPlay = false; update(); });
   camera.addEventListener("error", showError);
   external.addEventListener("loadedmetadata", () => syncExternal(true));
+  external.addEventListener("seeked", () => syncExternal());
   external.addEventListener("canplay", () => syncExternal());
   external.addEventListener("error", showExternalError);
   document.addEventListener("site-language-change", () => {
