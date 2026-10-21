@@ -22,6 +22,16 @@ class PlaybackHandler(PreviewHandler):
         path = urlsplit(self.path).path
         self.throttle = path.endswith('.mp4')
         self.remaining = None
+        if path == '/__cold-start':
+            # Chromium 在 localhost 上接受此响应头；先清除此站点缓存，再由测试者打开页面。
+            self.send_response(200)
+            self.send_header('Clear-Site-Data', '"cache", "storage"')
+            self.send_header('Cache-Control', 'no-store')
+            self.send_header('Content-Type', 'text/html; charset=utf-8')
+            self.end_headers()
+            self.server.results = {}
+            self.server.requests = []
+            return io.BytesIO(b'<!doctype html><title>Cold playback test</title><p>Cache cleared for this test origin.</p><a href="/#go2-bin">Trash bin</a> <a href="/#go2-pantry">Pantry</a>')
         if path == '/__playback_results':
             return self.payload(json.dumps(self.server.results).encode(), 'application/json')
         if path == '/__playback_probe.js':
@@ -43,7 +53,8 @@ class PlaybackHandler(PreviewHandler):
             html = html.replace('</head>', '<script src="./__playback_probe.js"></script></head>')
             return self.payload(html.encode(), 'text/html; charset=utf-8')
         if self.throttle:
-            self.server.requests.append({'path': self.path, 'range': self.headers.get('Range'), 'at': time.time()})
+            self.media_request = {'path': self.path, 'range': self.headers.get('Range'), 'at': time.time(), 'bytes': 0}
+            self.server.requests.append(self.media_request)
             time.sleep(self.server.latency)
         return super().send_head()
 
@@ -56,7 +67,7 @@ class PlaybackHandler(PreviewHandler):
 
     def end_headers(self):
         # 清缓存发生在每轮测试开始前；播放期间仍允许缓存分段，与首次访问线上一致。
-        cache = 'public, max-age=600' if self.throttle else 'no-store'
+        cache = 'public, max-age=600' if getattr(self, 'throttle', False) else 'no-store'
         self.send_header('Cache-Control', cache)
         self.send_header('Accept-Ranges', 'bytes')
         SimpleHTTPRequestHandler.end_headers(self)
@@ -87,6 +98,7 @@ class PlaybackHandler(PreviewHandler):
                     self.server.next_send = deadline + len(block) * 8 / (self.server.mbps * 1e6)
                 time.sleep(max(0, deadline - time.monotonic()))
                 outputfile.write(block)
+                self.media_request['bytes'] += len(block)
                 if remaining is not None:
                     remaining -= len(block)
         except (BrokenPipeError, ConnectionResetError):

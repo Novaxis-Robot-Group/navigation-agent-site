@@ -27,7 +27,7 @@ for name, record in data.get('records', {}).items():
     for sample in record['samples']:
         media = sample['media']
         if len(media) == 2 and all(not item['paused'] and not item['seeking'] for item in media):
-            drift.append(abs(media[0]['time'] - media[1]['time']))
+            drift.append(abs(media[0]['time'] * media[0].get('scale', 1) - media[1]['time'] * media[1].get('scale', 1)))
     print(name, json.dumps({
         'startup_s': round(max(first_play.values()) - record['clicked'], 2) if len(first_play) == 2 else None,
         'max_drift_s': round(max(drift), 3) if drift else None,

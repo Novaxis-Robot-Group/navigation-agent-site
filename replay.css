@@ -165,4 +165,10 @@
   [data-ref="go2-chapters"] { overflow-y: visible; }
 }
 
-.buffering-status { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; color: var(--muted); }
+.play-button.is-loading { position: relative; color: transparent; }
+.play-button.is-loading::after { content: ""; position: absolute; inset: 8px; border: 2px solid var(--line); border-top-color: var(--accent); border-radius: 50%; opacity: 0; animation: playback-reveal .01s .45s forwards, playback-spin .8s linear infinite; }
+@keyframes playback-reveal { to { opacity: 1; } }
+@keyframes playback-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .play-button.is-loading::after { animation: playback-reveal .01s .45s forwards; }
+}

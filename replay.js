@@ -511,8 +511,17 @@ function initializeGo2Replay(root, run) {
   let version = 0, rate = 4, lastExternalSeek = -Infinity, monitor;
   let bufferingSince = -Infinity;
   let requestedAt = -Infinity;
+  let mediaScale = run?.playback4x ? 4 : 1;
+  let externalPrepared = false;
 
-  function currentTime() { return loading ? pending : camera.currentTime; }
+  // 页面始终使用原速时间；加速素材只改变媒体时间和解码速度。
+  function mediaRate() { return rate / mediaScale; }
+  function setSources() {
+    camera.src = mediaScale === 4 ? run.playback4x.video : run.video;
+    if (run.external) external.src = mediaScale === 4 ? run.playback4x.externalVideo : run.external.video;
+  }
+
+  function currentTime() { return loading ? pending : Math.min(run.duration, camera.currentTime * mediaScale); }
   function externalCovered(time = currentTime()) {
     return run?.external && time >= run.external.start && time <= run.external.start + run.external.duration + .02;
   }
@@ -559,11 +568,11 @@ function initializeGo2Replay(root, run) {
     external.style.visibility = covered ? "visible" : "hidden";
     if (!external.readyState || externalFailed) return;
     if (!covered) external.pause();
-    const target = Math.max(0, Math.min(time - start, external.duration));
+    const target = Math.max(0, Math.min((time - start) / mediaScale, external.duration));
     const drift = target - external.currentTime;
     const now = performance.now();
     const needsSeek = !buffering && wantsPlay && covered && !external.seeking &&
-      Math.abs(drift) > Math.max(.5, rate * .25) && now - lastExternalSeek >= 1000;
+      Math.abs(drift) > Math.max(.15, mediaRate() * .25) && now - lastExternalSeek >= 1000;
     if ((force && Math.abs(drift) > .02) || needsSeek) {
       if (needsSeek) waitForBuffer();
       lastExternalSeek = now;
@@ -573,7 +582,7 @@ function initializeGo2Replay(root, run) {
     // 已缓冲的两路只作小幅调速，不用跳转弥补下载不足。
     const correction = !buffering && wantsPlay && Math.abs(drift) > .05
       ? Math.max(-.05, Math.min(.05, drift * .25)) : 0;
-    external.playbackRate = rate * (1 + correction);
+    external.playbackRate = mediaRate() * (1 + correction);
   }
 
   function update() {
@@ -582,13 +591,12 @@ function initializeGo2Replay(root, run) {
     $("#go2-timeline").setAttribute("aria-valuetext", `${clock(time)} / ${clock(run?.duration)}`);
     $("#go2-elapsed").textContent = clock(time);
     $("#go2-duration").textContent = clock(run?.duration);
-    $("#go2-play").textContent = buffering ? "…" : wantsPlay ? "Ⅱ" : "▶";
+    $("#go2-play").textContent = wantsPlay ? "Ⅱ" : "▶";
+    $("#go2-play").classList.toggle('is-loading', buffering);
     $("#go2-play").setAttribute("aria-label", buffering
-      ? text("取消缓冲", "Cancel buffering")
+      ? text("取消加载", "Cancel loading")
       : wantsPlay ? text("暂停 Go2 双视角", "Pause Go2 views") : text("播放 Go2 双视角", "Play Go2 views"));
     controls.setAttribute('aria-busy', String(buffering));
-    $("#go2-buffering").hidden = !buffering;
-    $("#go2-buffering").textContent = text("正在缓冲…", "Buffering…");
     let current = 0;
     run?.nodes.forEach((node, index) => { if (node.time <= time + .02) current = index; });
     chapters.querySelectorAll("button").forEach((button, index) => {
@@ -609,13 +617,10 @@ function initializeGo2Replay(root, run) {
   async function checkPlayback() {
     if (!wantsPlay || loading || failed || starting) return;
     const media = activeMedia();
-    // 首播优先留一点五秒实际余量；Safari 短缓存的连续播放判断稍后再采信。
+    // 只检查实际播放余量，不再人为等待固定时长。
     if (buffering) {
       if (performance.now() - bufferingSince < 300) return;
-      // 冷启动的高倍速先积累下载余量；已完整缓冲的重播无需等待。
-      const fullyBuffered = media.every(video => bufferedAhead(video) + .1 >= video.duration - video.currentTime);
-      if (!hasPlayed && rate >= 2 && !fullyBuffered && performance.now() - requestedAt < 5000) return;
-      if (!media.every(video => hasBuffer(video, rate * (hasPlayed ? 1 : 1.5)))) return;
+      if (!media.every(video => hasBuffer(video, mediaRate() * (hasPlayed ? 1 : .75)))) return;
       const requestedVersion = version;
       starting = true;
       buffering = false;
@@ -670,7 +675,8 @@ function initializeGo2Replay(root, run) {
       camera.preload = 'auto';
       camera.load();
     }
-    if (run?.external && (!external.readyState || externalFailed)) {
+    if (run?.external && (!externalPrepared || externalFailed)) {
+      externalPrepared = true;
       externalFailed = false;
       $("#go2-external-error").hidden = true;
       external.preload = 'auto';
@@ -693,7 +699,7 @@ function initializeGo2Replay(root, run) {
     pending = Math.max(0, Math.min(time, run.duration - .05));
     if (wantsPlay) waitForBuffer();
     prepare();
-    if (!loading) camera.currentTime = pending;
+    if (!loading) camera.currentTime = pending / mediaScale;
     syncExternal(true);
     update();
     checkPlayback();
@@ -731,9 +737,24 @@ function initializeGo2Replay(root, run) {
   for (const media of [camera, external]) media.addEventListener("click", toggle);
   $("#go2-timeline").addEventListener("input", event => seekTo(Number(event.target.value)));
   $("#go2-speed").addEventListener("change", event => {
+    const time = currentTime();
     rate = Number(event.target.value);
-    camera.playbackRate = external.playbackRate = rate;
-    checkPlayback();
+    const nextScale = rate === 4 && run?.playback4x ? 4 : 1;
+    if (nextScale !== mediaScale) {
+      version++;
+      pending = time;
+      loading = true;
+      buffering = wantsPlay;
+      camera.pause(); external.pause();
+      mediaScale = nextScale;
+      prepared = externalPrepared = hasPlayed = false;
+      lastExternalSeek = -Infinity;
+      setSources();
+      prepare();
+    }
+    camera.defaultPlaybackRate = camera.playbackRate = mediaRate();
+    external.defaultPlaybackRate = external.playbackRate = mediaRate();
+    update(); checkPlayback();
   });
   $("#go2-fullscreen").addEventListener("click", async () => {
     try {
@@ -752,12 +773,12 @@ function initializeGo2Replay(root, run) {
   });
   camera.addEventListener('loadedmetadata', () => {
     loading = false;
-    if (Math.abs(camera.currentTime - pending) > .02) camera.currentTime = pending;
-    camera.playbackRate = rate;
+    if (Math.abs(camera.currentTime - pending / mediaScale) > .02) camera.currentTime = pending / mediaScale;
+    camera.playbackRate = mediaRate();
     syncExternal(true); update(); checkPlayback();
   });
   camera.addEventListener("timeupdate", () => {
-    if (!loading) pending = camera.currentTime;
+    if (!loading) pending = currentTime();
     syncExternal(); update(); checkPlayback();
   });
   camera.addEventListener('play', () => { if (!wantsPlay) play(); update(); });
@@ -781,7 +802,7 @@ function initializeGo2Replay(root, run) {
       if (media === camera) syncExternal(true);
     });
     for (const event of ['progress', 'canplay', 'seeked', 'playing']) media.addEventListener(event, checkPlayback);
-    media.defaultPlaybackRate = media.playbackRate = rate;
+    media.defaultPlaybackRate = media.playbackRate = mediaRate();
     media.controls = false;
     media.muted = true;
     media.preload = 'none';
@@ -795,8 +816,9 @@ function initializeGo2Replay(root, run) {
   $("#go2-empty").hidden = !!run;
   $("#go2-timeline").max = run?.duration || 1;
   $("#go2-speed").value = String(rate);
-  if (run) { camera.src = run.video; camera.poster = run.poster; }
-  if (run?.external) { external.src = run.external.video; external.poster = run.external.poster; }
+  if (run) { setSources(); camera.poster = run.poster; }
+  if (run?.external) external.poster = run.external.poster;
+  // 轻量素材在点击后再下载，避免相邻任务的预加载抢占首播带宽。
   renderNodes();
 }
 async function initializeTasks() {

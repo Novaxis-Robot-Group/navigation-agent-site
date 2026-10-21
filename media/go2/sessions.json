@@ -121,7 +121,15 @@
         "sourceObservationAt": "2026-10-19T03:58:11.513155+00:00",
         "sourceTime": 62.513
       }
-    ]
+    ],
+    "playback4x": {
+      "sourceSha256": {
+        "robot": "70c87b978d3a17f1d6ca8d0649950f7e89e2926117cd3bf15ff2c5d11553476e",
+        "external": "ca9a411e9e085399567494ae02f4b545ccc3b076cfa24ed2de7cccae5bf83075"
+      },
+      "video": "./media/go2/bin/robot-4x.mp4?v=23501977040f",
+      "externalVideo": "./media/go2/bin/external-4x.mp4?v=517fe92f396e"
+    }
   },
   "pantry": {
     "taskId": "7c765cfd2732479ca69ba37b36bf6eca",
@@ -258,6 +266,14 @@
         "sourceTime": 133.508434,
         "sourceObservationAt": "2026-10-19T07:52:07.508434+00:00"
       }
-    ]
+    ],
+    "playback4x": {
+      "sourceSha256": {
+        "robot": "eb1870d4320243e834bc83c22977ca1efa79db992906168a9d5c78b7eb1730f4",
+        "external": "45f69022770d05d6fbe4ceb6ad1f1e736e4e8d1f895d9837a6e664632afd7d4c"
+      },
+      "video": "./media/go2/pantry/robot-4x.mp4?v=bb6ac839d4c2",
+      "externalVideo": "./media/go2/pantry/external-4x.mp4?v=3bf41fb6491b"
+    }
   }
 }

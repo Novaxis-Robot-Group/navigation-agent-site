@@ -15,6 +15,7 @@
       const quality = video.getVideoPlaybackQuality?.();
       return {
         view: video.dataset.ref, time: video.currentTime, duration: video.duration, paused: video.paused,
+        scale: video.currentSrc.includes('-4x.mp4') ? 4 : 1, source: video.currentSrc,
         seeking: video.seeking, ready: video.readyState, ahead,
         rate: video.playbackRate, frames: quality?.totalVideoFrames,
         dropped: quality?.droppedVideoFrames,

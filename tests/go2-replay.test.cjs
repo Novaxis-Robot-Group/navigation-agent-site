@@ -14,6 +14,7 @@ class Element {
     this.style = {};
     this.attributes = {};
     this.value = '';
+    this.classList = { toggle() {} };
   }
   addEventListener(type, callback) { (this.listeners[type] ||= []).push(callback); }
   emit(type) {
@@ -74,7 +75,7 @@ class Media extends Element {
   }
 }
 
-function setup(rate = 4) {
+function setup(rate = 4, fast = false) {
   const elements = new Map();
   const camera = new Media(), external = new Media();
   elements.set('#go2-video', camera);
@@ -97,7 +98,7 @@ function setup(rate = 4) {
     clearInterval(id) { timers.delete(id); },
   });
   vm.runInContext(go2, context);
-  context.initializeGo2Replay({}, { duration: 150, video: 'robot.mp4', nodes: [], external: { start: 0, duration: 150, video: 'external.mp4' } });
+  context.initializeGo2Replay({}, { duration: 150, video: 'robot.mp4', playback4x: fast ? {video: 'robot-4x.mp4', externalVideo: 'external-4x.mp4'} : null, nodes: [], external: { start: 0, duration: 150, video: 'external.mp4' } });
   camera.emit('loadedmetadata');
   camera.finishSeek();
   external.finishSeek();
@@ -170,7 +171,7 @@ test('1× 正常播放不跳转，主动拖动立即对齐两路', async () => {
 });
 
 
-test('4× 首播优先等待两路六秒录像，进度不足时不提前启动相机', async () => {
+test('首播等待两路实际播放余量，进度不足时不提前启动相机', async () => {
   const replay = setup();
   replay.external.bufferEnd = 1;
   replay.external.readyState = 3;
@@ -178,7 +179,7 @@ test('4× 首播优先等待两路六秒录像，进度不足时不提前启动�
   await replay.advance(1);
   assert.equal(replay.camera.paused, true);
   assert.equal(replay.external.paused, true);
-  assert.equal(replay.one('#go2-buffering').hidden, false);
+  assert.equal(replay.one('#go2-player').attributes['aria-busy'], 'true');
   replay.external.bufferEnd = 20;
   replay.external.emit('progress');
   await replay.advance(5);
@@ -219,7 +220,7 @@ test('用户取消缓冲后，迟到的加载事件不会自动开播', async ()
   await replay.advance(.5);
   assert.equal(replay.camera.paused, true);
   assert.equal(replay.external.paused, true);
-  assert.equal(replay.one('#go2-buffering').hidden, true);
+  assert.equal(replay.one('#go2-player').attributes['aria-busy'], 'false');
 });
 
 test('临近片尾仅等待剩余录像，不要求固定缓存长度', async () => {
@@ -238,7 +239,7 @@ test('Safari 确认能连续播放时，不因短缓存范围主动打断播放'
   await replay.advance(6);
   assert.equal(replay.camera.paused, false);
   assert.equal(replay.external.paused, false);
-  assert.equal(replay.one('#go2-buffering').hidden, true);
+  assert.equal(replay.one('#go2-player').attributes['aria-busy'], 'false');
 });
 
 test('原生全屏控件暂停相机后，实拍也停止并保持暂停', async () => {
@@ -251,17 +252,81 @@ test('原生全屏控件暂停相机后，实拍也停止并保持暂停', async
   assert.equal(replay.external.paused, true);
 });
 
-test('冷启动高倍速留出加载时间，完整缓存的播放直接开始', async () => {
+test('缓冲已足够即开始播放，不再固定等待五秒', async () => {
   const cold = setup();
   cold.external.bufferEnd = 20;
   cold.start();
-  await cold.advance(4);
-  assert.equal(cold.camera.paused, true);
-  await cold.advance(1.5);
+  await cold.advance(.2);
   assert.equal(cold.camera.paused, false);
 
   const cached = setup();
   cached.start();
   await cached.advance(.2);
   assert.equal(cached.camera.paused, false);
+});
+
+
+test('4× 轻量素材按正常速度解码，进度与节点仍为原速秒数', async () => {
+  const replay = setup(4, true);
+  assert.equal(replay.camera.src, 'robot-4x.mp4');
+  assert.equal(replay.camera.playbackRate, 1);
+  replay.start();
+  await replay.advance(2);
+  assert.ok(Number(replay.one('#go2-timeline').value) >= 6);
+  replay.one('#go2-timeline').value = 80;
+  replay.one('#go2-timeline').emit('input');
+  assert.equal(replay.camera.currentTime, 20);
+  assert.equal(replay.external.currentTime, 20);
+});
+
+test('4× 与 1× 来回切换保留时间、播放意图，暂停时不自动开播', async () => {
+  const replay = setup(4, true);
+  replay.start();
+  await replay.advance(2);
+  const time = replay.camera.currentTime * 4;
+  replay.one('#go2-speed').value = 1;
+  replay.one('#go2-speed').emit('change');
+  assert.equal(replay.camera.src, 'robot.mp4');
+  assert.equal(replay.camera.currentTime, time);
+  await replay.advance(.5);
+  assert.equal(replay.camera.paused, false);
+  replay.one('#go2-play').emit('click');
+  const pausedTime = replay.camera.currentTime;
+  replay.one('#go2-speed').value = 4;
+  replay.one('#go2-speed').emit('change');
+  await replay.advance(.5);
+  assert.equal(replay.camera.currentTime * 4, pausedTime);
+  assert.equal(replay.camera.paused, true);
+  assert.equal(replay.external.paused, true);
+});
+
+
+test('发布的 4× 素材必须来自当前原速文件，更新打码后不可继续使用旧衍生文件', () => {
+  const { createHash } = require('node:crypto');
+  const root = join(__dirname, '..');
+  const runs = JSON.parse(readFileSync(join(root, 'media/go2/sessions.json'), 'utf8'));
+  for (const run of Object.values(runs)) {
+    for (const [view, sourceUrl, fastUrl] of [
+      ['robot', run.video, run.playback4x.video],
+      ['external', run.external.video, run.playback4x.externalVideo],
+    ]) {
+      const source = readFileSync(join(root, sourceUrl.split('?')[0]));
+      assert.equal(createHash('sha256').update(source).digest('hex'), run.playback4x.sourceSha256[view]);
+      const fast = readFileSync(join(root, fastUrl.split('?')[0]));
+      assert.ok(fastUrl.endsWith(createHash('sha256').update(fast).digest('hex').slice(0, 12)));
+    }
+  }
+});
+
+test('加载失败显示重试提示，重试与取消不会丢失播放控制', async () => {
+  const replay = setup(4, true);
+  replay.start();
+  await replay.advance(.2);
+  replay.camera.emit('error');
+  assert.equal(replay.one('#go2-error').hidden, false);
+  assert.equal(replay.camera.paused, true);
+  replay.start();
+  await replay.advance(.2);
+  assert.equal(replay.one('#go2-error').hidden, true);
+  assert.equal(replay.camera.paused, false);
 });
