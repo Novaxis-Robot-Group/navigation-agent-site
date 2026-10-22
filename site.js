@@ -98,31 +98,88 @@ document.addEventListener('replay-tasks-ready', () => {
 });
 window.addEventListener('load', restoreTaskAnchor);
 
-const navigationIllustration = document.querySelector('.navigation-illustration');
-const motionControl = navigationIllustration.querySelector('.nav-motion-control');
-const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-let illustrationPaused = false;
-let illustrationVisible = false;
+function initializeIllustrationMotion(illustration) {
+  const control = illustration.querySelector('.nav-motion-control');
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  let paused = false;
+  let visible = false;
 
-function updateIllustrationMotion() {
-  const playing = !illustrationPaused && illustrationVisible && !document.hidden && !reducedMotion.matches;
-  navigationIllustration.dataset.motion = playing ? 'running' : 'paused';
-  motionControl.disabled = reducedMotion.matches;
-  motionControl.setAttribute('aria-pressed', String(illustrationPaused));
-  motionControl.dataset.labelEn = illustrationPaused ? 'Resume navigation illustration' : 'Pause navigation illustration';
-  motionControl.dataset.labelZh = illustrationPaused ? '继续导航示意动效' : '暂停导航示意动效';
-  motionControl.setAttribute('aria-label', language === 'en' ? motionControl.dataset.labelEn : motionControl.dataset.labelZh);
+  function update() {
+    const playing = !paused && visible && illustration.dataset.motionAllowed !== 'false' && !document.hidden && !reducedMotion.matches;
+    illustration.dataset.motion = playing ? 'running' : 'paused';
+    control.disabled = reducedMotion.matches;
+    control.setAttribute('aria-pressed', String(paused));
+    control.dataset.labelEn = paused ? 'Resume illustration' : 'Pause illustration';
+    control.dataset.labelZh = paused ? '继续示意动效' : '暂停示意动效';
+    control.setAttribute('aria-label', language === 'en' ? control.dataset.labelEn : control.dataset.labelZh);
+  }
+
+  control.addEventListener('click', () => {
+    paused = !paused;
+    update();
+  });
+  const observer = new IntersectionObserver(entries => {
+    visible = entries[0].isIntersecting;
+    update();
+  });
+  observer.observe(illustration);
+  illustration.addEventListener('illustration-motion-change', update);
+  reducedMotion.addEventListener('change', update);
+  document.addEventListener('visibilitychange', update);
+  update();
 }
 
-motionControl.addEventListener('click', () => {
-  illustrationPaused = !illustrationPaused;
-  updateIllustrationMotion();
-});
-const illustrationObserver = new IntersectionObserver(entries => {
-  illustrationVisible = entries[0].isIntersecting;
-  updateIllustrationMotion();
-});
-illustrationObserver.observe(navigationIllustration);
-reducedMotion.addEventListener('change', updateIllustrationMotion);
-document.addEventListener('visibilitychange', updateIllustrationMotion);
-updateIllustrationMotion();
+function initializeCapabilities() {
+  const panels = [...document.querySelectorAll('.capability-panel')];
+  const scenes = panels.map(panel => panel.querySelector('.capability-scene'));
+  const compact = window.matchMedia('(max-width: 800px)');
+  let motionFrame = null;
+
+  function updateMotionFocus() {
+    motionFrame = null;
+    let nearest = null;
+    let nearestDistance = Infinity;
+    if (compact.matches) {
+      const headerBottom = siteNavigation.getBoundingClientRect().bottom;
+      const contentCenter = (headerBottom + window.innerHeight) / 2;
+      for (const panel of panels) {
+        const bounds = panel.getBoundingClientRect();
+        if (bounds.bottom <= headerBottom || bounds.top >= window.innerHeight) continue;
+        const distance = Math.abs((bounds.top + bounds.bottom) / 2 - contentCenter);
+        if (distance < nearestDistance) {
+          nearest = panel;
+          nearestDistance = distance;
+        }
+      }
+    }
+    for (const panel of panels) {
+      const allowed = String(!compact.matches || panel === nearest);
+      if (panel.dataset.motionAllowed === allowed) continue;
+      panel.dataset.motionAllowed = allowed;
+      panel.dispatchEvent(new Event('illustration-motion-change'));
+    }
+  }
+
+  function scheduleMotionFocus() {
+    if (motionFrame === null) motionFrame = requestAnimationFrame(updateMotionFocus);
+  }
+
+  function updateSceneViewport() {
+    for (const scene of scenes) {
+      scene.setAttribute('viewBox', compact.matches ? '20 -10 680 440' : '0 0 720 420');
+    }
+    scheduleMotionFocus();
+  }
+
+  compact.addEventListener('change', updateSceneViewport);
+  window.addEventListener('scroll', () => {
+    if (compact.matches) scheduleMotionFocus();
+  }, { passive: true });
+  window.addEventListener('resize', scheduleMotionFocus);
+  document.addEventListener('site-language-change', scheduleMotionFocus);
+  document.addEventListener('replay-tasks-ready', scheduleMotionFocus);
+  updateSceneViewport();
+}
+
+document.querySelectorAll('[data-illustration]').forEach(initializeIllustrationMotion);
+initializeCapabilities();

@@ -45,7 +45,7 @@
           </div>
         </div>
       </div>
-      <figure class="navigation-illustration" data-motion="paused">
+      <figure class="navigation-illustration" data-illustration data-motion="paused">
         <button class="nav-motion-control" type="button" disabled aria-pressed="false" aria-label="Pause navigation illustration" aria-describedby="navigation-sketch-description" data-label-en="Pause navigation illustration" data-label-zh="暂停导航示意动效">
         <svg viewBox="0 0 560 400" role="img" aria-labelledby="navigation-sketch-title navigation-sketch-description">
           <title id="navigation-sketch-title" data-en="A robot observes its surroundings and follows a possible route to a target" data-zh="机器人观察环境，并沿示意路径寻找目标">A robot observes its surroundings and follows a possible route to a target</title>
@@ -94,14 +94,143 @@
       </figure>
     </section>
 
-    <section class="features-section" aria-labelledby="features-title">
-      <div class="section-heading"><p class="eyebrow" data-en="THE SEARCH, STEP BY STEP" data-zh="贯穿搜索的每一步">THE SEARCH, STEP BY STEP</p><h2 id="features-title" data-en="More than following a route." data-zh="从执行路线，到自主寻找。">More than following a route.</h2></div>
-      <div class="features-grid">
-        <article class="feature-card glass-card"><span class="feature-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/><circle cx="12" cy="12" r="3"/></svg></span><h3 data-en="Observe the scene" data-zh="观察环境">Observe the scene</h3><p data-en="Use visual clues to decide where to look next, even when the target is out of sight." data-zh="从环境画面中寻找线索。目标不可见时，也能决定下一步去哪里看。">Use visual clues to decide where to look next, even when the target is out of sight.</p></article>
-        <article class="feature-card glass-card"><span class="feature-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h10M4 17h7"/><circle cx="18" cy="17" r="3"/></svg></span><h3 data-en="Remember the search" data-zh="记住搜索经历">Remember the search</h3><p data-en="Consider previous observations and explored places when choosing the next move." data-zh="结合此前的观察和已经探索过的位置，选择下一步行动。">Consider previous observations and explored places when choosing the next move.</p></article>
-        <article class="feature-card glass-card"><span class="feature-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="18" r="2"/><circle cx="19" cy="6" r="2"/><path d="M5 16V9a3 3 0 0 1 3-3h4m-3 6h7a3 3 0 0 0 3-3V8"/></svg></span><h3 data-en="Adapt along the way" data-zh="途中调整方向">Adapt along the way</h3><p data-en="Turn each decision into a local navigation goal. Adjust when an action brings no new information." data-zh="将决策转成局部导航目标。行动没有带来新信息时，调整探索方向。">Turn each decision into a local navigation goal. Adjust when an action brings no new information.</p></article>
-        <article class="feature-card glass-card"><span class="feature-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg></span><h3 data-en="Verify the target" data-zh="核验目标">Verify the target</h3><p data-en="Move closer to inspect a possible match, then check whether it meets the original request." data-zh="靠近检查可能匹配的目标，再核验它是否符合最初的要求。">Move closer to inspect a possible match, then check whether it meets the original request.</p></article>
+    <section class="features-section" id="capabilities" aria-labelledby="features-title">
+      <h2 id="features-title" class="capabilities-heading" data-en="From route execution to autonomous search" data-zh="从执行路线，到自主寻找">From route execution to autonomous search</h2>
+      <svg class="scene-definitions" aria-hidden="true" width="0" height="0">
+        <defs>
+          <g id="scene-robot">
+            <ellipse class="scene-shadow" cx="0" cy="28" rx="43" ry="20"/>
+            <path class="scene-leg" d="M-23-2-34 17-30 32M-7 8-13 29-7 37M19-4 30 15 27 29M30-12 40 4 39 18"/>
+            <path class="scene-top" d="M-29-14 3-32 32-15 0 4Z"/>
+            <path class="scene-side" d="M-29-14V5L0 22 32 4V-15L0 4V22"/>
+            <path class="scene-top" d="m1-28 14 8-11 7-14-8Z"/>
+            <circle class="scene-led" cx="10" cy="-21" r="2"/>
+          </g>
+          <g id="scene-core">
+            <ellipse class="scene-shadow" cy="27" rx="43" ry="22"/>
+            <path class="scene-top" d="M0-49 35-29 0-9-35-29Z"/>
+            <path class="scene-side" d="M-35-29V7L0 27 35 7V-29L0-9V27"/>
+            <path class="scene-circuit" d="M-25-12V0L-12 8M25-12V0L12 8"/>
+            <ellipse class="scene-core-light" cy="-29" rx="10" ry="6"/>
+          </g>
+          <g id="scene-room">
+            <path class="scene-ground" d="M360 88 620 238 360 388 100 238Z"/>
+            <path class="scene-grid" d="M165 275 425 125M230 313 490 163M295 350 555 200M165 200 425 350M230 163 490 313M295 125 555 275"/>
+            <path class="scene-wall" d="M100 238V190L360 40V88Z"/>
+            <path class="scene-wall scene-wall-side" d="M360 40 620 190V238L360 88Z"/>
+            <path class="scene-wall-edge" d="M100 190 360 40 620 190M360 40V88"/>
+          </g>
+          <g id="scene-chair">
+            <ellipse class="scene-shadow" cy="15" rx="29" ry="15"/>
+            <path class="scene-leg scene-chair-leg" d="M-20-5V19M0 6V31M22-6V18"/>
+            <path class="scene-top" d="M-21-14 0-26 23-13 1 0Z"/>
+            <path class="scene-object-side" d="M-21-14V-43L0-55V-26M-21-14V-7L1 6 23-7V-13L1 0V6"/>
+          </g>
+          <g id="scene-observation">
+            <rect class="scene-observation-paper" x="-34" y="-24" width="68" height="48" rx="5"/>
+            <path class="scene-observation-floor" d="M-28 5H28V18H-28Z"/>
+            <path class="scene-observation-detail" d="M-28-17-13-5V5M28-17 13-5V5"/>
+          </g>
+          <g id="scene-view-door">
+            <use href="#scene-observation"/>
+            <path class="scene-observation-object" d="M-9 9V-15H8V9ZM-5-11H4V9"/>
+            <circle class="scene-led" cx="2" cy="0" r="1"/>
+          </g>
+          <g id="scene-view-sofa">
+            <use href="#scene-observation"/>
+            <path class="scene-observation-object" d="M-18 8V-6Q-18-11-13-11H13Q18-11 18-6V8M-22-1V12H22V-1M-15 12V16M15 12V16M0-9V1"/>
+          </g>
+          <g id="scene-view-hall">
+            <use href="#scene-observation"/>
+            <path class="scene-observation-detail" d="M-27-17-8-4V15M27-17 8-4V15M-8-4H8M-5-1V11H5V-1M-27 17-8 7M27 17 8 7"/>
+          </g>
+        </defs>
+      </svg>
+      <div class="capability-grid">
+          <article class="capability-panel" id="capability-memory" aria-labelledby="capability-memory-heading" data-illustration data-motion="paused">
+            <header class="capability-caption">
+              <h3 id="capability-memory-heading" data-en="In-Task Memory" data-zh="任务内记忆">In-Task Memory</h3>
+              <p data-en="Task-scoped visual observations recalled on demand." data-zh="当前任务内按需召回观察">Task-scoped visual observations recalled on demand.</p>
+            </header>
+            <button class="nav-motion-control capability-scene-control" type="button" disabled aria-pressed="false" aria-label="Pause illustration" data-label-en="Pause illustration" data-label-zh="暂停示意动效" aria-describedby="capability-memory-description">
+              <svg class="capability-scene" viewBox="0 0 720 420" role="img" aria-labelledby="capability-memory-title capability-memory-description">
+                <title id="capability-memory-title" data-en="In-Task Memory" data-zh="任务内记忆">In-Task Memory</title>
+                <desc id="capability-memory-description" data-en="Conceptual animation: a robot leaves a short trail of observations in an L-shaped room. Two recent views rise toward a decision point, then the scene resets." data-zh="概念动效：机器人沿房间路径留下观察片段，最近的两个片段被召回至决策点，随后场景重置。">Conceptual animation: a robot leaves a short trail of observations in an L-shaped room. Two recent views rise toward a decision point, then the scene resets.</desc>
+                <g class="scene-art">
+                <use href="#scene-room"/>
+                <path class="scene-partition" d="M330 238V196L425 141V183Z"/>
+                <path class="scene-trail" d="M185 256 300 322 420 253"/>
+                <g transform="translate(500 236) scale(.65)"><use href="#scene-chair"/></g>
+                <g class="scene-memory-evidence scene-animated">
+                  <g transform="translate(200 223)"><use class="scene-old-view" href="#scene-view-door"/></g>
+                  <g transform="translate(247 251)"><g class="scene-recall-first scene-animated"><use href="#scene-view-sofa"/></g></g>
+                  <g transform="translate(300 283)"><g class="scene-recall-second scene-animated"><use href="#scene-view-hall"/></g></g>
+                </g>
+                <path class="scene-recall-thread scene-animated" d="M247 251Q280 143 410 165M300 283Q349 195 410 165"/>
+                <g transform="translate(410 170) scale(.55)" class="scene-memory-core scene-animated"><use href="#scene-core"/></g>
+                <g transform="translate(185 256)"><g class="scene-memory-robot scene-animated"><use href="#scene-robot"/></g></g>
+                </g>
+              </svg>
+            </button>
+          </article>
+          <article class="capability-panel" id="capability-watch" aria-labelledby="capability-watch-heading" data-illustration data-motion="paused">
+            <header class="capability-caption">
+              <h3 id="capability-watch-heading" data-en="Interim Monitoring" data-zh="途中目标监测">Interim Monitoring</h3>
+              <p data-en="Sampled frame detection with agent review." data-zh="采样帧监测与智能复核">Sampled frame detection with agent review.</p>
+            </header>
+            <button class="nav-motion-control capability-scene-control" type="button" disabled aria-pressed="false" aria-label="Pause illustration" data-label-en="Pause illustration" data-label-zh="暂停示意动效" aria-describedby="capability-watch-description">
+              <svg class="capability-scene" viewBox="0 0 720 420" role="img" aria-labelledby="capability-watch-title capability-watch-description">
+                <title id="capability-watch-title" data-en="Interim Monitoring" data-zh="途中目标监测">Interim Monitoring</title>
+                <desc id="capability-watch-description" data-en="Conceptual animation: a robot moves through a room, samples a chair in its field of view, pauses after repeated candidate highlights and resumes after a review cue. No success is declared." data-zh="概念动效：机器人在房间里前进，采样监测视野中的椅子；连续候选提示后暂停复核，再继续移动，不宣布任务成功。">Conceptual animation: a robot moves through a room, samples a chair in its field of view, pauses after repeated candidate highlights and resumes after a review cue. No success is declared.</desc>
+                <g class="scene-art">
+                <use href="#scene-room"/>
+                <path class="scene-trail" d="M205 270 310 255 416 271"/>
+                <g transform="translate(205 270)"><g class="scene-watch-robot scene-animated">
+                  <path class="scene-view" d="M0-9 164-100Q208-48 186 25Z"/>
+                  <path class="scene-view-edge" d="M0-9 164-100M0-9 186 25"/>
+                  <path class="scene-scan scene-animated" d="M50-55Q75-30 69 4"/>
+                  <ellipse class="scene-review-ring scene-animated" cy="25" rx="53" ry="29"/>
+                  <use href="#scene-robot"/>
+                </g></g>
+                <g transform="translate(478 230)"><use href="#scene-chair"/></g>
+                <path class="scene-detection scene-animated" d="M443 181V166H459M494 166H510V181M510 252V268H494M459 268H443V252"/>
+                </g>
+              </svg>
+            </button>
+          </article>
+          <article class="capability-panel" id="capability-scheduling" aria-labelledby="capability-scheduling-heading" data-illustration data-motion="paused">
+            <header class="capability-caption">
+              <h3 id="capability-scheduling-heading" data-en="Event-driven Scheduling" data-zh="选择性调度">Event-driven Scheduling</h3>
+              <p data-en="Continuous execution guided by key events." data-zh="由关键事件驱动的按需调度">Continuous execution guided by key events.</p>
+            </header>
+            <button class="nav-motion-control capability-scene-control" type="button" disabled aria-pressed="false" aria-label="Pause illustration" data-label-en="Pause illustration" data-label-zh="暂停示意动效" aria-describedby="capability-scheduling-description">
+              <svg class="capability-scene" viewBox="0 0 720 420" role="img" aria-labelledby="capability-scheduling-title capability-scheduling-description">
+                <title id="capability-scheduling-title" data-en="Event-driven Scheduling" data-zh="选择性调度">Event-driven Scheduling</title>
+                <desc id="capability-scheduling-description" data-en="Conceptual animation: continuous navigation reaches a corner, pauses for a decision pulse, resumes and stops for a separate final review." data-zh="概念动效：连续导航到达拐角后暂停，由决策脉冲介入，再恢复前行，并在终点单独核验。">Conceptual animation: continuous navigation reaches a corner, pauses for a decision pulse, resumes and stops for a separate final review.</desc>
+                <g class="scene-art">
+                <use href="#scene-room"/>
+                <path class="scene-partition" d="M310 251V210L404 156V197Z"/>
+                <path class="scene-trail" d="M180 245 300 314 495 202"/>
+                <ellipse class="scene-event-ring scene-animated" cx="300" cy="314" rx="42" ry="24"/>
+                <path class="scene-intervention scene-animated" d="M300 314Q325 239 391 210"/>
+                <g transform="translate(396 205) scale(.6)" class="scene-schedule-core scene-animated"><use href="#scene-core"/></g>
+                <ellipse class="scene-final-ring scene-animated" cx="495" cy="220" rx="53" ry="30"/>
+                <circle class="scene-execution-dot scene-animated" cx="195" cy="253" r="4"/>
+                <g transform="translate(180 245)"><g class="scene-schedule-robot scene-animated"><g class="scene-schedule-turn scene-animated"><use href="#scene-robot"/></g></g></g>
+                </g>
+              </svg>
+            </button>
+          </article>
       </div>
+      <details class="capability-technical">
+        <summary data-en="Technical notes" data-zh="技术说明">Technical notes</summary>
+        <div class="capability-technical-content">
+          <p data-en="All three animations are conceptual illustrations, not recorded detections, measured trajectories or a complete architecture." data-zh="三段动画均为机制示意，不代表真实检测输出、实测轨迹或完整架构。">All three animations are conceptual illustrations, not recorded detections, measured trajectories or a complete architecture.</p>
+          <p><strong data-en="Memory. " data-zh="任务记忆。">Memory. </strong><span data-en="Observations, object sightings, action results and executed paths inform the current task. This is not cross-task long-term memory or a complete SLAM map. " data-zh="观察、物体线索、动作结果与实走路径用于当前任务，不代表跨任务长期记忆或完整 SLAM 地图。">Observations, object sightings, action results and executed paths inform the current task. This is not cross-task long-term memory or a complete SLAM map. </span><a href="https://github.com/Novaxis-Robot-Group/navigation-agent/tree/main/src/navigation_agent/agent/memory" target="_blank" rel="noopener noreferrer" data-en="Memory implementation ↗" data-zh="记忆实现 ↗">Memory implementation ↗</a></p>
+          <p><strong data-en="Monitoring. " data-zh="途中监测。">Monitoring. </strong><span data-en="Requires a detector, streaming observations and target labels. Sampled frames provide candidates; consistent hits can request a navigation interruption for agent review. Detection alone is not completion. " data-zh="需要检测服务、流式观测与目标标签。后台检测采样帧，连续候选命中可请求中断导航，再交给 Agent 复核；检测命中不等于任务完成。">Requires a detector, streaming observations and target labels. Sampled frames provide candidates; consistent hits can request a navigation interruption for agent review. Detection alone is not completion. </span><a href="https://github.com/Novaxis-Robot-Group/navigation-agent/blob/main/docs/target-detector.md" target="_blank" rel="noopener noreferrer" data-en="Detector guide ↗" data-zh="检测指南 ↗">Detector guide ↗</a></p>
+          <p><strong data-en="Scheduling. " data-zh="选择性调度。">Scheduling. </strong><span data-en="VLN executes continuously between planning events. STOP requires independent completion verification. Entry rules depend on deployment; Go2 scene checks can require planning first. No performance gains are implied by the animation. " data-zh="规划事件之间由 VLN 连续执行；STOP 后需独立核验是否完成。入口依部署而定，Go2 场景校验可要求先规划。动画不表示已测得性能提升。">VLN executes continuously between planning events. STOP requires independent completion verification. Entry rules depend on deployment; Go2 scene checks can require planning first. No performance gains are implied by the animation. </span><a href="https://github.com/Novaxis-Robot-Group/navigation-agent/blob/main/docs/scheduling.md" target="_blank" rel="noopener noreferrer" data-en="Scheduling guide ↗" data-zh="调度说明 ↗">Scheduling guide ↗</a></p>
+        </div>
+      </details>
     </section>
 
     <section class="text-section" id="about" aria-labelledby="about-title">

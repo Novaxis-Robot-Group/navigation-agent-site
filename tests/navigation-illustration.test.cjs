@@ -5,7 +5,7 @@ const { test } = require('node:test');
 const vm = require('node:vm');
 
 const source = readFileSync(join(__dirname, '..', 'site.js'), 'utf8');
-const motionSource = source.slice(source.indexOf('const navigationIllustration ='));
+const motionSource = source.slice(source.indexOf('function initializeIllustrationMotion('), source.indexOf('function initializeCapabilities('));
 
 function setup(reduce = false) {
   function target() {
@@ -32,6 +32,7 @@ function setup(reduce = false) {
     },
   });
   vm.runInContext(motionSource, context);
+  context.initializeIllustrationMotion(figure);
   return { figure, control, document, media, context, visible(value) { observe([{ isIntersecting: value }]); } };
 }
 
@@ -55,14 +56,14 @@ test('user pause survives scrolling away and back and updates bilingual labels',
   motion.visible(true);
   motion.control.listeners.click();
   assert.equal(motion.control.attributes['aria-pressed'], 'true');
-  assert.equal(motion.control.attributes['aria-label'], 'Resume navigation illustration');
+  assert.equal(motion.control.attributes['aria-label'], 'Resume illustration');
   motion.visible(false);
   motion.visible(true);
   assert.equal(motion.figure.dataset.motion, 'paused');
   motion.context.language = 'zh';
   motion.control.listeners.click();
   assert.equal(motion.figure.dataset.motion, 'running');
-  assert.equal(motion.control.attributes['aria-label'], '暂停导航示意动效');
+  assert.equal(motion.control.attributes['aria-label'], '暂停示意动效');
 });
 
 test('reduced motion keeps the illustration visible and disables toggling', () => {
@@ -74,4 +75,22 @@ test('reduced motion keeps the illustration visible and disables toggling', () =
   motion.media.listeners.change();
   assert.equal(motion.figure.dataset.motion, 'running');
   assert.equal(motion.control.disabled, false);
+});
+
+test('motion focus gates animation without overriding a manual pause', () => {
+  const motion = setup();
+  motion.visible(true);
+  assert.equal(motion.figure.dataset.motion, 'running');
+  motion.figure.dataset.motionAllowed = 'false';
+  motion.figure.listeners['illustration-motion-change']();
+  assert.equal(motion.figure.dataset.motion, 'paused');
+  motion.figure.dataset.motionAllowed = 'true';
+  motion.figure.listeners['illustration-motion-change']();
+  assert.equal(motion.figure.dataset.motion, 'running');
+  motion.control.listeners.click();
+  motion.figure.dataset.motionAllowed = 'false';
+  motion.figure.listeners['illustration-motion-change']();
+  motion.figure.dataset.motionAllowed = 'true';
+  motion.figure.listeners['illustration-motion-change']();
+  assert.equal(motion.figure.dataset.motion, 'paused');
 });
