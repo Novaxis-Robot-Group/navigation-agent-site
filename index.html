@@ -94,6 +94,81 @@
       </figure>
     </section>
 
+    <section class="text-section" id="architecture" aria-labelledby="architecture-title">
+      <div class="architecture-intro">
+        <h2 id="architecture-title" data-en="Modular architecture, clean boundaries" data-zh="模块化架构，清晰的边界">Modular architecture, clean boundaries</h2>
+        <p data-en="One agent. Independent adapters for navigation and embodiment." data-zh="统一 Agent 决策，导航与本体独立适配。">One agent. Independent adapters for navigation and embodiment.</p>
+      </div>
+      <figure class="architecture-figure" data-illustration data-motion="paused">
+        <figcaption class="sr-only" id="architecture-description" data-en="Engineering interface overview: one unchanged Agent connects to independent navigation and embodiment adapters. LightNav, Go2 and the MuJoCo simulation are built-in implementations. Dashed Custom slots indicate extension points, not connected or validated implementations. Lines are structural relationships, not execution order." data-zh="工程接口概览：同一套 Agent 通过独立接口适配导航与本体。内置实现为 LightNav、Go2 与 MuJoCo 仿真。虚线自定义插槽表示扩展点，不代表已连接或已验证的实现。连线表示结构关系，不表示执行顺序。">Engineering interface overview: one unchanged Agent connects to independent navigation and embodiment adapters. LightNav, Go2 and the MuJoCo simulation are built-in implementations. Dashed Custom slots indicate extension points, not connected or validated implementations. Lines are structural relationships, not execution order.</figcaption>
+        <div class="architecture-map" role="img" aria-labelledby="architecture-title" aria-describedby="architecture-description">
+          <div class="architecture-group architecture-navigation">
+            <p class="architecture-group-label">VLN</p>
+            <div class="architecture-bank">
+              <div class="architecture-module">
+                <svg class="architecture-module-art" viewBox="0 0 104 88" aria-hidden="true">
+                  <rect class="architecture-slot" x="8" y="8" width="88" height="64" rx="8"/>
+                  <path class="scene-grid" d="m27 48 25 14 25-14M27 40l25 14 25-14"/>
+                  <path class="scene-top" d="m29 33 23-13 23 13-23 13Z"/>
+                  <path class="scene-side" d="M29 33v8l23 13 23-13v-8L52 46v8"/>
+                  <path class="scene-circuit" d="m41 33 11-6 11 6-11 6Z"/>
+                </svg>
+                <p class="architecture-module-label">LightNav</p>
+              </div>
+              <div class="architecture-module architecture-custom">
+                <svg class="architecture-module-art" viewBox="0 0 104 88" aria-hidden="true">
+                  <rect class="architecture-slot" x="8" y="8" width="88" height="64" rx="8"/>
+                  <path class="architecture-extension" d="M52 29v22M41 40h22"/>
+                </svg>
+                <p class="architecture-module-label" data-en="Custom +" data-zh="自定义 +">Custom +</p>
+              </div>
+            </div>
+          </div>
+          <span class="architecture-joint" aria-hidden="true"></span>
+          <div class="architecture-core">
+            <svg viewBox="-55 -65 110 115" aria-hidden="true"><use href="#scene-core"/></svg>
+            <p>Agent</p>
+          </div>
+          <span class="architecture-joint" aria-hidden="true"></span>
+          <div class="architecture-group architecture-embodiment">
+            <p class="architecture-group-label" data-en="Embodiment" data-zh="本体">Embodiment</p>
+            <div class="architecture-bank">
+              <div class="architecture-module">
+                <svg class="architecture-module-art" viewBox="0 0 104 88" aria-hidden="true">
+                  <rect class="architecture-slot" x="8" y="8" width="88" height="64" rx="8"/>
+                  <g transform="translate(52 38) scale(.6)"><use href="#scene-robot"/></g>
+                </svg>
+                <p class="architecture-module-label">Go2</p>
+              </div>
+              <div class="architecture-module">
+                <svg class="architecture-module-art architecture-simulation" viewBox="0 0 104 88" aria-hidden="true">
+                  <rect class="architecture-slot" x="8" y="8" width="88" height="64" rx="8"/>
+                  <path class="scene-grid" d="m25 53 27-15 27 15-27 15ZM38 46l27 15M38 61l27-15"/>
+                  <g transform="translate(52 37) scale(.6)"><use href="#scene-robot"/></g>
+                </svg>
+                <p class="architecture-module-label">MuJoCo</p>
+              </div>
+              <div class="architecture-module architecture-custom">
+                <svg class="architecture-module-art" viewBox="0 0 104 88" aria-hidden="true">
+                  <rect class="architecture-slot" x="8" y="8" width="88" height="64" rx="8"/>
+                  <path class="architecture-extension" d="M52 29v22M41 40h22"/>
+                </svg>
+                <p class="architecture-module-label" data-en="Custom +" data-zh="自定义 +">Custom +</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <button class="nav-motion-control architecture-motion-control" type="button" disabled aria-pressed="false" aria-label="Pause illustration" data-label-en="Pause illustration" data-label-zh="暂停示意动效" aria-describedby="architecture-description"></button>
+      </figure>
+      <details class="capability-technical architecture-technical">
+        <summary data-en="Adapter interfaces" data-zh="适配接口">Adapter interfaces</summary>
+        <div class="capability-technical-content">
+          <p data-en="The Agent uses a shared backend contract. Navigation clients and robot backends are registered independently in the application layer. New protocols require an adapter and validation; this is not zero-configuration compatibility with arbitrary models or robots. Go2's current native service supports LightNav only. MuJoCo is a simulation backend, not a physical robot." data-zh="Agent 使用统一后端契约，导航客户端与本体后端在应用层分别注册。新协议需要实现适配器并验证，不代表任意模型或机器人零配置可用。Go2 当前原生服务仅支持 LightNav；MuJoCo 是仿真后端，不是真实机器人。">The Agent uses a shared backend contract. Navigation clients and robot backends are registered independently in the application layer. New protocols require an adapter and validation; this is not zero-configuration compatibility with arbitrary models or robots. Go2's current native service supports LightNav only. MuJoCo is a simulation backend, not a physical robot.</p>
+          <p><a href="https://github.com/Novaxis-Robot-Group/navigation-agent/blob/main/docs/integration.md" target="_blank" rel="noopener noreferrer" data-en="Integration guide ↗" data-zh="接入指南 ↗">Integration guide ↗</a></p>
+        </div>
+      </details>
+    </section>
+
     <section class="features-section" id="capabilities" aria-labelledby="features-title">
       <h2 id="features-title" class="capabilities-heading" data-en="From route execution to autonomous search" data-zh="从执行路线，到自主寻找">From route execution to autonomous search</h2>
       <svg class="scene-definitions" aria-hidden="true" width="0" height="0">
@@ -279,7 +354,7 @@
               <input data-ref="baseline-timeline" type="range" min="0" max="1" step="0.01" value="0" aria-label="VLN progress" data-label-en="VLN progress" data-label-zh="VLN 录像进度">
             </div>
             <div class="transport-row">
-              <button type="button" data-ref="baseline-play" class="play-button" aria-label="Play VLN">▶</button>
+              <button type="button" data-ref="baseline-play" class="play-button" aria-label="Play VLN"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path class="play-icon" d="M8 5v14l11-7Z"/><path class="pause-icon" d="M7 5h4v14H7Zm6 0h4v14h-4Z"/></svg></button>
               <span class="time-display"><span data-ref="baseline-elapsed">00:00</span><span class="time-divider">/</span><span data-ref="baseline-duration">00:00</span></span>
             <select data-ref="baseline-speed" class="playback-speed" aria-label="VLN playback speed" data-label-en="VLN playback speed" data-label-zh="VLN 播放速度"><option value="0.5">0.5×</option><option value="1">1×</option><option value="1.5">1.5×</option><option value="2">2×</option><option value="4" selected>4×</option></select>
               <div class="transport-options"><div class="view-switch" aria-label="VLN camera view" data-label-en="VLN camera view" data-label-zh="VLN 录像视角">
@@ -311,7 +386,7 @@
             <div data-ref="timeline-markers" class="timeline-markers" aria-hidden="true"></div>
           </div>
           <div class="transport-row">
-            <button type="button" data-ref="toggle-play" class="play-button" aria-label="Play" data-label-zh="播放" data-label-en="Play" disabled>▶</button>
+            <button type="button" data-ref="toggle-play" class="play-button" aria-label="Play" data-label-zh="播放" data-label-en="Play" disabled><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path class="play-icon" d="M8 5v14l11-7Z"/><path class="pause-icon" d="M7 5h4v14H7Zm6 0h4v14h-4Z"/></svg></button>
             <button type="button" data-ref="previous" class="icon-button" aria-label="Previous moment" data-label-zh="上一节点" data-label-en="Previous moment" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6v12m12-12-8 6 8 6Z"/></svg></button>
             <button type="button" data-ref="next" class="icon-button" aria-label="Next moment" data-label-zh="下一节点" data-label-en="Next moment" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6v12M6 6l8 6-8 6Z"/></svg></button>
             <span class="time-display"><span data-ref="elapsed">00:00</span><span class="time-divider">/</span><span data-ref="duration">00:00</span></span>
@@ -385,7 +460,7 @@
                       <input data-ref="go2-timeline" type="range" min="0" max="1" step="0.01" value="0" aria-label="Go2 recording progress" data-label-en="Go2 recording progress" data-label-zh="Go2 录像进度">
                     </div>
                     <div class="transport-row">
-                      <button data-ref="go2-play" class="play-button" type="button" aria-label="Play Go2 recording">▶</button>
+                      <button data-ref="go2-play" class="play-button" type="button" aria-label="Play Go2 recording"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path class="play-icon" d="M8 5v14l11-7Z"/><path class="pause-icon" d="M7 5h4v14H7Zm6 0h4v14h-4Z"/></svg></button>
                       <span class="time-display"><span data-ref="go2-elapsed">00:00</span><span class="time-divider">/</span><span data-ref="go2-duration">00:00</span></span>
                       <select data-ref="go2-speed" class="playback-speed" aria-label="Go2 playback speed" data-label-en="Go2 playback speed" data-label-zh="Go2 播放倍速"><option value="0.5">0.5×</option><option value="1">1×</option><option value="1.5">1.5×</option><option value="2">2×</option><option value="4" selected>4×</option></select>
                       <button data-ref="go2-fullscreen" class="icon-button" type="button" aria-label="Go2 fullscreen" data-label-en="Go2 fullscreen" data-label-zh="Go2 全屏"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4H4v4m12-4h4v4M4 16v4h4m12-4v4h-4"/></svg></button>

@@ -203,7 +203,6 @@ function initializeReplay(root, item) {
 
   function updatePlayState() {
     const playing = !video.paused || (loading && wantPlay);
-    $("#toggle-play").textContent = playing ? "Ⅱ" : "▶";
     $("#toggle-play").setAttribute("data-playing", String(playing));
     $("#toggle-play").setAttribute("aria-label", playing ? text("暂停", "Pause") : text("播放", "Play"));
   }
@@ -335,7 +334,6 @@ function initializeReplay(root, item) {
 
   function updateBaselineState() {
     const playing = !baselineVideo.paused || baseline.wantPlay;
-    $("#baseline-play").textContent = playing ? "Ⅱ" : "▶";
     $("#baseline-play").setAttribute("data-playing", String(playing));
     $("#baseline-play").setAttribute("aria-label", playing ? text("暂停 VLN", "Pause VLN") : text("播放 VLN", "Play VLN"));
     const time = baseline.loading ? baseline.time : baselineVideo.currentTime;
@@ -690,7 +688,6 @@ function initializeGo2Replay(root, run) {
     $("#go2-timeline").setAttribute("aria-valuetext", `${clock(time)} / ${clock(run?.duration)}`);
     $("#go2-elapsed").textContent = clock(time);
     $("#go2-duration").textContent = clock(run?.duration);
-    $("#go2-play").textContent = wantsPlay ? "Ⅱ" : "▶";
     $("#go2-play").setAttribute("data-playing", String(wantsPlay));
     $("#go2-progress").style.width = `${Math.min(100, time / (run?.duration || 1) * 100)}%`;
     $("#go2-play").classList.toggle('is-loading', buffering);

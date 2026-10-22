@@ -121,7 +121,8 @@ test('viewport and language changes preserve expanded content and refresh motion
 
 test('markup exposes three agent cards without capability tabs or hidden panels', () => {
   const html = readFileSync(join(__dirname, '..', 'index.html'), 'utf8');
-  const section = html.slice(html.indexOf('<section class="features-section"'), html.indexOf('<section class="text-section" id="about"'));
+  const start = html.indexOf('<section class="features-section"');
+  const section = html.slice(start, html.indexOf('</section>', start));
   const ids = [...section.matchAll(/\bid="([^"]+)"/g)].map(match => match[1]);
   assert.equal(new Set(ids).size, ids.length);
   assert.equal((section.match(/<article class="capability-panel"/g) || []).length, 3);
