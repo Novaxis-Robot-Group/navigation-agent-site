@@ -123,6 +123,20 @@ function setup(rate = 4, fast = false) {
   };
 }
 
+test('Go2 中央分隔处可播放，媒体冒泡不会重复切换', () => {
+  const { camera, external, one } = setup();
+  const views = one('.go2-views');
+  const click = views.listeners.click[0];
+  click({ target: views, currentTarget: views });
+  assert.equal(camera.paused, false);
+  assert.equal(external.paused, false);
+  click({ target: camera, currentTarget: views });
+  assert.equal(camera.paused, false);
+  click({ target: views, currentTarget: views });
+  assert.equal(camera.paused, true);
+  assert.equal(external.paused, true);
+});
+
 test('切换任务暂停双视角，保留进度和倍速，迟到事件不重新播放', async () => {
   const replay = setup(2);
   replay.start();

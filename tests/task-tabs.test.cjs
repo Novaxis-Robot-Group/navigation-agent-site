@@ -58,6 +58,7 @@ function setup(hash = '#videos', group = 'simulation') {
     element: (tag, className, content) => new Element(tag, className, content),
     text: (chinese, english) => english,
     hideNote() {},
+    closeReplaySettings() {},
     document: { getElementById: id => elements.get(id) },
     window: { addEventListener: (type, callback) => events.set(type, callback) },
     location,
@@ -77,7 +78,9 @@ test('default selection exposes one accessible panel and real target thumbnails'
     assert.equal(button.attributes['aria-controls'], tasks[index].card.id);
     assert.equal(tasks[index].card.attributes['aria-labelledby'], button.id);
     assert.equal(button.children[0].children[0].src, `./media/replays/${tasks[index].item.slug}/cover.jpg`);
-    assert.equal(button.children[1].children[1].dataset.zh, tasks[index].item.goal);
+    assert.equal(button.children[1].children.length, 1);
+    assert.equal(button.children[1].children[0].dataset.zh, tasks[index].item.goal);
+    assert.equal(button.children[1].children[0].textContent, tasks[index].item.goalEn);
   }
 });
 

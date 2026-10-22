@@ -141,20 +141,112 @@ function taskQueries(root) {
   };
 }
 
-function createTask(templateId, containerId, key, index, goal, goalEn) {
+let activeReplaySettings = null;
+
+function closeReplaySettings(restoreFocus = false) {
+  if (!activeReplaySettings) return;
+  const { button, panel } = activeReplaySettings;
+  if (typeof panel.hidePopover === 'function' && panel.matches(':popover-open')) panel.hidePopover();
+  panel.hidden = true;
+  button.setAttribute('aria-expanded', 'false');
+  activeReplaySettings = null;
+  if (restoreFocus) button.focus({ preventScroll: true });
+}
+
+function replaySettingsLayout(bounds, size, viewport, fullscreen) {
+  const width = Math.min(224, viewport.width - 24);
+  const top = fullscreen
+    ? Math.max(12, bounds.top - size.height - 8)
+    : Math.max(12, bounds.bottom + 8);
+  return {
+    left: Math.max(12, Math.min(bounds.right - width, viewport.width - width - 12)),
+    top,
+    width,
+    maxHeight: Math.max(44, viewport.height - top - 12),
+  };
+}
+
+function positionReplaySettings() {
+  if (!activeReplaySettings) return;
+  const { button, panel, player } = activeReplaySettings;
+  if (player.closest('[hidden]')) { closeReplaySettings(); return; }
+  if (panel.hasAttribute('data-fallback')) return;
+  const layout = replaySettingsLayout(
+    button.getBoundingClientRect(),
+    { height: panel.scrollHeight },
+    { width: window.innerWidth, height: window.innerHeight },
+    document.fullscreenElement === player,
+  );
+  panel.style.left = `${layout.left}px`;
+  panel.style.top = `${layout.top}px`;
+  panel.style.width = `${layout.width}px`;
+  panel.style.maxHeight = `${layout.maxHeight}px`;
+}
+
+function initializeReplaySettings(root) {
+  for (const button of root.querySelectorAll('[data-settings-toggle]')) {
+    const panel = document.getElementById(button.getAttribute('aria-controls'));
+    const player = button.closest('.player, .baseline-player');
+    button.addEventListener('click', () => {
+      const wasOpen = activeReplaySettings?.button === button;
+      closeReplaySettings();
+      if (wasOpen) return;
+      hideNote();
+      panel.hidden = false;
+      if (typeof panel.showPopover === 'function') panel.showPopover();
+      else panel.setAttribute('data-fallback', '');
+      activeReplaySettings = { button, panel, player };
+      button.setAttribute('aria-expanded', 'true');
+      if (!document.fullscreenElement) {
+        const overflow = button.getBoundingClientRect().bottom + 20 + panel.scrollHeight - window.innerHeight;
+        if (overflow > 0) window.scrollBy({ top: overflow, behavior: 'instant' });
+      }
+      positionReplaySettings();
+      panel.querySelector('button:not(:disabled), select:not(:disabled)')?.focus({ preventScroll: true });
+    });
+  }
+}
+
+document.addEventListener('pointerdown', event => {
+  if (!activeReplaySettings) return;
+  const { button, panel } = activeReplaySettings;
+  if (!button.contains(event.target) && !panel.contains(event.target)) closeReplaySettings();
+});
+document.addEventListener('keydown', event => {
+  if (event.key === 'Escape' && activeReplaySettings) {
+    event.preventDefault();
+    closeReplaySettings(true);
+  }
+});
+document.addEventListener('focusin', event => {
+  if (!activeReplaySettings) return;
+  const { button, panel } = activeReplaySettings;
+  if (event.target !== button && !panel.contains(event.target)) closeReplaySettings();
+});
+document.addEventListener('fullscreenchange', () => closeReplaySettings());
+window.addEventListener('resize', positionReplaySettings);
+document.addEventListener('scroll', positionReplaySettings, { capture: true, passive: true });
+
+function createTask(templateId, containerId, key, goal, goalEn) {
   const card = $(templateId).content.firstElementChild.cloneNode(true);
   card.id = key;
   const title = card.querySelector('[data-task-title]');
   title.id = `${key}-title`;
   card.setAttribute('aria-labelledby', title.id);
-  title.dataset.zh = `Task ${index + 1} · ${goal}`;
-  title.dataset.en = `Task ${index + 1} · ${goalEn}`;
+  title.dataset.zh = goal;
+  title.dataset.en = goalEn;
   title.textContent = text(title.dataset.zh, title.dataset.en);
   for (const node of card.querySelectorAll('[data-ref]')) node.id = `${key}-${node.dataset.ref}`;
+  for (const list of card.querySelectorAll('[data-ref="chapter-list"], [data-ref="go2-chapters"]')) list.addEventListener('scroll', hideNote, { passive: true });
   for (const node of card.querySelectorAll('[aria-labelledby]')) {
     node.setAttribute('aria-labelledby', node.getAttribute('aria-labelledby').split(' ').map(id => `${key}-${id}`).join(' '));
   }
+  for (const node of card.querySelectorAll('[aria-controls], label[for]')) {
+    const attribute = node.hasAttribute('aria-controls') ? 'aria-controls' : 'for';
+    node.setAttribute(attribute, `${key}-${node.getAttribute(attribute)}`);
+  }
   $(containerId).append(card);
+  initializeReplaySettings(card);
   // 数据可能在用户切换语言之后返回，插入时立即使用当前语言。
   for (const node of card.querySelectorAll('[data-en]')) node.textContent = text(node.dataset.zh, node.dataset.en);
   for (const node of card.querySelectorAll('[data-label-en]')) node.setAttribute('aria-label', text(node.dataset.labelZh, node.dataset.labelEn));
@@ -203,6 +295,7 @@ function initializeReplay(root, item) {
 
   function updatePlayState() {
     const playing = !video.paused || (loading && wantPlay);
+    player.setAttribute('data-waiting', String(loading && wantPlay));
     $("#toggle-play").setAttribute("data-playing", String(playing));
     $("#toggle-play").setAttribute("aria-label", playing ? text("暂停", "Pause") : text("播放", "Play"));
   }
@@ -279,8 +372,6 @@ function initializeReplay(root, item) {
       else button.removeAttribute("aria-current");
     });
     all(".timeline-segments span").forEach((segment, i) => segment.classList.toggle("passed", i <= index));
-    $("#previous").disabled = index === 0;
-    $("#next").disabled = index === session.nodes.length - 1;
   }
 
   function renderNodes() {
@@ -300,7 +391,6 @@ function initializeReplay(root, item) {
       marker.style.left = `${node.time / session.duration * 100}%`;
       $("#timeline-markers").append(marker);
     });
-    $("#chapter-count").textContent = String(session.nodes.length);
     activeNode = -1;
     updateTime(currentTime());
   }
@@ -322,6 +412,7 @@ function initializeReplay(root, item) {
     loadSource(0, false, initial);
     renderNodes();
     player.setAttribute("aria-busy", "false");
+    player.setAttribute('data-controls', 'compact');
   }
 
   function renderBaselineText() {
@@ -334,6 +425,7 @@ function initializeReplay(root, item) {
 
   function updateBaselineState() {
     const playing = !baselineVideo.paused || baseline.wantPlay;
+    $("#baseline-player").setAttribute('data-waiting', String(baseline.loading && baseline.wantPlay));
     $("#baseline-play").setAttribute("data-playing", String(playing));
     $("#baseline-play").setAttribute("aria-label", playing ? text("暂停 VLN", "Pause VLN") : text("播放 VLN", "Play VLN"));
     const time = baseline.loading ? baseline.time : baselineVideo.currentTime;
@@ -402,6 +494,7 @@ function initializeReplay(root, item) {
     baselineVideo.pause();
     Object.assign(baseline, { time: 0, failed: false, wantPlay: false, loading: false });
     const available = !!session.baseline;
+    $("#baseline-player").setAttribute('data-controls', available ? 'compact' : 'static');
     $("#baseline-placeholder").hidden = available;
     $("#baseline-empty-status").hidden = available;
     $("#baseline-stage").hidden = !available;
@@ -455,8 +548,6 @@ function initializeReplay(root, item) {
   video.addEventListener("ended", () => { wantPlay = false; updatePlayState(); });
   video.addEventListener("error", showMediaError);
   timeline.addEventListener("input", () => seek(Number(timeline.value)));
-  $("#previous").addEventListener("click", () => seek(session.nodes[Math.max(0, activeNode - 1)].time));
-  $("#next").addEventListener("click", () => seek(session.nodes[Math.min(session.nodes.length - 1, activeNode + 1)].time));
   $("#speed").addEventListener("change", () => {
     video.playbackRate = Number($("#speed").value);
   });
@@ -475,13 +566,9 @@ function initializeReplay(root, item) {
   $("#fullscreen").addEventListener("click", async () => {
     try {
       if (document.fullscreenElement) await document.exitFullscreen();
-      else if ($("#player .video-stage").requestFullscreen) await $("#player .video-stage").requestFullscreen();
+      else if (player.requestFullscreen) await player.requestFullscreen();
       else if (video.webkitEnterFullscreen) video.webkitEnterFullscreen();
     } catch { /* 浏览器拒绝全屏时保留内联播放。 */ }
-  });
-  document.addEventListener("fullscreenchange", () => {
-    // 全屏只显示画面时，启用原生控制条，保留暂停和拖动入口。
-    video.controls = document.fullscreenElement === $("#player .video-stage");
   });
   player.addEventListener("keydown", (event) => {
     if (event.target.closest("button, input, select") || !session) return;
@@ -490,13 +577,6 @@ function initializeReplay(root, item) {
   });
   player.tabIndex = 0;
 
-  if (item.edit?.kind === 'thinking_trim') {
-    const label = element('span', 'replay-edit-label');
-    label.dataset.zh = '精简回放';
-    label.dataset.en = 'Edited replay';
-    label.textContent = text(label.dataset.zh, label.dataset.en);
-    $("#agent-title").append(label);
-  }
   video.defaultPlaybackRate = video.playbackRate = Number($("#speed").value);
   baselineVideo.defaultPlaybackRate = baselineVideo.playbackRate = Number($("#baseline-speed").value);
   video.controls = baselineVideo.controls = false;
@@ -526,17 +606,16 @@ function initializeTaskSelector(selector, tasks) {
       const thumbnail = element('img', 'task-tab-thumbnail');
       thumbnail.src = poster;
       thumbnail.alt = '';
-      thumbnail.width = 112;
-      thumbnail.height = 70;
+      thumbnail.width = 96;
+      thumbnail.height = 54;
       preview.append(thumbnail);
     }
     const copy = element('span', 'task-tab-copy');
-    const number = element('span', 'task-tab-number', `Task ${index + 1}`);
     const title = element('span', 'task-tab-title');
     title.dataset.en = item.goalEn;
     title.dataset.zh = item.goal;
     title.textContent = text(item.goal, item.goalEn);
-    copy.append(number, title);
+    copy.append(title);
     button.append(preview, copy);
     button.addEventListener('click', () => selectTask(index));
     button.addEventListener('keydown', event => {
@@ -572,6 +651,7 @@ function initializeTaskSelector(selector, tasks) {
     }
     if (selected >= 0) tasks[selected].playback.pause();
     hideNote();
+    closeReplaySettings();
     selected = index;
     tasks.forEach(({ card }, taskIndex) => {
       const active = taskIndex === selected;
@@ -841,6 +921,9 @@ function initializeGo2Replay(root, run) {
   // 两个画面与键盘操作都使用同一套播放控件。
   $("#go2-play").addEventListener("click", toggle);
   for (const media of [camera, external]) media.addEventListener("click", toggle);
+  $('.go2-views').addEventListener('click', event => {
+    if (event.target === event.currentTarget) toggle();
+  });
   $("#go2-timeline").addEventListener("input", event => seekTo(Number(event.target.value)));
   $("#go2-speed").addEventListener("change", event => {
     const time = currentTime();
@@ -922,7 +1005,7 @@ function initializeGo2Replay(root, run) {
   $("#go2-empty").hidden = !!run;
   $("#go2-timeline").max = run?.duration || 1;
   $("#go2-speed").value = String(rate);
-  if (run) { setSources(); camera.poster = run.poster; }
+  if (run) { controls.setAttribute('data-controls', 'compact'); setSources(); camera.poster = run.poster; }
   if (run?.external) external.poster = run.external.poster;
   // 打开页面就准备轻量 4× 素材，访客阅读介绍时完成下载；不自动播放。
   if (run?.playback4x) prepare();
@@ -937,8 +1020,8 @@ async function initializeTasks() {
         if (!response.ok) throw new Error('Task data unavailable');
         const sessions = await response.json();
         if (!sessions.length) throw new Error('No recordings');
-        const tasks = sessions.map((item, index) => {
-          const card = createTask('#simulation-template', '#simulation', `simulation-${item.slug}`, index, item.goal, item.goalEn);
+        const tasks = sessions.map(item => {
+          const card = createTask('#simulation-template', '#simulation', `simulation-${item.slug}`, item.goal, item.goalEn);
           const playback = initializeReplay(card, item);
           return { item, card, playback, poster: `./media/replays/${item.slug}/cover.jpg` };
         });
@@ -958,9 +1041,9 @@ async function initializeTasks() {
           { key: 'bin', goal: '走到银色垃圾桶旁', goalEn: 'Walk to the silver trash bin' },
           { key: 'pantry', goal: '走到茶水间吧台', goalEn: 'Walk to the pantry counter' },
         ];
-        const replays = tasks.map((task, index) => {
+        const replays = tasks.map(task => {
           const run = recordings[task.key] || null;
-          const card = createTask('#go2-template', '#go2-tasks', `go2-${task.key}`, index, run?.goal || task.goal, run?.goalEn || task.goalEn);
+          const card = createTask('#go2-template', '#go2-tasks', `go2-${task.key}`, run?.goal || task.goal, run?.goalEn || task.goalEn);
           const playback = initializeGo2Replay(card, run);
           return { item: run || task, card, playback, poster: run?.cover };
         });

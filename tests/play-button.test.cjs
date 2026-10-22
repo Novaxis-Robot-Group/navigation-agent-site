@@ -45,6 +45,7 @@ function setup(updateName, nextName, selector) {
   const video = { paused: true, currentTime: 0 };
   const context = vm.createContext({
     $: getNode, video, baselineVideo: video,
+    player: getNode('#player'),
     loading: false, wantPlay: false,
     baseline: { wantPlay: false, loading: false },
     session: { baseline: { duration: 50 } },

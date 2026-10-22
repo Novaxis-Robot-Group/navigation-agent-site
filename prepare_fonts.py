@@ -13,7 +13,7 @@ CACHE = ROOT / '.runtime' / 'fonts'
 OUTPUT = ROOT / 'media' / 'fonts'
 HAN_REVISION = 'a4f7cf94edfb9d7ffbdfc4841de276358bd7e0f2'
 HAN_BASE = f'https://raw.githubusercontent.com/adobe-fonts/source-han-sans/{HAN_REVISION}'
-PLEX_URL = 'https://fonts.gstatic.com/s/ibmplexsans/v23/zYXzKVElMYYaJe8bpLHnCwDKr932-G7dytD-Dmu1syxeKYbSB4Zh.woff2'
+INTER_BASE = 'https://raw.githubusercontent.com/rsms/inter/v4.1'
 
 
 def cached_file(name, url):
@@ -38,10 +38,10 @@ def main():
     CACHE.mkdir(parents=True, exist_ok=True)
     OUTPUT.mkdir(parents=True, exist_ok=True)
     source = cached_file('source-han-sans-sc.woff2', f'{HAN_BASE}/Variable/WOFF2/TTF/SourceHanSansSC-VF.ttf.woff2')
-    plex = cached_file('ibm-plex-sans-latin.woff2', PLEX_URL)
+    inter = cached_file('inter-variable-4.1.woff2', f'{INTER_BASE}/docs/font-files/InterVariable.woff2')
     licenses = {
         'source-han-license.txt': f'{HAN_BASE}/LICENSE.txt',
-        'ibm-plex-license.txt': 'https://raw.githubusercontent.com/IBM/plex/master/LICENSE.txt',
+        'inter-license.txt': f'{INTER_BASE}/LICENSE.txt',
     }
     for name, url in licenses.items():
         license_text = cached_file(name, url).read_text(encoding='utf-8')
@@ -68,14 +68,14 @@ def main():
     buffer = BytesIO()
     font.save(buffer)
     han_name = publish_font('nav-han-web', buffer.getvalue())
-    plex_name = publish_font('ibm-plex-sans-latin', plex.read_bytes())
-    (OUTPUT / 'fonts.css').write_text(f'''/* 由 prepare_fonts.py 生成；字形来自 IBM Plex Sans 与思源黑体。 */
+    inter_name = publish_font('inter-variable', inter.read_bytes())
+    (OUTPUT / 'fonts.css').write_text(f'''/* 由 prepare_fonts.py 生成；字形来自 Inter 与思源黑体。 */
 @font-face {{
-  font-family: "IBM Plex Sans";
+  font-family: "Inter";
   font-style: normal;
-  font-weight: 100 700;
+  font-weight: 100 900;
   font-display: swap;
-  src: url("./{plex_name}") format("woff2");
+  src: url("./{inter_name}") format("woff2");
 }}
 @font-face {{
   font-family: "Nav Han Web";
@@ -85,7 +85,7 @@ def main():
   src: url("./{han_name}") format("woff2");
 }}
 ''')
-    for name in (plex_name, han_name):
+    for name in (inter_name, han_name):
         print(f'{name}: {(OUTPUT / name).stat().st_size / 1024:.1f} KiB')
 
 

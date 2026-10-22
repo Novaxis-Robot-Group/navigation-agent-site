@@ -326,7 +326,8 @@
         <h2 id="videos-title" data-en="See it in action" data-zh="效果演示">See it in action</h2>
       </div>
       <div class="demo-section-heading">
-        <h3 id="simulation-title" data-en="MuJoCo · Method comparison" data-zh="MuJoCo · 方法对比">MuJoCo · Method comparison</h3>
+        <h3 id="simulation-title">MuJoCo</h3>
+        <p data-en="Method comparison" data-zh="方法对比">Method comparison</p>
       </div>
       <div class="demo-replay" data-ui>
     <div id="simulation-tabs" class="task-tabs" role="tablist" aria-label="MuJoCo tasks" data-label-en="MuJoCo tasks" data-label-zh="MuJoCo 任务" hidden></div>
@@ -334,7 +335,7 @@
     <p id="simulation-load-error" role="alert" hidden data-en="Task data could not be loaded. Please reload." data-zh="任务数据未能加载，请刷新重试。"></p>
     <template id="simulation-template">
     <article class="simulation-task" data-task>
-      <h4 class="task-heading" data-task-title></h4>
+      <h4 class="sr-only" data-task-title></h4>
       <section class="comparison-column baseline-column" aria-labelledby="baseline-title">
         <h5 data-ref="baseline-title" class="comparison-heading">VLN</h5>
         <div class="baseline-player" data-ref="baseline-player">
@@ -349,24 +350,27 @@
           </div>
           <p data-ref="baseline-empty-status" class="baseline-status">—</p>
           <div data-ref="baseline-transport" class="transport" hidden>
+            <button type="button" data-ref="baseline-play" class="play-button" aria-label="Play VLN"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path class="play-icon" d="M8 5v14l11-7Z"/><path class="pause-icon" d="M7 5h4v14H7Zm6 0h4v14h-4Z"/></svg></button>
+            <span class="time-display"><span data-ref="baseline-elapsed">00:00</span><span class="time-divider">/</span><span data-ref="baseline-duration">00:00</span></span>
             <div class="timeline-wrap">
               <div class="timeline-track" aria-hidden="true"><span data-ref="baseline-progress"></span></div>
               <input data-ref="baseline-timeline" type="range" min="0" max="1" step="0.01" value="0" aria-label="VLN progress" data-label-en="VLN progress" data-label-zh="VLN 录像进度">
             </div>
-            <div class="transport-row">
-              <button type="button" data-ref="baseline-play" class="play-button" aria-label="Play VLN"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path class="play-icon" d="M8 5v14l11-7Z"/><path class="pause-icon" d="M7 5h4v14H7Zm6 0h4v14h-4Z"/></svg></button>
-              <span class="time-display"><span data-ref="baseline-elapsed">00:00</span><span class="time-divider">/</span><span data-ref="baseline-duration">00:00</span></span>
-            <select data-ref="baseline-speed" class="playback-speed" aria-label="VLN playback speed" data-label-en="VLN playback speed" data-label-zh="VLN 播放速度"><option value="0.5">0.5×</option><option value="1">1×</option><option value="1.5">1.5×</option><option value="2">2×</option><option value="4" selected>4×</option></select>
-              <div class="transport-options"><div class="view-switch" aria-label="VLN camera view" data-label-en="VLN camera view" data-label-zh="VLN 录像视角">
-                <button type="button" data-baseline-view="first" aria-pressed="true" data-en="First person" data-zh="第一视角">First person</button>
-                <button type="button" data-baseline-view="third" aria-pressed="false" data-en="Third person" data-zh="第三视角">Third person</button>
+
+            <button type="button" class="icon-button replay-more" data-settings-toggle aria-controls="baseline-settings" aria-expanded="false" aria-haspopup="dialog" aria-label="Playback settings" data-label-en="Playback settings" data-label-zh="播放设置"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg></button>
+            <div class="replay-settings" data-ref="baseline-settings" data-settings-panel role="dialog" aria-label="Playback settings" data-label-en="Playback settings" data-label-zh="播放设置" popover="manual" hidden>
+              <div class="settings-group"><span class="settings-label" data-en="Camera view" data-zh="录像视角">Camera view</span><div class="view-switch" aria-label="VLN camera view" data-label-en="VLN camera view" data-label-zh="VLN 录像视角">
+                <button type="button" data-baseline-view="first" aria-pressed="true" aria-label="First person" data-label-en="First person" data-label-zh="第一视角"><span data-en="First person" data-zh="第一视角">First person</span></button>
+                <button type="button" data-baseline-view="third" aria-pressed="false" aria-label="Third person" data-label-en="Third person" data-label-zh="第三视角"><span data-en="Third person" data-zh="第三视角">Third person</span></button>
               </div></div>
+              <label class="settings-speed" for="baseline-speed"><span data-en="Playback speed" data-zh="播放速度">Playback speed</span><select data-ref="baseline-speed" class="playback-speed" aria-label="VLN playback speed" data-label-en="VLN playback speed" data-label-zh="VLN 播放速度"><option value="0.5">0.5×</option><option value="1">1×</option><option value="1.5">1.5×</option><option value="2">2×</option><option value="4" selected>4×</option></select></label>
+
             </div>
           </div>
         </div>
       </section>
       <section class="comparison-column agent-column" aria-labelledby="agent-title">
-        <h5 data-ref="agent-title" class="comparison-heading">Agent + VLN</h5>
+        <div class="comparison-heading-row"><h5 data-ref="agent-title" class="comparison-heading">Agent + VLN</h5></div>
       <div class="player" data-ref="player" aria-busy="true">
         <div class="player-body">
           <div class="screen-column">
@@ -380,35 +384,30 @@
 
         </div>
         <div class="transport">
-          <div class="timeline-wrap">
+            <button type="button" data-ref="toggle-play" class="play-button" aria-label="Play" data-label-zh="播放" data-label-en="Play" disabled><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path class="play-icon" d="M8 5v14l11-7Z"/><path class="pause-icon" d="M7 5h4v14H7Zm6 0h4v14h-4Z"/></svg></button>
+            <span class="time-display"><span data-ref="elapsed">00:00</span><span class="time-divider">/</span><span data-ref="duration">00:00</span></span>
+            <div class="timeline-wrap">
             <div data-ref="timeline-segments" class="timeline-segments" aria-hidden="true"></div>
             <input data-ref="timeline" type="range" min="0" max="1" value="0" step="0.01" aria-label="Recording progress" data-label-zh="录像进度" data-label-en="Recording progress" disabled>
             <div data-ref="timeline-markers" class="timeline-markers" aria-hidden="true"></div>
           </div>
-          <div class="transport-row">
-            <button type="button" data-ref="toggle-play" class="play-button" aria-label="Play" data-label-zh="播放" data-label-en="Play" disabled><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path class="play-icon" d="M8 5v14l11-7Z"/><path class="pause-icon" d="M7 5h4v14H7Zm6 0h4v14h-4Z"/></svg></button>
-            <button type="button" data-ref="previous" class="icon-button" aria-label="Previous moment" data-label-zh="上一节点" data-label-en="Previous moment" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6v12m12-12-8 6 8 6Z"/></svg></button>
-            <button type="button" data-ref="next" class="icon-button" aria-label="Next moment" data-label-zh="下一节点" data-label-en="Next moment" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6v12M6 6l8 6-8 6Z"/></svg></button>
-            <span class="time-display"><span data-ref="elapsed">00:00</span><span class="time-divider">/</span><span data-ref="duration">00:00</span></span>
-            <select data-ref="speed" class="playback-speed" aria-label="Agent playback speed" data-label-en="Agent playback speed" data-label-zh="Agent 播放速度"><option value="0.5">0.5×</option><option value="1">1×</option><option value="1.5">1.5×</option><option value="2">2×</option><option value="4" selected>4×</option></select>
-            <div class="transport-options">
-              <div class="view-switch" aria-label="Camera view" data-label-zh="录像视角" data-label-en="Camera view">
-                <button type="button" data-view="first" aria-pressed="true" data-en="First person" data-zh="第一视角">First person</button>
-                <button type="button" data-view="third" aria-pressed="false" data-en="Third person" data-zh="第三视角">Third person</button>
-              </div>
-
-
-              <button type="button" data-ref="fullscreen" class="icon-button" aria-label="Fullscreen" data-label-zh="全屏" data-label-en="Fullscreen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4H4v4m12-4h4v4M4 16v4h4m12-4v4h-4"/></svg></button>
+            <button type="button" data-ref="fullscreen" class="icon-button" aria-label="Fullscreen" data-label-zh="全屏" data-label-en="Fullscreen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4H4v4m12-4h4v4M4 16v4h4m12-4v4h-4"/></svg></button>
+            <button type="button" class="icon-button replay-more" data-settings-toggle aria-controls="agent-settings" aria-expanded="false" aria-haspopup="dialog" aria-label="Playback settings" data-label-en="Playback settings" data-label-zh="播放设置"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg></button>
+            <div class="replay-settings" data-ref="agent-settings" data-settings-panel role="dialog" aria-label="Playback settings" data-label-en="Playback settings" data-label-zh="播放设置" popover="manual" hidden>
+              <div class="settings-group"><span class="settings-label" data-en="Camera view" data-zh="录像视角">Camera view</span><div class="view-switch" aria-label="Camera view" data-label-zh="录像视角" data-label-en="Camera view">
+                <button type="button" data-view="first" aria-pressed="true" aria-label="First person" data-label-en="First person" data-label-zh="第一视角"><span data-en="First person" data-zh="第一视角">First person</span></button>
+                <button type="button" data-view="third" aria-pressed="false" aria-label="Third person" data-label-en="Third person" data-label-zh="第三视角"><span data-en="Third person" data-zh="第三视角">Third person</span></button>
+              </div></div>
+              <label class="settings-speed" for="speed"><span data-en="Playback speed" data-zh="播放速度">Playback speed</span><select data-ref="speed" class="playback-speed" aria-label="Agent playback speed" data-label-en="Agent playback speed" data-label-zh="Agent 播放速度"><option value="0.5">0.5×</option><option value="1">1×</option><option value="1.5">1.5×</option><option value="2">2×</option><option value="4" selected>4×</option></select></label>
             </div>
           </div>
-        </div>
 
       </div>
 
       </section>
 
         <aside class="replay-details" aria-labelledby="decisions-title">
-          <div class="decisions-heading"><h5 data-ref="decisions-title" data-en="Agent decisions" data-zh="Agent 节点与决策">Agent decisions</h5><span data-ref="chapter-count">7</span></div>
+          <div class="decisions-heading"><h5 data-ref="decisions-title" data-en="Agent decisions" data-zh="Agent 决策">Agent decisions</h5></div>
           <div class="details-body">
             <ol data-ref="chapter-list" aria-label="Jump to a key moment" data-label-zh="跳转到关键节点" data-label-en="Jump to a key moment"></ol>
 
@@ -428,14 +427,15 @@
     <noscript><p>Enable JavaScript for interactive replay, or <a href="./media/replays/basketball/first.mp4">watch the Agent basketball recording</a> / <a href="./media/replays/basketball/vln/first.mp4">watch the VLN basketball recording</a> / <a href="./media/replays/bed/vln/first.mp4">watch the VLN bed recording</a> / <a href="./media/go2/bin/robot.mp4">watch the Go2 trash-bin recording</a>.</p></noscript>
       <section id="go2" aria-labelledby="go2-title">
         <div class="demo-section-heading">
-          <h3 id="go2-title" data-en="Go2 · Real-world deployment" data-zh="Go2 · 真实场景适配">Go2 · Real-world deployment</h3>
+          <h3 id="go2-title">Go2</h3>
+          <p data-en="Real-world deployment" data-zh="真实场景适配">Real-world deployment</p>
         </div>
         <div id="go2-tabs" class="task-tabs" role="tablist" aria-label="Go2 tasks" data-label-en="Go2 tasks" data-label-zh="Go2 任务" hidden></div>
         <div id="go2-tasks" class="task-stack"></div>
         <p id="go2-load-error" role="alert" hidden data-en="Task data could not be loaded. Please reload." data-zh="任务数据未能加载，请刷新重试。"></p>
         <template id="go2-template">
           <article class="go2-task" data-task>
-            <h4 class="task-heading" data-task-title></h4>
+            <h4 class="sr-only" data-task-title></h4>
             <div class="realworld-grid">
               <section class="realworld-column">
                 <div class="go2-view-headings">
@@ -455,21 +455,24 @@
                     </div>
                   </div>
                   <div class="transport">
-                    <div class="timeline-wrap">
+            <button data-ref="go2-play" class="play-button" type="button" aria-label="Play Go2 recording"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path class="play-icon" d="M8 5v14l11-7Z"/><path class="pause-icon" d="M7 5h4v14H7Zm6 0h4v14h-4Z"/></svg></button>
+            <span class="time-display"><span data-ref="go2-elapsed">00:00</span><span class="time-divider">/</span><span data-ref="go2-duration">00:00</span></span>
+            <div class="timeline-wrap">
                       <div class="timeline-track" aria-hidden="true"><span data-ref="go2-progress"></span></div>
                       <input data-ref="go2-timeline" type="range" min="0" max="1" step="0.01" value="0" aria-label="Go2 recording progress" data-label-en="Go2 recording progress" data-label-zh="Go2 录像进度">
                     </div>
-                    <div class="transport-row">
-                      <button data-ref="go2-play" class="play-button" type="button" aria-label="Play Go2 recording"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path class="play-icon" d="M8 5v14l11-7Z"/><path class="pause-icon" d="M7 5h4v14H7Zm6 0h4v14h-4Z"/></svg></button>
-                      <span class="time-display"><span data-ref="go2-elapsed">00:00</span><span class="time-divider">/</span><span data-ref="go2-duration">00:00</span></span>
-                      <select data-ref="go2-speed" class="playback-speed" aria-label="Go2 playback speed" data-label-en="Go2 playback speed" data-label-zh="Go2 播放倍速"><option value="0.5">0.5×</option><option value="1">1×</option><option value="1.5">1.5×</option><option value="2">2×</option><option value="4" selected>4×</option></select>
-                      <button data-ref="go2-fullscreen" class="icon-button" type="button" aria-label="Go2 fullscreen" data-label-en="Go2 fullscreen" data-label-zh="Go2 全屏"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4H4v4m12-4h4v4M4 16v4h4m12-4v4h-4"/></svg></button>
-                    </div>
-                  </div>
+            <button data-ref="go2-fullscreen" class="icon-button" type="button" aria-label="Go2 fullscreen" data-label-en="Go2 fullscreen" data-label-zh="Go2 全屏"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4H4v4m12-4h4v4M4 16v4h4m12-4v4h-4"/></svg></button>
+            <button type="button" class="icon-button replay-more" data-settings-toggle aria-controls="go2-settings" aria-expanded="false" aria-haspopup="dialog" aria-label="Playback settings" data-label-en="Playback settings" data-label-zh="播放设置"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg></button>
+            <div class="replay-settings" data-ref="go2-settings" data-settings-panel role="dialog" aria-label="Playback settings" data-label-en="Playback settings" data-label-zh="播放设置" popover="manual" hidden>
+
+              <label class="settings-speed" for="go2-speed"><span data-en="Playback speed" data-zh="播放速度">Playback speed</span><select data-ref="go2-speed" class="playback-speed" aria-label="Go2 playback speed" data-label-en="Go2 playback speed" data-label-zh="Go2 播放倍速"><option value="0.5">0.5×</option><option value="1">1×</option><option value="1.5">1.5×</option><option value="2">2×</option><option value="4" selected>4×</option></select></label>
+
+            </div>
+          </div>
                 </div>
               </section>
               <aside class="realworld-column">
-                <h5 class="comparison-heading" data-en="Agent decisions" data-zh="Agent 节点与决策">Agent decisions</h5>
+                <h5 class="comparison-heading" data-en="Agent decisions" data-zh="Agent 决策">Agent decisions</h5>
                 <div class="realworld-notes">
                   <p data-ref="go2-empty" class="empty-title" data-en="Decisions pending" data-zh="节点待加入">Decisions pending</p>
                   <ol data-ref="go2-chapters" aria-label="Go2 key moments" data-label-en="Go2 key moments" data-label-zh="Go2 关键节点" hidden></ol>
