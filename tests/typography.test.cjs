@@ -30,13 +30,15 @@ test('decision text stays readable with natural rows and scrollable desktop list
   assert.match(source, /list\.addEventListener\('scroll', hideNote/);
 });
 
-test('Inter and the Chinese subset are self-hosted with published font assets', () => {
+test('Inter and official MiSans slices are self-hosted with their licenses', () => {
   const fonts = readFileSync(join(root, 'media/fonts/fonts.css'), 'utf8');
   assert.match(fonts, /font-family: "Inter"/);
-  assert.match(fonts, /font-family: "Nav Han Web"/);
-  assert.doesNotMatch(fonts, /https?:|IBM Plex/);
+  assert.match(fonts, /font-family: "MiSans VF"/);
+  assert.doesNotMatch(fonts, /https?:|IBM Plex|Nav Han Web/);
   for (const [, name] of fonts.matchAll(/url\("\.\/([^"]+)"\)/g)) {
     assert.ok(existsSync(join(root, 'media/fonts', name)), name);
   }
   assert.ok(existsSync(join(root, 'media/fonts/inter-license.txt')));
+  assert.ok(existsSync(join(root, 'media/fonts/misans-license.pdf')));
+  assert.match(html, /Fonts: Inter \/ MiSans/);
 });

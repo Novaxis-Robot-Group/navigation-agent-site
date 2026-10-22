@@ -92,18 +92,19 @@ Go2 任务卡片使用 `media/go2/<task>/cover.jpg`，从已处理隐私的 `rob
 
 演示区采用轻量目标选择器，不显示 Task 编号与重复任务标题。决策文字为 14px，时间标签为 12px；桌面在等高面板内滚动，窄屏完整展开。Agent + VLN 标题旁不显示剪辑说明入口或浮层；素材剪辑记录保留在本文档中。
 
-英文使用 Inter，中文使用思源黑体网页子集。字体放在 `media/fonts/`，随网站部署，不依赖访问者预装或外部字体服务。首次加载采用系统字体过渡；网络失败时继续使用系统字体。
+英文使用 Inter，中文使用 MiSans VF。字体在 `media/fonts/` 自托管，不依赖设备预装或访问外部字体服务。其余字号、字重、间距和布局沿用上一版。
 
-思源黑体原始字库来自 Adobe `source-han-sans` 2.005R，网页子集内部名为 `Nav Han Web`；Inter 使用官方 `rsms/inter` v4.1 的可变字体。原始许可证随字体保存在同一目录，字体不适用网站源码的 Apache-2.0 许可。
+MiSans 使用[小米官方网页字体服务](https://cdn-font.hyperos.mi.com/font/css?family=MiSans_VF:VF:Chinese_Simplify,Latin&display=swap)提供的原版 WOFF2 切片。脚本只选择覆盖页面文案的官方文件，不修改字形、内部名称或字库内容。完整许可见 `media/fonts/misans-license.pdf`，使用说明见 `media/fonts/NOTICE.txt`；页脚注明 Inter / MiSans。字体不适用本站源码的 Apache-2.0 许可。
 
-仅更新字库时需要 Python 3.10+。以下 `python3` 应指向该版本。新增页面或任务文案后，在仓库根目录更新中文字形：
+Inter 使用官方 `rsms/inter` v4.1 可变字体。更换字体来源前重新核对许可，不将免费商用等同于可以改编或单独分发字库。
+
+新增页面或任务文案后，在仓库根目录使用 Python 3.10+ 更新字库文件选择：
 
 ```bash
-python3 -m pip install --target .runtime/font-tools 'fonttools[woff]==4.67.0'
-PYTHONPATH=.runtime/font-tools python3 prepare_fonts.py
+python3 prepare_fonts.py
 ```
 
-脚本首次下载原始字体到 `.runtime/fonts/`，之后复用缓存。生成字体文件名包含内容哈希；本地预览和发布工作流也为字体 CSS 添加版本。将 `media/fonts/` 的变化与文案一同提交。只浏览或部署网站不需要安装这些 Python 依赖。
+脚本仅依赖 Python 标准库。首次下载字体与官方 CSS 至 `.runtime/fonts/`，之后复用缓存；输出包含内容哈希，只清理本脚本生成且已替代的文件。浏览器根据官方 Unicode 范围按需加载切片。将 `media/fonts/` 的变化与文案一同提交。浏览或部署网站不需要 Python。
 
 ## Benchmark 表格
 

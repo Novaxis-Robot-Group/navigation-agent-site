@@ -1,0 +1,10 @@
+本网站使用 Inter 和 MiSans VF 字体。
+
+MiSans 字体版权归小米科技有限责任公司及相关权利人所有。
+本网站使用小米官方字体服务提供的原版 WOFF2 切片，不修改字形、内部名称或字库内容。
+字体仅作为本网站的一部分嵌入，不以字体下载服务的形式单独提供。
+MiSans 不适用本站源码的 Apache-2.0 许可；完整协议见 misans-license.pdf。
+官方介绍：https://hyperos.mi.com/font/
+官方网页字体：https://cdn-font.hyperos.mi.com/font/css?family=MiSans_VF:VF:Chinese_Simplify,Latin&display=swap
+
+Inter 来自 https://github.com/rsms/inter/tree/v4.1 ，许可见 inter-license.txt。
