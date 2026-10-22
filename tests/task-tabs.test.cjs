@@ -7,6 +7,13 @@ const vm = require('node:vm');
 const source = readFileSync(join(__dirname, '..', 'replay.js'), 'utf8');
 const selector = source.slice(source.indexOf('function initializeTaskSelector('), source.indexOf('function initializeGo2Replay('));
 
+test('Go2 and MuJoCo selectors share equal desktop card widths and the mobile scroll layout', () => {
+  const styles = readFileSync(join(__dirname, '..', 'replay.css'), 'utf8');
+  assert.match(styles, /\.task-tabs \{[^}]*grid-template-columns: repeat\(3, minmax\(0, 1fr\)\)/);
+  assert.doesNotMatch(styles, /--task-columns|#go2-tabs\s*\{/);
+  assert.match(styles, /\.task-tabs \{ grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 260px;/);
+});
+
 class Element {
   constructor(tag = 'div', className = '', content = '') {
     this.tag = tag;
