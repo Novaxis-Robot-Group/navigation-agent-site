@@ -204,6 +204,7 @@ function initializeReplay(root, item) {
   function updatePlayState() {
     const playing = !video.paused || (loading && wantPlay);
     $("#toggle-play").textContent = playing ? "Ⅱ" : "▶";
+    $("#toggle-play").setAttribute("data-playing", String(playing));
     $("#toggle-play").setAttribute("aria-label", playing ? text("暂停", "Pause") : text("播放", "Play"));
   }
 
@@ -274,6 +275,7 @@ function initializeReplay(root, item) {
     if (index === activeNode) return;
     activeNode = index;
     all("#chapter-list .chapter-button").forEach((button, i) => {
+      button.classList.toggle("is-past", i < index);
       if (i === index) button.setAttribute("aria-current", "step");
       else button.removeAttribute("aria-current");
     });
@@ -334,10 +336,12 @@ function initializeReplay(root, item) {
   function updateBaselineState() {
     const playing = !baselineVideo.paused || baseline.wantPlay;
     $("#baseline-play").textContent = playing ? "Ⅱ" : "▶";
+    $("#baseline-play").setAttribute("data-playing", String(playing));
     $("#baseline-play").setAttribute("aria-label", playing ? text("暂停 VLN", "Pause VLN") : text("播放 VLN", "Play VLN"));
     const time = baseline.loading ? baseline.time : baselineVideo.currentTime;
     $("#baseline-timeline").value = time;
     $("#baseline-elapsed").textContent = clock(time);
+    $("#baseline-progress").style.width = `${Math.min(100, time / (session.baseline?.duration || 1) * 100)}%`;
   }
 
   function baselineError() {
@@ -499,6 +503,101 @@ function initializeReplay(root, item) {
   baselineVideo.defaultPlaybackRate = baselineVideo.playbackRate = Number($("#baseline-speed").value);
   video.controls = baselineVideo.controls = false;
   selectSession(item, true);
+  return {
+    pause() {
+      wantPlay = baseline.wantPlay = false;
+      video.pause();
+      baselineVideo.pause();
+      updatePlayState();
+      updateBaselineState();
+    },
+  };
+}
+
+function initializeTaskSelector(selector, tasks) {
+  const tabs = $(selector);
+  let selected = -1;
+  const buttons = tasks.map(({ item, card, poster }, index) => {
+    const button = element('button', 'task-tab');
+    button.type = 'button';
+    button.id = `${card.id}-tab`;
+    button.setAttribute('role', 'tab');
+    button.setAttribute('aria-controls', card.id);
+    const preview = element('span', 'task-tab-preview');
+    if (poster) {
+      const thumbnail = element('img', 'task-tab-thumbnail');
+      thumbnail.src = poster;
+      thumbnail.alt = '';
+      thumbnail.width = 112;
+      thumbnail.height = 70;
+      preview.append(thumbnail);
+    }
+    const copy = element('span', 'task-tab-copy');
+    const number = element('span', 'task-tab-number', `Task ${index + 1}`);
+    const title = element('span', 'task-tab-title');
+    title.dataset.en = item.goalEn;
+    title.dataset.zh = item.goal;
+    title.textContent = text(item.goal, item.goalEn);
+    copy.append(number, title);
+    button.append(preview, copy);
+    button.addEventListener('click', () => selectTask(index));
+    button.addEventListener('keydown', event => {
+      let next = index;
+      if (event.key === 'ArrowRight') next = (index + 1) % tasks.length;
+      else if (event.key === 'ArrowLeft') next = (index - 1 + tasks.length) % tasks.length;
+      else if (event.key === 'Home') next = 0;
+      else if (event.key === 'End') next = tasks.length - 1;
+      else return;
+      event.preventDefault();
+      selectTask(next);
+      buttons[next].focus({ preventScroll: true });
+    });
+    card.setAttribute('role', 'tabpanel');
+    card.setAttribute('aria-labelledby', button.id);
+    card.tabIndex = 0;
+    tabs.append(button);
+    return button;
+  });
+
+  function revealSelectedTask() {
+    if (!(tabs.scrollWidth > tabs.clientWidth)) return;
+    const bounds = tabs.getBoundingClientRect();
+    const button = buttons[selected].getBoundingClientRect();
+    if (button.left < bounds.left + 4) tabs.scrollBy({ left: button.left - bounds.left - 4, behavior: 'instant' });
+    else if (button.right > bounds.right - 4) tabs.scrollBy({ left: button.right - bounds.right + 4, behavior: 'instant' });
+  }
+
+  function selectTask(index) {
+    if (selected === index) {
+      revealSelectedTask();
+      return;
+    }
+    if (selected >= 0) tasks[selected].playback.pause();
+    hideNote();
+    selected = index;
+    tasks.forEach(({ card }, taskIndex) => {
+      const active = taskIndex === selected;
+      card.hidden = !active;
+      buttons[taskIndex].setAttribute('aria-selected', String(active));
+      buttons[taskIndex].tabIndex = active ? 0 : -1;
+    });
+    revealSelectedTask();
+  }
+
+  function selectFromHash(scroll = false) {
+    const target = document.getElementById(location.hash.slice(1));
+    const index = tasks.findIndex(({ card }) => target && card.contains(target));
+    if (index < 0) return;
+    selectTask(index);
+    if (scroll) tabs.scrollIntoView({ behavior: 'instant', block: 'start' });
+  }
+
+  selectTask(0);
+  selectFromHash();
+  tabs.hidden = false;
+  revealSelectedTask();
+  window.addEventListener('hashchange', () => selectFromHash(true));
+  window.addEventListener('resize', revealSelectedTask);
 }
 
 // Go2 双视角共用展示时间轴；素材按采图时间恢复，再统一裁剪对齐。
@@ -592,6 +691,8 @@ function initializeGo2Replay(root, run) {
     $("#go2-elapsed").textContent = clock(time);
     $("#go2-duration").textContent = clock(run?.duration);
     $("#go2-play").textContent = wantsPlay ? "Ⅱ" : "▶";
+    $("#go2-play").setAttribute("data-playing", String(wantsPlay));
+    $("#go2-progress").style.width = `${Math.min(100, time / (run?.duration || 1) * 100)}%`;
     $("#go2-play").classList.toggle('is-loading', buffering);
     $("#go2-play").setAttribute("aria-label", buffering
       ? text("取消加载", "Cancel loading")
@@ -600,6 +701,7 @@ function initializeGo2Replay(root, run) {
     let current = 0;
     run?.nodes.forEach((node, index) => { if (node.time <= time + .02) current = index; });
     chapters.querySelectorAll("button").forEach((button, index) => {
+      button.classList.toggle("is-past", index < current);
       if (index === current) {
         const changed = button.getAttribute("aria-current") !== "step";
         button.setAttribute("aria-current", "step");
@@ -709,13 +811,18 @@ function initializeGo2Replay(root, run) {
   function toggle() {
     if (!run) return;
     if (wantsPlay) {
-      version++;
-      wantsPlay = buffering = false;
-      camera.pause(); external.pause(); stopMonitor();
+      pause();
     } else {
       if (camera.ended) seekTo(0);
       play();
     }
+    update();
+  }
+
+  function pause() {
+    version++;
+    wantsPlay = buffering = false;
+    camera.pause(); external.pause(); stopMonitor();
     update();
   }
 
@@ -783,7 +890,7 @@ function initializeGo2Replay(root, run) {
     if (!loading) pending = currentTime();
     syncExternal(); update(); checkPlayback();
   });
-  camera.addEventListener('play', () => { if (!wantsPlay) play(); update(); });
+  camera.addEventListener('play', () => { if (!camera.paused && !wantsPlay) play(); update(); });
   camera.addEventListener("pause", () => {
     if (!loading && !buffering && !starting) {
       wantsPlay = false;
@@ -823,6 +930,7 @@ function initializeGo2Replay(root, run) {
   // 打开页面就准备轻量 4× 素材，访客阅读介绍时完成下载；不自动播放。
   if (run?.playback4x) prepare();
   renderNodes();
+  return { pause };
 }
 async function initializeTasks() {
   await Promise.all([
@@ -832,10 +940,12 @@ async function initializeTasks() {
         if (!response.ok) throw new Error('Task data unavailable');
         const sessions = await response.json();
         if (!sessions.length) throw new Error('No recordings');
-        sessions.forEach((item, index) => {
+        const tasks = sessions.map((item, index) => {
           const card = createTask('#simulation-template', '#simulation', `simulation-${item.slug}`, index, item.goal, item.goalEn);
-          initializeReplay(card, item);
+          const playback = initializeReplay(card, item);
+          return { item, card, playback, poster: `./media/replays/${item.slug}/cover.jpg` };
         });
+        initializeTaskSelector('#simulation-tabs', tasks);
       } catch {
         const error = $('#simulation-load-error');
         error.textContent = text(error.dataset.zh, error.dataset.en);
@@ -851,11 +961,13 @@ async function initializeTasks() {
           { key: 'bin', goal: '走到银色垃圾桶旁', goalEn: 'Walk to the silver trash bin' },
           { key: 'pantry', goal: '走到茶水间吧台', goalEn: 'Walk to the pantry counter' },
         ];
-        tasks.forEach((task, index) => {
+        const replays = tasks.map((task, index) => {
           const run = recordings[task.key] || null;
           const card = createTask('#go2-template', '#go2-tasks', `go2-${task.key}`, index, run?.goal || task.goal, run?.goalEn || task.goalEn);
-          initializeGo2Replay(card, run);
+          const playback = initializeGo2Replay(card, run);
+          return { item: run || task, card, playback, poster: run?.cover };
         });
+        initializeTaskSelector('#go2-tabs', replays);
       } catch {
         const error = $('#go2-load-error');
         error.textContent = text(error.dataset.zh, error.dataset.en);

@@ -8,6 +8,8 @@
     "duration": 41.2,
     "video": "./media/go2/bin/robot.mp4?v=face-70c87b978d3a",
     "poster": "./media/go2/bin/poster.jpg?v=face-d546203155c6",
+    "cover": "./media/go2/bin/cover.jpg",
+    "coverTime": 39.7,
     "external": {
       "video": "./media/go2/bin/external.mp4?v=web-ca9a411e9e08",
       "poster": "./media/go2/bin/external-poster.jpg?v=81dc3a36",
@@ -140,6 +142,8 @@
     "duration": 148.333333,
     "video": "./media/go2/pantry/robot.mp4?v=face-eb1870d43202",
     "poster": "./media/go2/pantry/poster.jpg?v=face-a94edf0e6dba",
+    "cover": "./media/go2/pantry/cover.jpg",
+    "coverTime": 133.6,
     "external": {
       "video": "./media/go2/pantry/external.mp4?v=web-45f69022770d",
       "poster": "./media/go2/pantry/external-poster.jpg?v=7c765cfd",

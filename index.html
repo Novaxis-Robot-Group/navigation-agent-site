@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#fafafa">
+  <meta name="theme-color" content="#f4f5f0">
   <meta name="description" content="Navigation Agent decides where to explore from visual clues and past observations, then uses vision-language navigation (VLN) to guide the robot there.">
   <meta property="og:title" content="Navigation Agent — Set the goal. Let your robot search.">
   <meta property="og:description" content="Navigation Agent decides where to explore from visual clues and past observations, then uses vision-language navigation (VLN) to guide the robot there.">
@@ -34,9 +34,73 @@
 
   <main id="main" class="content">
     <section class="intro" aria-labelledby="page-title">
-      <h1 id="page-title" data-en="Set the goal. Let your robot search." data-zh="说出目标，让机器人自主寻找。">Set the goal. Let your robot search.</h1>
-      <div class="intro-bottom">
-        <p class="intro-copy" data-en="Describe what you want to find. Navigation Agent observes, decides where to explore, and guides the robot with vision-language navigation." data-zh="描述你想找的东西，Navigation Agent 自主观察、决定探索方向，再通过视觉语言导航引导机器人前往。">Describe what you want to find. Navigation Agent observes, decides where to explore, and guides the robot with vision-language navigation.</p>
+      <div class="hero-copy">
+        <p class="eyebrow" data-en="AGENTIC ROBOT NAVIGATION" data-zh="机器人自主探索与导航">AGENTIC ROBOT NAVIGATION</p>
+        <h1 id="page-title"><span data-en="Set the goal." data-zh="说出目标。">Set the goal.</span> <span class="gradient-text" data-en="Let your robot search." data-zh="让机器人自主寻找。">Let your robot search.</span></h1>
+        <div class="intro-bottom">
+          <p class="intro-copy" data-en="Describe what you want to find. Navigation Agent observes, decides where to explore, and guides the robot with vision-language navigation." data-zh="描述你想找的东西，Navigation Agent 自主观察、决定探索方向，再通过视觉语言导航引导机器人前往。">Describe what you want to find. Navigation Agent observes, decides where to explore, and guides the robot with vision-language navigation.</p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="#videos"><span data-en="Explore the demos" data-zh="查看演示">Explore the demos</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a>
+            <a class="button button-secondary" href="https://github.com/Novaxis-Robot-Group/navigation-agent" target="_blank" rel="noopener noreferrer"><span data-en="View on GitHub" data-zh="查看 GitHub">View on GitHub</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 7-5 5 5 5m8-10 5 5-5 5m-3-14-2 18"/></svg></a>
+          </div>
+        </div>
+      </div>
+      <figure class="navigation-illustration" data-motion="paused">
+        <button class="nav-motion-control" type="button" disabled aria-pressed="false" aria-label="Pause navigation illustration" aria-describedby="navigation-sketch-description" data-label-en="Pause navigation illustration" data-label-zh="暂停导航示意动效">
+        <svg viewBox="0 0 560 400" role="img" aria-labelledby="navigation-sketch-title navigation-sketch-description">
+          <title id="navigation-sketch-title" data-en="A robot observes its surroundings and follows a possible route to a target" data-zh="机器人观察环境，并沿示意路径寻找目标">A robot observes its surroundings and follows a possible route to a target</title>
+          <desc id="navigation-sketch-description" data-en="Conceptual illustration, not recorded sensor data or a measured trajectory." data-zh="概念示意，不代表真实传感器数据或实测轨迹。">Conceptual illustration, not recorded sensor data or a measured trajectory.</desc>
+          <defs>
+            <linearGradient id="navigation-view-fill" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" class="nav-cone-near"/>
+              <stop offset="1" class="nav-cone-far"/>
+            </linearGradient>
+          </defs>
+          <path class="nav-floor" d="M280 94 505 224 280 354 55 224Z"/>
+          <g class="nav-floor-lines" transform="matrix(.866 .5 -.866 .5 280 94)">
+            <path d="M0 65H260M0 130H260M0 195H260M65 0V260M130 0V260M195 0V260"/>
+          </g>
+          <path class="nav-wall" d="M55 224V170L280 40V94Z"/>
+          <path class="nav-wall nav-wall-right" d="M280 40 505 170V224L280 94Z"/>
+          <path class="nav-wall-edge" d="M55 170 280 40 505 170M280 40V94"/>
+          <g transform="matrix(.866 .5 -.866 .5 280 94)">
+            <path class="nav-route-base" d="M50 215Q75 190 75 155Q75 120 108 120H150Q174 120 190 96L215 55" vector-effect="non-scaling-stroke"/>
+            <path class="nav-route" d="M50 215Q75 190 75 155Q75 120 108 120H150Q174 120 190 96L215 55" vector-effect="non-scaling-stroke"/>
+          </g>
+          <g class="nav-cone">
+            <path class="nav-view-fill" d="M137 226 231 157Q258 185 257 229Z"/>
+            <path class="nav-view-edge" d="M137 226 231 157M137 226 257 229M212 171Q231 190 232 222"/>
+          </g>
+          <path class="nav-partition" d="M393 159V125L315 170V204Z"/>
+          <path class="nav-partition" d="M263 234V200L168 255V289Z"/>
+          <path class="nav-partition-top" d="M393 125 315 170M263 200 168 255"/>
+          <path class="nav-doorway" d="M315 204 263 234"/>
+          <g class="nav-robot" transform="translate(137 226)">
+            <ellipse class="nav-robot-footprint" cx="0" cy="7" rx="25" ry="13"/>
+            <path class="nav-robot-legs" d="M-13-1-20 8M-4 5-10 15M10 1 15 12M17-5 24 4"/>
+            <path class="nav-robot-body" d="M-18-7-1-16 18-5 1 5Z"/>
+            <path class="nav-robot-front" d="M-18-7V0L1 12 18 2V-5L1 5Z"/>
+            <path class="nav-robot-sensor" d="M8-8 14-5 8-2 2-5Z"/>
+          </g>
+          <g class="nav-target" transform="translate(418 229)">
+            <ellipse class="nav-target-footprint" cy="8" rx="23" ry="12"/>
+            <path class="nav-target-top" d="M0-23 13-15 0-7-13-15Z"/>
+            <path class="nav-target-side" d="M-13-15V2L0 10 13 2V-15L0-7V10"/>
+            <path class="nav-target-check" d="m-4-16 3 3 5-5"/>
+          </g>
+          <path class="nav-floor-front" d="m55 224 225 130 225-130"/>
+        </svg>
+        </button>
+      </figure>
+    </section>
+
+    <section class="features-section" aria-labelledby="features-title">
+      <div class="section-heading"><p class="eyebrow" data-en="THE SEARCH, STEP BY STEP" data-zh="贯穿搜索的每一步">THE SEARCH, STEP BY STEP</p><h2 id="features-title" data-en="More than following a route." data-zh="从执行路线，到自主寻找。">More than following a route.</h2></div>
+      <div class="features-grid">
+        <article class="feature-card glass-card"><span class="feature-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/><circle cx="12" cy="12" r="3"/></svg></span><h3 data-en="Observe the scene" data-zh="观察环境">Observe the scene</h3><p data-en="Use visual clues to decide where to look next, even when the target is out of sight." data-zh="从环境画面中寻找线索。目标不可见时，也能决定下一步去哪里看。">Use visual clues to decide where to look next, even when the target is out of sight.</p></article>
+        <article class="feature-card glass-card"><span class="feature-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h10M4 17h7"/><circle cx="18" cy="17" r="3"/></svg></span><h3 data-en="Remember the search" data-zh="记住搜索经历">Remember the search</h3><p data-en="Consider previous observations and explored places when choosing the next move." data-zh="结合此前的观察和已经探索过的位置，选择下一步行动。">Consider previous observations and explored places when choosing the next move.</p></article>
+        <article class="feature-card glass-card"><span class="feature-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="18" r="2"/><circle cx="19" cy="6" r="2"/><path d="M5 16V9a3 3 0 0 1 3-3h4m-3 6h7a3 3 0 0 0 3-3V8"/></svg></span><h3 data-en="Adapt along the way" data-zh="途中调整方向">Adapt along the way</h3><p data-en="Turn each decision into a local navigation goal. Adjust when an action brings no new information." data-zh="将决策转成局部导航目标。行动没有带来新信息时，调整探索方向。">Turn each decision into a local navigation goal. Adjust when an action brings no new information.</p></article>
+        <article class="feature-card glass-card"><span class="feature-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg></span><h3 data-en="Verify the target" data-zh="核验目标">Verify the target</h3><p data-en="Move closer to inspect a possible match, then check whether it meets the original request." data-zh="靠近检查可能匹配的目标，再核验它是否符合最初的要求。">Move closer to inspect a possible match, then check whether it meets the original request.</p></article>
       </div>
     </section>
 
@@ -61,6 +125,7 @@
         <h3 id="simulation-title" data-en="MuJoCo · Method comparison" data-zh="MuJoCo · 方法对比">MuJoCo · Method comparison</h3>
       </div>
       <div class="demo-replay" data-ui>
+    <div id="simulation-tabs" class="task-tabs" role="tablist" aria-label="MuJoCo tasks" data-label-en="MuJoCo tasks" data-label-zh="MuJoCo 任务" hidden></div>
     <div id="simulation" class="task-stack" aria-labelledby="simulation-title"></div>
     <p id="simulation-load-error" role="alert" hidden data-en="Task data could not be loaded. Please reload." data-zh="任务数据未能加载，请刷新重试。"></p>
     <template id="simulation-template">
@@ -80,7 +145,10 @@
           </div>
           <p data-ref="baseline-empty-status" class="baseline-status">—</p>
           <div data-ref="baseline-transport" class="transport" hidden>
-            <div class="timeline-wrap"><input data-ref="baseline-timeline" type="range" min="0" max="1" step="0.01" value="0" aria-label="VLN progress" data-label-en="VLN progress" data-label-zh="VLN 录像进度"></div>
+            <div class="timeline-wrap">
+              <div class="timeline-track" aria-hidden="true"><span data-ref="baseline-progress"></span></div>
+              <input data-ref="baseline-timeline" type="range" min="0" max="1" step="0.01" value="0" aria-label="VLN progress" data-label-en="VLN progress" data-label-zh="VLN 录像进度">
+            </div>
             <div class="transport-row">
               <button type="button" data-ref="baseline-play" class="play-button" aria-label="Play VLN">▶</button>
               <span class="time-display"><span data-ref="baseline-elapsed">00:00</span><span class="time-divider">/</span><span data-ref="baseline-duration">00:00</span></span>
@@ -115,8 +183,8 @@
           </div>
           <div class="transport-row">
             <button type="button" data-ref="toggle-play" class="play-button" aria-label="Play" data-label-zh="播放" data-label-en="Play" disabled>▶</button>
-            <button type="button" data-ref="previous" class="icon-button" aria-label="Previous moment" data-label-zh="上一节点" data-label-en="Previous moment" disabled>Ⅰ‹</button>
-            <button type="button" data-ref="next" class="icon-button" aria-label="Next moment" data-label-zh="下一节点" data-label-en="Next moment" disabled>›Ⅰ</button>
+            <button type="button" data-ref="previous" class="icon-button" aria-label="Previous moment" data-label-zh="上一节点" data-label-en="Previous moment" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6v12m12-12-8 6 8 6Z"/></svg></button>
+            <button type="button" data-ref="next" class="icon-button" aria-label="Next moment" data-label-zh="下一节点" data-label-en="Next moment" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6v12M6 6l8 6-8 6Z"/></svg></button>
             <span class="time-display"><span data-ref="elapsed">00:00</span><span class="time-divider">/</span><span data-ref="duration">00:00</span></span>
             <select data-ref="speed" class="playback-speed" aria-label="Agent playback speed" data-label-en="Agent playback speed" data-label-zh="Agent 播放速度"><option value="0.5">0.5×</option><option value="1">1×</option><option value="1.5">1.5×</option><option value="2">2×</option><option value="4" selected>4×</option></select>
             <div class="transport-options">
@@ -158,6 +226,7 @@
         <div class="demo-section-heading">
           <h3 id="go2-title" data-en="Go2 · Real-world deployment" data-zh="Go2 · 真实场景适配">Go2 · Real-world deployment</h3>
         </div>
+        <div id="go2-tabs" class="task-tabs" role="tablist" aria-label="Go2 tasks" data-label-en="Go2 tasks" data-label-zh="Go2 任务" hidden></div>
         <div id="go2-tasks" class="task-stack"></div>
         <p id="go2-load-error" role="alert" hidden data-en="Task data could not be loaded. Please reload." data-zh="任务数据未能加载，请刷新重试。"></p>
         <template id="go2-template">
@@ -182,7 +251,10 @@
                     </div>
                   </div>
                   <div class="transport">
-                    <div class="timeline-wrap"><input data-ref="go2-timeline" type="range" min="0" max="1" step="0.01" value="0" aria-label="Go2 recording progress" data-label-en="Go2 recording progress" data-label-zh="Go2 录像进度"></div>
+                    <div class="timeline-wrap">
+                      <div class="timeline-track" aria-hidden="true"><span data-ref="go2-progress"></span></div>
+                      <input data-ref="go2-timeline" type="range" min="0" max="1" step="0.01" value="0" aria-label="Go2 recording progress" data-label-en="Go2 recording progress" data-label-zh="Go2 录像进度">
+                    </div>
                     <div class="transport-row">
                       <button data-ref="go2-play" class="play-button" type="button" aria-label="Play Go2 recording">▶</button>
                       <span class="time-display"><span data-ref="go2-elapsed">00:00</span><span class="time-divider">/</span><span data-ref="go2-duration">00:00</span></span>

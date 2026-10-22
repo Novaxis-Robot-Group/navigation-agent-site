@@ -13,6 +13,9 @@ function setLanguage(nextLanguage) {
   for (const element of document.querySelectorAll("[data-label-en]")) {
     element.setAttribute("aria-label", language === "en" ? element.dataset.labelEn : element.dataset.labelZh);
   }
+  for (const element of document.querySelectorAll("[data-alt-en]")) {
+    element.alt = language === "en" ? element.dataset.altEn : element.dataset.altZh;
+  }
   languageButton.textContent = language === "zh" ? "EN" : "中文";
   languageButton.setAttribute("aria-label", language === "zh" ? "Switch to English" : "切换为中文");
   document.title = language === "zh"
@@ -33,8 +36,42 @@ setLanguage(language);
 const siteNavigation = document.querySelector('.site-navigation');
 const navigationResizeObserver = new ResizeObserver(() => {
   document.documentElement.style.setProperty('--header-height', `${siteNavigation.offsetHeight}px`);
+  scheduleNavigationUpdate();
 });
 navigationResizeObserver.observe(siteNavigation);
+
+const sectionLinks = [...siteNavigation.querySelectorAll('a[href^="#"]')]
+  .filter(link => link.hash.length > 1)
+  .map(link => ({ link, section: document.querySelector(link.hash) }));
+let navigationFrame = null;
+
+function updateNavigation() {
+  navigationFrame = null;
+  siteNavigation.dataset.scrolled = String(window.scrollY > 8);
+  const threshold = siteNavigation.offsetHeight + Math.min(160, window.innerHeight * .2);
+  let currentLink = null;
+  for (const { link, section } of sectionLinks) {
+    if (section.getBoundingClientRect().top <= threshold) currentLink = link;
+  }
+  if (window.scrollY > 0 && window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 2) {
+    currentLink = sectionLinks.at(-1).link;
+  }
+  for (const { link } of sectionLinks) {
+    if (link === currentLink) link.setAttribute('aria-current', 'location');
+    else link.removeAttribute('aria-current');
+  }
+}
+
+function scheduleNavigationUpdate() {
+  if (navigationFrame === null) navigationFrame = requestAnimationFrame(updateNavigation);
+}
+
+window.addEventListener('scroll', scheduleNavigationUpdate, { passive: true });
+window.addEventListener('resize', scheduleNavigationUpdate);
+document.addEventListener('replay-tasks-ready', scheduleNavigationUpdate);
+document.addEventListener('site-language-change', scheduleNavigationUpdate);
+window.addEventListener('load', scheduleNavigationUpdate);
+scheduleNavigationUpdate();
 
 const initialTaskHash = location.hash;
 let tasksReady = false;
@@ -47,7 +84,11 @@ function restoreTaskAnchor() {
   requestAnimationFrame(() => requestAnimationFrame(() => {
     if (location.hash !== initialTaskHash) return;
     const target = document.getElementById(initialTaskHash.slice(1));
-    if (target?.hasAttribute('data-task')) target.scrollIntoView({ behavior: 'instant' });
+    if (target?.hasAttribute('data-task')) {
+      const selector = target.classList.contains('simulation-task') ? 'simulation-tabs' : 'go2-tabs';
+      const anchor = document.getElementById(selector);
+      anchor.scrollIntoView({ behavior: 'instant' });
+    }
   }));
 }
 
@@ -56,3 +97,32 @@ document.addEventListener('replay-tasks-ready', () => {
   restoreTaskAnchor();
 });
 window.addEventListener('load', restoreTaskAnchor);
+
+const navigationIllustration = document.querySelector('.navigation-illustration');
+const motionControl = navigationIllustration.querySelector('.nav-motion-control');
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+let illustrationPaused = false;
+let illustrationVisible = false;
+
+function updateIllustrationMotion() {
+  const playing = !illustrationPaused && illustrationVisible && !document.hidden && !reducedMotion.matches;
+  navigationIllustration.dataset.motion = playing ? 'running' : 'paused';
+  motionControl.disabled = reducedMotion.matches;
+  motionControl.setAttribute('aria-pressed', String(illustrationPaused));
+  motionControl.dataset.labelEn = illustrationPaused ? 'Resume navigation illustration' : 'Pause navigation illustration';
+  motionControl.dataset.labelZh = illustrationPaused ? '继续导航示意动效' : '暂停导航示意动效';
+  motionControl.setAttribute('aria-label', language === 'en' ? motionControl.dataset.labelEn : motionControl.dataset.labelZh);
+}
+
+motionControl.addEventListener('click', () => {
+  illustrationPaused = !illustrationPaused;
+  updateIllustrationMotion();
+});
+const illustrationObserver = new IntersectionObserver(entries => {
+  illustrationVisible = entries[0].isIntersecting;
+  updateIllustrationMotion();
+});
+illustrationObserver.observe(navigationIllustration);
+reducedMotion.addEventListener('change', updateIllustrationMotion);
+document.addEventListener('visibilitychange', updateIllustrationMotion);
+updateIllustrationMotion();

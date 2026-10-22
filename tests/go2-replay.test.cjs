@@ -98,7 +98,7 @@ function setup(rate = 4, fast = false) {
     clearInterval(id) { timers.delete(id); },
   });
   vm.runInContext(go2, context);
-  context.initializeGo2Replay({}, { duration: 150, video: 'robot.mp4', playback4x: fast ? {video: 'robot-4x.mp4', externalVideo: 'external-4x.mp4'} : null, nodes: [], external: { start: 0, duration: 150, video: 'external.mp4' } });
+  const playback = context.initializeGo2Replay({}, { duration: 150, video: 'robot.mp4', playback4x: fast ? {video: 'robot-4x.mp4', externalVideo: 'external-4x.mp4'} : null, nodes: [], external: { start: 0, duration: 150, video: 'external.mp4' } });
   camera.emit('loadedmetadata');
   camera.finishSeek();
   external.finishSeek();
@@ -106,7 +106,7 @@ function setup(rate = 4, fast = false) {
   one('#go2-speed').emit('change');
   camera.seekCount = external.seekCount = 0;
   return {
-    camera, external, one,
+    camera, external, one, playback,
     start() { one('#go2-play').emit('click'); },
     async advance(seconds) {
       for (let step = 0; step < Math.round(seconds / .01); step++) {
@@ -122,6 +122,40 @@ function setup(rate = 4, fast = false) {
     },
   };
 }
+
+test('切换任务暂停双视角，保留进度和倍速，迟到事件不重新播放', async () => {
+  const replay = setup(2);
+  replay.start();
+  await replay.advance(1);
+  replay.playback.pause();
+  const cameraTime = replay.camera.currentTime;
+  const externalTime = replay.external.currentTime;
+  replay.camera.emit('play');
+  replay.camera.emit('canplay');
+  replay.external.emit('progress');
+  await replay.advance(2);
+  assert.equal(replay.camera.paused, true);
+  assert.equal(replay.external.paused, true);
+  assert.equal(replay.camera.currentTime, cameraTime);
+  assert.equal(replay.external.currentTime, externalTime);
+  assert.equal(replay.camera.playbackRate, 2);
+  assert.equal(replay.one('#go2-play').attributes['data-playing'], 'false');
+});
+
+test('切换任务取消缓冲意图，缓冲补足后仍保持暂停', async () => {
+  const replay = setup();
+  replay.camera.bufferEnd = replay.external.bufferEnd = 0;
+  replay.start();
+  await replay.advance(1);
+  replay.playback.pause();
+  replay.camera.bufferEnd = replay.external.bufferEnd = 150;
+  replay.camera.emit('canplay');
+  replay.external.emit('canplay');
+  await replay.advance(2);
+  assert.equal(replay.camera.paused, true);
+  assert.equal(replay.external.paused, true);
+  assert.equal(replay.one('#go2-player').attributes['aria-busy'], 'false');
+});
 
 test('4× 跳转尚未完成时，不重复重设实拍进度', () => {
   const { camera, external } = setup();
