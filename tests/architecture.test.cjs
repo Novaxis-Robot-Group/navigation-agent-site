@@ -34,11 +34,7 @@ test('complete diagram remains accessible and visible without JavaScript', () =>
 
 test('custom slots describe extension rather than verified universal compatibility', () => {
   assert.equal((section.match(/data-en="Custom \+" data-zh="自定义 \+"/g) || []).length, 2);
-  assert.ok(section.includes('Go2\'s current native service supports LightNav only'));
-  assert.ok(section.includes('MuJoCo is a simulation backend, not a physical robot'));
-  assert.ok(section.includes('New protocols require an adapter and validation'));
   assert.ok(section.includes('Lines are structural relationships, not execution order'));
-  assert.ok(section.includes('docs/integration.md'));
   assert.equal((section.match(/<details[^>]*\sopen[\s>]/g) || []).length, 0);
   assert.equal((section.match(/marker-(?:start|end)=/g) || []).length, 0);
 });

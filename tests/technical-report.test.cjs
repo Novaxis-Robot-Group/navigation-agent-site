@@ -33,10 +33,7 @@ test('report entry retains the five-link navigation and separate implementation 
   assert.match(footer, /data-en="Documentation ↗" data-zh="技术文档 ↗"/);
 });
 
-test('report integration preserves capability boundaries and does not promote the experiment plan to results', () => {
-  assert.match(html, /YOLO-World is enabled in the supplied backend configurations/);
-  assert.match(html, /same VLM client/);
-  assert.match(html, /distinct from independent experimental scoring/);
+test('report integration does not promote the experiment plan to results', () => {
   assert.match(html, /Mock data · Not measured results/);
   assert.match(html, /planned experiments, not measured scores/);
   const workflow = readFileSync(join(root, '.github/workflows/pages.yml'), 'utf8');

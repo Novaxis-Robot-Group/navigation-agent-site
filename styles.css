@@ -121,12 +121,6 @@ h1 > span { display: block; }
 .capability-grid:has(:focus-visible) .capability-scene { opacity: .7; }
 .capability-grid .capability-panel:has(:focus-visible) .capability-scene { opacity: 1; }
 .scene-art { transform: translate(-54px, -36px) scale(1.15); }
-.capability-technical { margin-top: 24px; color: var(--body); }
-.capability-technical summary { width: max-content; cursor: pointer; font-size: 13px; line-height: 1.8; }
-.capability-technical summary:hover { color: var(--accent-ink); }
-.capability-technical-content { max-width: 712px; margin: 24px auto 0; font-size: 14px; line-height: 1.8; }
-.capability-technical-content p + p { margin-top: 14px; }
-.capability-technical-content a { color: var(--accent-ink); text-decoration: underline; text-underline-offset: 3px; }
 .scene-ground { fill: var(--surface); stroke: var(--line); }
 .scene-grid { stroke: var(--line); stroke-width: .9; opacity: .75; }
 .scene-wall { fill: var(--panel); stroke: var(--line); fill-opacity: .85; }
