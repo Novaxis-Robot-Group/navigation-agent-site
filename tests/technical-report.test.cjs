@@ -33,8 +33,7 @@ test('report entry retains the five-link navigation and separate implementation 
   assert.match(footer, /data-en="Documentation ↗" data-zh="技术文档 ↗"/);
 });
 
-test('report integration preserves prototype scope and does not promote the experiment plan to results', () => {
-  assert.match(html, /Nova-N, the navigation prototype of Nova-HEI/);
+test('report integration preserves capability boundaries and does not promote the experiment plan to results', () => {
   assert.match(html, /YOLO-World monitoring is off by default/);
   assert.match(html, /same VLM client/);
   assert.match(html, /distinct from independent experimental scoring/);
