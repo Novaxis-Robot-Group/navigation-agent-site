@@ -72,7 +72,7 @@ python3 tests/playback_report.py http://127.0.0.1:4174
 
 工程架构属于独立的工程组织与适配能力，不等同于 Agent 决策机制。在 `/#architecture` 查看固定 Agent、独立 VLN 与本体接口的概念图。LightNav、Go2 和 MuJoCo 为内置实现，Custom + 虚线插槽仅表示扩展点，不表示已连接或任意组合已验证。当前 Go2 原生服务仅支持 LightNav；MuJoCo 是仿真后端。源码依据为 `contracts/agent_backend.py`、`contracts/vln.py` 与 `app/deployments/{factory,vln}.py`，均位于 Agent 仓库 `src/navigation_agent/` 下。
 
-架构图沿用站点字体、配色和 1200px 宽度。桌面舞台高 340px，800px 及以下为纵向布局、高 420px，模块标签不缩小或隐藏。只有两个 Custom 插槽外沿按 6 秒循环轻移，Agent、连接关系和文字固定；点击画面或键盘可暂停，离屏、后台、减少动态效果及无 JS 场景保持完整静态图。适配边界与接入指南位于默认折叠的“适配接口”。验证命令为 `node --test tests/*.test.cjs`。
+架构图沿用站点字体、配色和 1200px 宽度。LightNav 使用静态平面神经网络符号（3–4–2 节点、20 条连接）表示学习式导航模型；节点数与层数仅为图形示意，不对应其真实网络结构。桌面舞台高 340px，800px 及以下为纵向布局、高 420px，模块标签不缩小或隐藏。只有两个 Custom 插槽外沿按 6 秒循环轻移，Agent、连接关系和文字固定；点击画面或键盘可暂停，离屏、后台、减少动态效果及无 JS 场景保持完整静态图。适配边界与接入指南位于默认折叠的“适配接口”。验证命令为 `node --test tests/*.test.cjs`。
 
 以下能力文案依据 Agent 源码 `3506f1be` 核对。图形解释机制，不代表真实检测输出、实走轨迹、完整架构或测评结论。详细实现通过每项的文档链接查看；链接沿用 Agent 仓库的访问权限。
 

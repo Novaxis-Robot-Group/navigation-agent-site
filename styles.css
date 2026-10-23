@@ -238,6 +238,9 @@ h1 > span { display: block; }
 .architecture-custom .architecture-module-art { opacity: .6; }
 .architecture-custom .architecture-slot { fill: none; stroke: var(--secondary-ink); stroke-dasharray: 4 5; }
 .architecture-extension { stroke: var(--secondary-ink); stroke-width: 1.4; }
+.architecture-network-links { fill: none; stroke: var(--secondary); stroke-width: 1; opacity: .45; }
+.architecture-network-nodes { fill: var(--panel); stroke: var(--accent-ink); stroke-width: 1.5; }
+.architecture-network-hidden { fill: var(--accent); stroke-width: 1; }
 .architecture-cart { stroke: var(--accent-ink); stroke-width: 1.5; stroke-linejoin: round; }
 .architecture-cart-dark { fill: var(--ink); }
 .architecture-cart-rim { fill: var(--accent-ink); }

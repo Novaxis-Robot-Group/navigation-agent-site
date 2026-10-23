@@ -100,7 +100,7 @@
         <p data-en="One agent. Independent adapters for navigation and embodiment." data-zh="统一 Agent 决策，导航与本体独立适配。">One agent. Independent adapters for navigation and embodiment.</p>
       </div>
       <figure class="architecture-figure" data-illustration data-motion="paused">
-        <figcaption class="sr-only" id="architecture-description" data-en="Engineering interface overview: one unchanged Agent connects to independent navigation and embodiment adapters. LightNav, Go2 and the MuJoCo simulation are built-in implementations. Dashed Custom slots indicate extension points, not connected or validated implementations. Lines are structural relationships, not execution order." data-zh="工程接口概览：同一套 Agent 通过独立接口适配导航与本体。内置实现为 LightNav、Go2 与 MuJoCo 仿真。虚线自定义插槽表示扩展点，不代表已连接或已验证的实现。连线表示结构关系，不表示执行顺序。">Engineering interface overview: one unchanged Agent connects to independent navigation and embodiment adapters. LightNav, Go2 and the MuJoCo simulation are built-in implementations. Dashed Custom slots indicate extension points, not connected or validated implementations. Lines are structural relationships, not execution order.</figcaption>
+        <figcaption class="sr-only" id="architecture-description" data-en="Engineering interface overview: one unchanged Agent connects to independent navigation and embodiment adapters. LightNav, Go2 and the MuJoCo simulation are built-in implementations. Dashed Custom slots indicate extension points, not connected or validated implementations. The LightNav neural-network symbol represents a learned navigation model, not its actual topology. Lines are structural relationships, not execution order." data-zh="工程接口概览：同一套 Agent 通过独立接口适配导航与本体。内置实现为 LightNav、Go2 与 MuJoCo 仿真。虚线自定义插槽表示扩展点，不代表已连接或已验证的实现。LightNav 的神经网络符号表示学习式导航模型，不对应其真实网络结构。连线表示结构关系，不表示执行顺序。">Engineering interface overview: one unchanged Agent connects to independent navigation and embodiment adapters. LightNav, Go2 and the MuJoCo simulation are built-in implementations. Dashed Custom slots indicate extension points, not connected or validated implementations. The LightNav neural-network symbol represents a learned navigation model, not its actual topology. Lines are structural relationships, not execution order.</figcaption>
         <div class="architecture-map" role="img" aria-labelledby="architecture-title" aria-describedby="architecture-description">
           <div class="architecture-group architecture-navigation">
             <p class="architecture-group-label">VLN</p>
@@ -108,10 +108,31 @@
               <div class="architecture-module">
                 <svg class="architecture-module-art" viewBox="0 0 104 88" aria-hidden="true">
                   <rect class="architecture-slot" x="8" y="8" width="88" height="64" rx="8"/>
-                  <path class="scene-grid" d="m27 48 25 14 25-14M27 40l25 14 25-14"/>
-                  <path class="scene-top" d="m29 33 23-13 23 13-23 13Z"/>
-                  <path class="scene-side" d="M29 33v8l23 13 23-13v-8L52 46v8"/>
-                  <path class="scene-circuit" d="m41 33 11-6 11 6-11 6Z"/>
+                  <!-- 通用网络符号，不对应 LightNav 的实际层数或节点数。 -->
+                  <g class="architecture-network-links">
+                    <path d="M32 28 52 22 M32 28 52 34 M32 28 52 46 M32 28 52 58"/>
+                    <path d="M32 40 52 22 M32 40 52 34 M32 40 52 46 M32 40 52 58"/>
+                    <path d="M32 52 52 22 M32 52 52 34 M32 52 52 46 M32 52 52 58"/>
+                    <path d="M52 22 72 31 M52 22 72 49"/>
+                    <path d="M52 34 72 31 M52 34 72 49"/>
+                    <path d="M52 46 72 31 M52 46 72 49"/>
+                    <path d="M52 58 72 31 M52 58 72 49"/>
+                  </g>
+                  <g class="architecture-network-nodes">
+                    <circle cx="32" cy="28" r="3.5"/>
+                    <circle cx="32" cy="40" r="3.5"/>
+                    <circle cx="32" cy="52" r="3.5"/>
+                  </g>
+                  <g class="architecture-network-nodes architecture-network-hidden">
+                    <circle cx="52" cy="22" r="3.5"/>
+                    <circle cx="52" cy="34" r="3.5"/>
+                    <circle cx="52" cy="46" r="3.5"/>
+                    <circle cx="52" cy="58" r="3.5"/>
+                  </g>
+                  <g class="architecture-network-nodes">
+                    <circle cx="72" cy="31" r="3.5"/>
+                    <circle cx="72" cy="49" r="3.5"/>
+                  </g>
                 </svg>
                 <p class="architecture-module-label">LightNav</p>
               </div>
