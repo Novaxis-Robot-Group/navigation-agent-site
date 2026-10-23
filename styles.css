@@ -46,12 +46,12 @@ svg { fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round
 .site-navigation::after { content: ""; position: absolute; inset: auto 0 0; height: 1px; background: var(--line); opacity: 0; }
 .site-navigation[data-scrolled="true"]::after { opacity: 1; }
 .site-header { min-height: 80px; display: flex; align-items: center; gap: 20px; }
-.brand { font-size: 18px; font-weight: 650; letter-spacing: -.5px; white-space: nowrap; }
-.site-header nav { display: flex; align-items: center; gap: 26px; margin-left: auto; font-size: 13px; color: var(--body); }
-.site-header nav a { position: relative; padding-block: 10px; }
-.site-header nav a:hover, .site-header nav a[aria-current="location"] { color: var(--ink); }
-.site-header nav a[href^="#"]::after { content: ""; position: absolute; inset: auto 0 0; height: 2px; border-radius: 1px; background: var(--accent); transform: scaleX(0); }
-.site-header nav a[aria-current="location"]::after { transform: scaleX(1); }
+.brand { font-size: 22px; font-weight: 650; letter-spacing: -.5px; white-space: nowrap; }
+.site-header nav { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 8px 16px; min-width: 0; margin-left: auto; font-size: 13px; color: var(--body); }
+.site-header nav a { display: inline-flex; flex: 0 0 auto; align-items: center; justify-content: center; padding: 6px 12px; border: 1px solid var(--line); border-radius: var(--control-radius); background: var(--surface); line-height: 20px; white-space: nowrap; }
+.site-header nav a:hover { color: var(--ink); background: var(--line); border-color: var(--secondary); }
+.site-header nav a[aria-current="location"] { color: var(--accent-ink); background: var(--panel); border-color: var(--accent); }
+.site-header nav a:active { transform: scale(.98); }
 .language { padding: 8px 12px; border: 1px solid var(--line); background: var(--panel); color: var(--body); font-size: 13px; border-radius: var(--control-radius); }
 .language:hover { border-color: var(--accent); color: var(--ink); }
 .language:active, .button:active { transform: scale(.97); }
@@ -336,11 +336,12 @@ h1 > span { display: block; }
   .site-header, .site-footer, .content { width: calc(100% - 40px); }
   .site-navigation::after { opacity: 1; }
   .site-header { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: 56px 40px; gap: 0 12px; width: 100%; height: 96px; min-height: 96px; padding: 0 16px; }
-  .brand { grid-column: 1; grid-row: 1; font-size: 16px; }
+  .brand { grid-column: 1; grid-row: 1; font-size: 18px; }
   .language { grid-column: 2; grid-row: 1; justify-self: end; margin-left: 0; }
-  .site-header nav { grid-column: 1 / -1; grid-row: 2; flex-wrap: nowrap; justify-content: flex-start; gap: 16px; min-width: 0; width: 100%; height: 40px; margin-left: 0; overflow-x: auto; scrollbar-width: none; }
+  .site-header nav { grid-column: 1 / -1; grid-row: 2; flex-wrap: nowrap; justify-content: flex-start; gap: 8px; min-width: 0; width: 100%; height: 40px; margin-left: 0; overflow-x: auto; scrollbar-width: none; }
   .site-header nav::-webkit-scrollbar { display: none; }
-  .site-header nav a { flex: 0 0 auto; white-space: nowrap; }
+  .site-header nav a { padding: 4px 10px; }
+  .site-header nav a:focus-visible { outline-offset: -2px; }
   .intro { grid-template-columns: 1fr; gap: 24px; padding: 56px 0 0; }
   .hero-copy { width: 100%; max-width: 720px; }
   h1 { font-size: 56px; max-width: 640px; }
@@ -404,11 +405,10 @@ h1 > span { display: block; }
   a, button, select, input, summary, .glass-card, .realworld-notes, .benchmark-card, .capability-panel { transition: color .3s ease, background-color .3s ease, border-color .3s ease, box-shadow .3s ease, transform .3s ease; }
   .capability-scene { transition: opacity .3s ease; }
   .site-navigation::after { transition: opacity .3s ease; }
-  .site-header nav a::after { transition: transform .3s ease; }
 }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .glass-card:hover, .realworld-notes:hover, .benchmark-card:hover, .capability-panel:hover, .capability-panel:focus-within, .button:active, .language:active { transform: none; }
+  .glass-card:hover, .realworld-notes:hover, .benchmark-card:hover, .capability-panel:hover, .capability-panel:focus-within, .button:active, .language:active, .site-header nav a:active { transform: none; }
 }
 @media print {
   .architecture-custom .architecture-module-art { animation: none; opacity: .6; transform: none; }
