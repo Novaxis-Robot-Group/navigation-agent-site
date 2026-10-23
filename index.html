@@ -212,14 +212,9 @@
             <path class="scene-observation-floor" d="M-28 5H28V18H-28Z"/>
             <path class="scene-observation-detail" d="M-28-17-13-5V5M28-17 13-5V5"/>
           </g>
-          <g id="scene-view-door">
+          <g id="scene-view-chair">
             <use href="#scene-observation"/>
-            <path class="scene-observation-object" d="M-9 9V-15H8V9ZM-5-11H4V9"/>
-            <circle class="scene-led" cx="2" cy="0" r="1"/>
-          </g>
-          <g id="scene-view-sofa">
-            <use href="#scene-observation"/>
-            <path class="scene-observation-object" d="M-18 8V-6Q-18-11-13-11H13Q18-11 18-6V8M-22-1V12H22V-1M-15 12V16M15 12V16M0-9V1"/>
+            <g transform="translate(0 5) scale(.38)"><use href="#scene-chair"/></g>
           </g>
           <g id="scene-view-hall">
             <use href="#scene-observation"/>
@@ -236,44 +231,43 @@
             <button class="nav-motion-control capability-scene-control" type="button" disabled aria-pressed="false" aria-label="Pause illustration" data-label-en="Pause illustration" data-label-zh="暂停示意动效" aria-describedby="capability-memory-description">
               <svg class="capability-scene" viewBox="0 0 720 420" role="img" aria-labelledby="capability-memory-title capability-memory-description">
                 <title id="capability-memory-title" data-en="In-Task Memory" data-zh="任务内记忆">In-Task Memory</title>
-                <desc id="capability-memory-description" data-en="Conceptual animation: a robot leaves a short trail of observations in an L-shaped room. Two recent views rise toward a decision point, then the scene resets." data-zh="概念动效：机器人沿房间路径留下观察片段，最近的两个片段被召回至决策点，随后场景重置。">Conceptual animation: a robot leaves a short trail of observations in an L-shaped room. Two recent views rise toward a decision point, then the scene resets.</desc>
+                <desc id="capability-memory-description" data-en="Conceptual animation: a robot pauses to recall two observations from the current task. A flat thumbnail of a previously seen chair rises slightly, then the robot continues toward that clue. The room is an illustrative overview, not the robot's current knowledge of the target position." data-zh="概念动效：机器人暂停，召回当前任务的两张历史观察；含椅子线索的平面缩略图轻微上浮，随后机器人沿该线索继续探索。房间是说明性全景，不表示机器人已知目标当前位置。">Conceptual animation: a robot pauses to recall two observations from the current task. A flat thumbnail of a previously seen chair rises slightly, then the robot continues toward that clue. The room is an illustrative overview, not the robot's current knowledge of the target position.</desc>
                 <g class="scene-art">
                 <use href="#scene-room"/>
-                <path class="scene-partition" d="M330 238V196L425 141V183Z"/>
-                <path class="scene-trail" d="M185 256 300 322 420 253"/>
-                <g transform="translate(500 236) scale(.65)"><use href="#scene-chair"/></g>
+                <path class="scene-trail" d="M220 270 300 316"/>
+                <path class="scene-progress scene-memory-route scene-animated" pathLength="1" d="M300 316 420 267"/>
+                <g class="scene-target" transform="translate(478 230)"><use href="#scene-chair"/></g>
                 <g class="scene-memory-evidence scene-animated">
-                  <g transform="translate(200 223)"><use class="scene-old-view" href="#scene-view-door"/></g>
-                  <g transform="translate(247 251)"><g class="scene-recall-first scene-animated"><use href="#scene-view-sofa"/></g></g>
-                  <g transform="translate(300 283)"><g class="scene-recall-second scene-animated"><use href="#scene-view-hall"/></g></g>
+                  <g transform="translate(270 175)"><use class="scene-old-view" href="#scene-view-hall"/></g>
+                  <g transform="translate(355 160)"><g class="scene-recall-view scene-animated"><use href="#scene-view-chair"/></g></g>
                 </g>
-                <path class="scene-recall-thread scene-animated" d="M247 251Q280 143 410 165M300 283Q349 195 410 165"/>
-                <g transform="translate(410 170) scale(.55)" class="scene-memory-core scene-animated"><use href="#scene-core"/></g>
-                <g transform="translate(185 256)"><g class="scene-memory-robot scene-animated"><use href="#scene-robot"/></g></g>
+                <g transform="translate(220 242)"><g class="scene-memory-robot scene-animated"><use href="#scene-robot"/></g></g>
                 </g>
               </svg>
             </button>
           </article>
           <article class="capability-panel" id="capability-watch" aria-labelledby="capability-watch-heading" data-illustration data-motion="paused">
             <header class="capability-caption">
-              <h3 id="capability-watch-heading" data-en="Interim Monitoring" data-zh="途中目标监测">Interim Monitoring</h3>
-              <p data-en="Optional YOLO-World detection with agent review." data-zh="可选 YOLO-World 检测，交由 Agent 复核。">Optional YOLO-World detection with agent review.</p>
+              <h3 id="capability-watch-heading" data-en="En-route Target Monitoring" data-zh="途中目标监测">En-route Target Monitoring</h3>
+              <p data-en="YOLO-World spots candidates en route for the agent to check and approach." data-zh="搜索途中用 YOLO-World 监测目标，复核后转为接近。">YOLO-World spots candidates en route for the agent to check and approach.</p>
             </header>
             <button class="nav-motion-control capability-scene-control" type="button" disabled aria-pressed="false" aria-label="Pause illustration" data-label-en="Pause illustration" data-label-zh="暂停示意动效" aria-describedby="capability-watch-description">
               <svg class="capability-scene" viewBox="0 0 720 420" role="img" aria-labelledby="capability-watch-title capability-watch-description">
-                <title id="capability-watch-title" data-en="Interim Monitoring" data-zh="途中目标监测">Interim Monitoring</title>
-                <desc id="capability-watch-description" data-en="Conceptual animation: a robot moves through a room, samples a chair in its field of view, pauses after repeated candidate highlights and resumes after a review cue. No success is declared." data-zh="概念动效：机器人在房间里前进，采样监测视野中的椅子；连续候选提示后暂停复核，再继续移动，不宣布任务成功。">Conceptual animation: a robot moves through a room, samples a chair in its field of view, pauses after repeated candidate highlights and resumes after a review cue. No success is declared.</desc>
+                <title id="capability-watch-title" data-en="En-route Target Monitoring" data-zh="途中目标监测">En-route Target Monitoring</title>
+                <desc id="capability-watch-description" data-en="Conceptual animation: a moving robot detects a chair candidate in consecutive observations, pauses for review, then approaches it as the detection frame and viewing cone fade. Detection does not declare task success." data-zh="概念动效：机器人行进中连续检测到椅子候选，随后停车复核；检测框与视锥退去后，机器人转为接近。检测不表示任务成功。">Conceptual animation: a moving robot detects a chair candidate in consecutive observations, pauses for review, then approaches it as the detection frame and viewing cone fade. Detection does not declare task success.</desc>
                 <g class="scene-art">
                 <use href="#scene-room"/>
-                <path class="scene-trail" d="M205 270 310 255 416 271"/>
-                <g transform="translate(205 270)"><g class="scene-watch-robot scene-animated">
-                  <path class="scene-view" d="M0-9 164-100Q208-48 186 25Z"/>
-                  <path class="scene-view-edge" d="M0-9 164-100M0-9 186 25"/>
-                  <path class="scene-scan scene-animated" d="M50-55Q75-30 69 4"/>
-                  <ellipse class="scene-review-ring scene-animated" cy="25" rx="53" ry="29"/>
+                <path class="scene-trail" d="M220 270 305 258"/>
+                <path class="scene-progress scene-approach-route scene-animated" pathLength="1" d="M305 258 420 267"/>
+                <g transform="translate(220 242)"><g class="scene-watch-robot scene-animated">
+                  <g class="scene-watch-view scene-animated">
+                    <path class="scene-view" d="M0-9 164-100Q208-48 186 25Z"/>
+                    <path class="scene-view-edge" d="M0-9 164-100M0-9 186 25"/>
+                    <path class="scene-scan scene-animated" d="M50-55Q75-30 69 4"/>
+                  </g>
                   <use href="#scene-robot"/>
                 </g></g>
-                <g transform="translate(478 230)"><use href="#scene-chair"/></g>
+                <g class="scene-target" transform="translate(478 230)"><use href="#scene-chair"/></g>
                 <path class="scene-detection scene-animated" d="M443 181V166H459M494 166H510V181M510 252V268H494M459 268H443V252"/>
                 </g>
               </svg>
@@ -281,23 +275,25 @@
           </article>
           <article class="capability-panel" id="capability-scheduling" aria-labelledby="capability-scheduling-heading" data-illustration data-motion="paused">
             <header class="capability-caption">
-              <h3 id="capability-scheduling-heading" data-en="Event-driven Scheduling" data-zh="选择性调度">Event-driven Scheduling</h3>
-              <p data-en="Planning on feedback events, not fixed intervals." data-zh="由反馈事件触发规划，而非固定频率轮询。">Planning on feedback events, not fixed intervals.</p>
+              <h3 id="capability-scheduling-heading" data-en="Event-triggered Replanning" data-zh="事件触发重规划">Event-triggered Replanning</h3>
+              <p data-en="VLN keeps moving; the agent replans when progress stalls." data-zh="VLN 持续执行；遇到停滞，由 Agent 介入并调整方向。">VLN keeps moving; the agent replans when progress stalls.</p>
             </header>
             <button class="nav-motion-control capability-scene-control" type="button" disabled aria-pressed="false" aria-label="Pause illustration" data-label-en="Pause illustration" data-label-zh="暂停示意动效" aria-describedby="capability-scheduling-description">
               <svg class="capability-scene" viewBox="0 0 720 420" role="img" aria-labelledby="capability-scheduling-title capability-scheduling-description">
-                <title id="capability-scheduling-title" data-en="Event-driven Scheduling" data-zh="选择性调度">Event-driven Scheduling</title>
-                <desc id="capability-scheduling-description" data-en="Conceptual animation: continuous navigation reaches a corner, pauses for a decision pulse, resumes and stops for a separate final review." data-zh="概念动效：连续导航到达拐角后暂停，由决策脉冲介入，再恢复前行，并在终点单独核验。">Conceptual animation: continuous navigation reaches a corner, pauses for a decision pulse, resumes and stops for a separate final review.</desc>
+                <title id="capability-scheduling-title" data-en="Event-triggered Replanning" data-zh="事件触发重规划">Event-triggered Replanning</title>
+                <desc id="capability-scheduling-description" data-en="Conceptual animation: a robot stalls before a thin room divider, pauses and turns to observe another direction. It resumes toward the chair, leaving a trail as it moves. This illustrates a change of exploration direction, not a precomputed metric path or task completion." data-zh="概念动效：机器人在薄隔断前停滞，暂停后转向观察，再朝椅子所在方向继续探索；轨迹随移动留下。这表示探索方向变化，不代表预先计算出的精确路径或任务完成。">Conceptual animation: a robot stalls before a thin room divider, pauses and turns to observe another direction. It resumes toward the chair, leaving a trail as it moves. This illustrates a change of exploration direction, not a precomputed metric path or task completion.</desc>
                 <g class="scene-art">
                 <use href="#scene-room"/>
-                <path class="scene-partition" d="M310 251V210L404 156V197Z"/>
-                <path class="scene-trail" d="M180 245 300 314 495 202"/>
-                <ellipse class="scene-event-ring scene-animated" cx="300" cy="314" rx="42" ry="24"/>
-                <path class="scene-intervention scene-animated" d="M300 314Q325 239 391 210"/>
-                <g transform="translate(396 205) scale(.6)" class="scene-schedule-core scene-animated"><use href="#scene-core"/></g>
-                <ellipse class="scene-final-ring scene-animated" cx="495" cy="220" rx="53" ry="30"/>
-                <circle class="scene-execution-dot scene-animated" cx="195" cy="253" r="4"/>
-                <g transform="translate(180 245)"><g class="scene-schedule-robot scene-animated"><g class="scene-schedule-turn scene-animated"><use href="#scene-robot"/></g></g></g>
+                <path class="scene-trail" d="M220 270 305 258"/>
+                <path class="scene-trail scene-old-route scene-animated" d="M305 258 420 241"/>
+                <path class="scene-direction scene-animated" pathLength="1" d="M305 258 318 272"/>
+                <path class="scene-progress scene-new-route scene-animated" pathLength="1" d="M305 258 355 310 420 267"/>
+                <g class="scene-partition">
+                  <path class="scene-partition-face" d="M350 225V165L390 188V248Z"/>
+                  <path class="scene-partition-edge" d="M350 165 357 161 397 184 390 188ZM390 188 397 184V244L390 248Z"/>
+                </g>
+                <g class="scene-target" transform="translate(478 230)"><use href="#scene-chair"/></g>
+                <g transform="translate(220 242)"><g class="scene-schedule-robot scene-animated"><g class="scene-schedule-turn scene-animated"><use href="#scene-robot"/></g></g></g>
                 </g>
               </svg>
             </button>
@@ -308,8 +304,8 @@
         <div class="capability-technical-content">
           <p data-en="All three animations are conceptual illustrations, not recorded detections, measured trajectories or a complete architecture." data-zh="三段动画均为机制示意，不代表真实检测输出、实测轨迹或完整架构。">All three animations are conceptual illustrations, not recorded detections, measured trajectories or a complete architecture.</p>
           <p><strong data-en="Memory. " data-zh="任务记忆。">Memory. </strong><span data-en="Observations, object sightings, action results and executed paths inform the current task. This is not cross-task long-term memory or a complete SLAM map. " data-zh="观察、物体线索、动作结果与实走路径用于当前任务，不代表跨任务长期记忆或完整 SLAM 地图。">Observations, object sightings, action results and executed paths inform the current task. This is not cross-task long-term memory or a complete SLAM map. </span><a href="https://github.com/Novaxis-Robot-Group/navigation-agent/tree/main/src/navigation_agent/agent/memory" target="_blank" rel="noopener noreferrer" data-en="Memory implementation ↗" data-zh="记忆实现 ↗">Memory implementation ↗</a></p>
-          <p><strong data-en="Monitoring. " data-zh="途中监测。">Monitoring. </strong><span data-en="YOLO-World monitoring is off by default and runs during search navigation when enabled. It requires a detector, streaming observations, target labels and navigation interruption support. Consistent detections across two consecutive frames can interrupt navigation for agent review. Detection alone is not completion; monitoring is inactive during target approach, turning and recovery. " data-zh="YOLO-World 监测默认关闭，启用后仅在搜索导航期间运行。需要检测服务、流式观测、目标标签与导航中断接口。连续两帧一致的候选检测可中断导航，再交给 Agent 复核。检测命中不等于任务完成；目标接近、转向与恢复期间不运行检测。">YOLO-World monitoring is off by default and runs during search navigation when enabled. It requires a detector, streaming observations, target labels and navigation interruption support. Consistent detections across two consecutive frames can interrupt navigation for agent review. Detection alone is not completion; monitoring is inactive during target approach, turning and recovery. </span><a href="https://github.com/Novaxis-Robot-Group/navigation-agent/blob/main/docs/target-detector.md" target="_blank" rel="noopener noreferrer" data-en="Detector guide ↗" data-zh="检测指南 ↗">Detector guide ↗</a></p>
-          <p><strong data-en="Scheduling. " data-zh="选择性调度。">Scheduling. </strong><span data-en="VLN executes between planning events such as a candidate detection, stationary motion or a navigation stop. STOP triggers a separate verification request through the same VLM client, using the current stopped image to check target identity, arrival and heading. This task check is distinct from independent experimental scoring. Entry rules depend on deployment; Go2 scene checks can require planning first. No performance gains are implied by the animation. " data-zh="VLN 在规划事件之间执行，候选检测、机器人静止或导航停止等反馈会触发上层处理。STOP 后通过同一 VLM 客户端发起单独的核验请求，依据当前静止画面检查目标身份、是否到达及朝向。这是任务内部核验，不等于独立实验评分。入口依部署而定，Go2 场景校验可要求先规划。动画不表示已测得性能提升。">VLN executes between planning events such as a candidate detection, stationary motion or a navigation stop. STOP triggers a separate verification request through the same VLM client, using the current stopped image to check target identity, arrival and heading. This task check is distinct from independent experimental scoring. Entry rules depend on deployment; Go2 scene checks can require planning first. No performance gains are implied by the animation. </span><a href="https://github.com/Novaxis-Robot-Group/navigation-agent/blob/main/docs/scheduling.md" target="_blank" rel="noopener noreferrer" data-en="Scheduling guide ↗" data-zh="调度说明 ↗">Scheduling guide ↗</a></p>
+          <p><strong data-en="Monitoring. " data-zh="途中监测。">Monitoring. </strong><span data-en="YOLO-World is enabled in the supplied backend configurations. Monitoring runs during search navigation after the agent selects target labels, and requires a detector, streaming observations and navigation interruption support. Consistent detections across two frames by default can interrupt navigation for agent review, then guide target approach when supported by visual evidence. Detection alone is not completion; monitoring is inactive during target approach, turning and recovery. " data-zh="内置后端配置已启用 YOLO-World。Agent 指定目标类别后，在搜索导航途中运行监测；需要检测服务、流式观测和导航中断接口。默认连续两帧一致的候选检测可中断导航，由 Agent 复核，再依据视觉证据转为目标接近。检测命中不等于任务完成；目标接近、转向与恢复期间不运行检测。">YOLO-World is enabled in the supplied backend configurations. Monitoring runs during search navigation after the agent selects target labels, and requires a detector, streaming observations and navigation interruption support. Consistent detections across two frames by default can interrupt navigation for agent review, then guide target approach when supported by visual evidence. Detection alone is not completion; monitoring is inactive during target approach, turning and recovery. </span><a href="https://github.com/Novaxis-Robot-Group/navigation-agent/blob/main/docs/en/configuration.md#target-detection" target="_blank" rel="noopener noreferrer" data-en="Detector guide ↗" data-zh="检测指南 ↗">Detector guide ↗</a></p>
+          <p><strong data-en="Replanning. " data-zh="事件触发重规划。">Replanning. </strong><span data-en="VLN executes continuously until feedback needs upper-level handling. The animation shows one example: stalled progress prompts the agent to choose another exploration direction, then VLN continues. Candidate detections also prompt review; an ordinary corner alone is not a planning trigger. STOP triggers a separate verification request through the same VLM client, using the current stopped image to check target identity, arrival and heading. This task check is distinct from independent experimental scoring. Entry rules depend on deployment; Go2 scene checks can require planning first. No performance gains are implied by the animation. " data-zh="VLN 持续执行，出现需要上层处理的反馈时再由 Agent 介入。动画只展示一种情况：机器人停滞，Agent 选择另一个探索方向，再交由 VLN 执行。候选检测也会触发复核；普通拐角本身不是规划触发条件。STOP 后通过同一 VLM 客户端发起单独的核验请求，依据当前静止画面检查目标身份、是否到达及朝向。这是任务内部核验，不等于独立实验评分。入口依部署而定，Go2 场景校验可要求先规划。动画不表示已测得性能提升。">VLN executes continuously until feedback needs upper-level handling. The animation shows one example: stalled progress prompts the agent to choose another exploration direction, then VLN continues. Candidate detections also prompt review; an ordinary corner alone is not a planning trigger. STOP triggers a separate verification request through the same VLM client, using the current stopped image to check target identity, arrival and heading. This task check is distinct from independent experimental scoring. Entry rules depend on deployment; Go2 scene checks can require planning first. No performance gains are implied by the animation. </span><a href="https://github.com/Novaxis-Robot-Group/navigation-agent/blob/main/docs/en/configuration.md#tasks-and-navigation" target="_blank" rel="noopener noreferrer" data-en="Scheduling guide ↗" data-zh="调度说明 ↗">Scheduling guide ↗</a></p>
         </div>
       </details>
     </section>

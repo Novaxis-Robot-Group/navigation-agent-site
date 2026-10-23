@@ -136,7 +136,7 @@ test('markup exposes three agent cards without capability tabs or hidden panels'
   assert.ok(!section.includes('Architecture Decoupling'));
   assert.ok(section.includes('All three animations'));
   assert.ok(section.includes('data-zh="任务内记忆"'));
-  assert.ok(section.includes('data-zh="选择性调度"'));
+  assert.ok(section.includes('data-zh="事件触发重规划"'));
   assert.equal((section.match(/<text[\s>]/g) || []).length, 0);
   assert.equal((section.match(/<image[\s>]/g) || []).length, 0);
   assert.equal((section.match(/<h3\b/g) || []).length, 3);

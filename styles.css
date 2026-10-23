@@ -132,7 +132,9 @@ h1 > span { display: block; }
 .scene-wall { fill: var(--panel); stroke: var(--line); fill-opacity: .85; }
 .scene-wall-side { fill: var(--surface); }
 .scene-wall-edge { stroke: var(--secondary); opacity: .35; }
-.scene-partition { fill: var(--panel); stroke: var(--line); }
+.scene-partition { stroke: var(--secondary); stroke-width: 1; }
+.scene-partition-face { fill: var(--panel); }
+.scene-partition-edge { fill: var(--surface); }
 .scene-shadow { fill: var(--accent); opacity: .1; stroke: none; }
 .scene-top { fill: var(--scene-solid-fill, var(--panel)); stroke: var(--scene-outline, var(--accent-ink)); }
 .scene-side { fill: var(--scene-side-fill, var(--accent)); fill-opacity: .3; stroke: var(--scene-outline, var(--accent-ink)); }
@@ -140,58 +142,82 @@ h1 > span { display: block; }
 .scene-led { fill: var(--accent-ink); stroke: none; }
 .scene-circuit { fill: none; stroke: var(--secondary); stroke-width: 1.2; }
 .scene-core-light { fill: var(--accent); stroke: none; }
-.scene-trail { stroke: var(--accent); stroke-width: 1.5; stroke-dasharray: 4 7; opacity: .6; }
+.scene-trail { fill: none; stroke: var(--secondary); stroke-width: 1.5; stroke-dasharray: 4 7; opacity: .35; }
 .scene-object-side { fill: var(--secondary); fill-opacity: .4; stroke: var(--secondary-ink); }
 .scene-chair-leg { stroke: var(--secondary-ink); stroke-width: 1.8; }
-.scene-observation-paper { fill: var(--panel); stroke: var(--secondary); stroke-width: 1; }
+.scene-observation-paper { fill: var(--panel); stroke: var(--secondary); stroke-width: 1; stroke-dasharray: 3 3; }
 .scene-observation-floor { fill: var(--surface); stroke: var(--line); stroke-width: .7; }
 .scene-observation-object { fill: var(--secondary); fill-opacity: .16; stroke: var(--secondary); stroke-width: .9; }
 .scene-observation-detail { fill: none; stroke: var(--secondary); stroke-width: .9; }
-.scene-memory-evidence { filter: drop-shadow(var(--observation-shadow)); }
+/* 无动画时保留有意义的中间画面；真实目标与历史缩略图共用椅子造型。 */
+.scene-memory-evidence { --scene-outline: var(--secondary); --scene-solid-fill: var(--surface); --scene-side-fill: var(--secondary); filter: drop-shadow(var(--observation-shadow)); }
 .scene-old-view { opacity: .35; }
-.scene-recall-thread { stroke: var(--secondary); stroke-width: 1.2; stroke-dasharray: 3 7; opacity: .45; }
+.scene-recall-view { transform: translate(0, -10px) scale(1.15); }
+.scene-memory-robot { transform: translate(80px, 46px); }
+.scene-watch-robot, .scene-schedule-robot { transform: translate(85px, -12px); }
 .scene-view { fill: var(--accent); fill-opacity: .1; stroke: none; }
 .scene-view-edge { stroke: var(--accent); opacity: .35; stroke-width: 1; }
 .scene-scan { stroke: var(--accent); stroke-width: 1.5; opacity: .5; }
-.scene-detection { stroke: var(--accent-ink); stroke-width: 2; }
-.scene-review-ring, .scene-event-ring, .scene-final-ring { fill: none; stroke: var(--secondary); stroke-width: 1.5; }
-.scene-review-ring { stroke: var(--accent); }
-.scene-intervention { stroke: var(--secondary); stroke-width: 1.4; stroke-dasharray: 3 7; opacity: .5; }
-.scene-execution-dot { fill: var(--accent-ink); stroke: none; }
+.scene-detection { stroke: var(--accent-ink); stroke-width: 2; opacity: .9; }
+.scene-watch-view { opacity: .6; }
+.scene-old-route { opacity: .15; }
+.scene-progress, .scene-direction { fill: none; stroke: var(--accent-ink); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1; stroke-dashoffset: 0; opacity: .85; }
+.scene-approach-route { opacity: .4; }
+.scene-direction { opacity: 0; }
 @media (prefers-reduced-motion: no-preference) {
-  .scene-memory-robot { animation: scene-memory-walk 6s linear infinite; }
-  .scene-memory-evidence { animation: scene-memory-evidence 6s ease-in-out infinite; }
-  .scene-recall-first { animation: scene-recall-first 6s ease-in-out infinite; }
-  .scene-recall-second { animation: scene-recall-second 6s ease-in-out infinite; }
-  .scene-recall-thread { animation: scene-recall-thread 6s linear infinite; }
-  .scene-memory-core { animation: scene-memory-core 6s ease-in-out infinite; }
-  .scene-watch-robot { animation: scene-watch-walk 6s linear infinite; }
-  .scene-scan { animation: scene-scan 6s linear infinite; }
-  .scene-detection { animation: scene-detection 6s linear infinite; }
-  .scene-review-ring { animation: scene-review 6s ease-in-out infinite; }
-  .scene-schedule-robot, .scene-execution-dot { animation: scene-schedule-walk 6s linear infinite; }
-  .scene-schedule-turn { animation: scene-schedule-turn 6s ease-in-out infinite; }
-  .scene-event-ring { animation: scene-event 6s ease-in-out infinite; }
-  .scene-intervention { animation: scene-intervention 6s linear infinite; }
-  .scene-schedule-core { animation: scene-schedule-core 6s ease-in-out infinite; }
-  .scene-final-ring { animation: scene-final-review 6s ease-in-out infinite; }
+  /* JS 启用交互后才播放；无 JS 和减少动态效果时使用上面的静态构图。 */
+  .capability-panel:has(button:enabled) .scene-animated { animation-duration: 6s; animation-iteration-count: infinite; animation-timing-function: linear; }
+  .scene-memory-robot { animation-name: scene-memory-walk; }
+  .scene-memory-evidence { animation-name: scene-memory-evidence; }
+  .scene-recall-view { animation-name: scene-recall; }
+  .scene-memory-route { animation-name: scene-memory-route; }
+  .scene-watch-robot { animation-name: scene-watch-walk; }
+  .scene-watch-view { animation-name: scene-watch-view; }
+  .scene-scan { animation-name: scene-scan; }
+  .scene-detection { animation-name: scene-detection; }
+  .scene-approach-route { animation-name: scene-approach-route; }
+  .scene-schedule-robot { animation-name: scene-schedule-walk; }
+  .scene-schedule-turn { animation-name: scene-schedule-turn; }
+  .scene-old-route { animation-name: scene-old-route; }
+  .scene-direction { animation-name: scene-direction; }
+  .scene-new-route { animation-name: scene-new-route; }
   [data-illustration][data-motion="paused"] .scene-animated { animation-play-state: paused; }
-  @keyframes scene-memory-walk { 0%, 100% { transform: translate(0, 0); opacity: 1; } 33%, 75% { transform: translate(115px, 66px); opacity: 1; } 94% { transform: translate(115px, 66px); opacity: 0; } }
-  @keyframes scene-memory-evidence { 0%, 100% { opacity: 0; } 25%, 65% { opacity: 1; } 90% { opacity: 0; } }
-  @keyframes scene-recall-first { 0%, 33%, 100% { transform: translate(0, 0) scale(1); opacity: .8; } 64%, 95% { transform: translate(163px, -81px) scale(.2); opacity: 0; } }
-  @keyframes scene-recall-second { 0%, 38%, 100% { transform: translate(0, 0) scale(1); opacity: .8; } 69%, 95% { transform: translate(110px, -113px) scale(.2); opacity: 0; } }
-  @keyframes scene-recall-thread { 0%, 28%, 78%, 100% { opacity: 0; stroke-dashoffset: 0; } 40%, 65% { opacity: .6; stroke-dashoffset: -30; } }
-  @keyframes scene-memory-core { 0%, 28%, 90%, 100% { opacity: .25; } 40%, 70% { opacity: 1; } }
-  @keyframes scene-watch-walk { 0%, 100% { transform: translate(0, 0); opacity: 1; } 33%, 83% { transform: translate(105px, -15px); opacity: 1; } 94% { transform: translate(145px, -5px); opacity: 1; } 98% { transform: translate(145px, -5px); opacity: 0; } }
-  @keyframes scene-scan { 0%, 32%, 65%, 100% { transform: translate(0, 0); opacity: 0; } 8%, 42% { opacity: .6; } 30%, 62% { transform: translate(100px, -15px); opacity: 0; } }
-  @keyframes scene-detection { 0%, 32%, 46%, 65%, 100% { opacity: 0; } 36%, 42%, 54%, 61% { opacity: .9; } }
-  @keyframes scene-review { 0%, 65%, 87%, 100% { opacity: 0; } 72%, 80% { opacity: .85; } }
-  @keyframes scene-schedule-walk { 0%, 100% { transform: translate(0, 0); opacity: 1; } 33%, 66% { transform: translate(120px, 69px); opacity: 1; } 83%, 96% { transform: translate(315px, -43px); opacity: 1; } 98% { transform: translate(315px, -43px); opacity: 0; } }
-  @keyframes scene-schedule-turn { 0%, 33%, 66%, 100% { transform: rotate(0); } 43% { transform: rotate(-7deg); } 55% { transform: rotate(5deg); } }
-  @keyframes scene-event { 0%, 30%, 70%, 100% { opacity: 0; } 40%, 58% { opacity: .8; } 49% { opacity: .2; } }
-  @keyframes scene-intervention { 0%, 32%, 70%, 100% { opacity: 0; stroke-dashoffset: 0; } 40%, 62% { opacity: .65; stroke-dashoffset: -30; } }
-  @keyframes scene-schedule-core { 0%, 32%, 74%, 100% { opacity: .15; } 40%, 62%, 88% { opacity: 1; } }
-  @keyframes scene-final-review { 0%, 82%, 100% { opacity: 0; } 88%, 95% { opacity: .85; } }
+  @keyframes scene-memory-walk {
+    0% { transform: translate(0, 0); opacity: 0; }
+    5% { opacity: 1; }
+    26.667%, 60% { transform: translate(80px, 46px); opacity: 1; }
+    90%, 95% { transform: translate(200px, -3px); opacity: 1; }
+    99%, 100% { transform: translate(200px, -3px); opacity: 0; }
+  }
+  @keyframes scene-memory-evidence { 0%, 72%, 100% { opacity: 0; } 12% { opacity: .6; } 26.667%, 60% { opacity: 1; } }
+  @keyframes scene-recall { 0%, 26.667% { transform: translate(0, 0) scale(1); opacity: .45; } 38%, 100% { transform: translate(0, -10px) scale(1.15); opacity: 1; } }
+  @keyframes scene-memory-route { 0%, 60% { stroke-dashoffset: 1; opacity: .85; } 90%, 95% { stroke-dashoffset: 0; opacity: .85; } 99%, 100% { stroke-dashoffset: 0; opacity: 0; } }
+  /* 行进中连续检测，然后停车复核，最后接近；候选不表示成功。 */
+  @keyframes scene-watch-walk {
+    0% { transform: translate(0, 0); opacity: 0; }
+    5% { opacity: 1; }
+    30% { transform: translate(65px, -9px); opacity: 1; }
+    53.333%, 66.667% { transform: translate(85px, -12px); opacity: 1; }
+    90%, 95% { transform: translate(200px, -3px); opacity: 1; }
+    99%, 100% { transform: translate(200px, -3px); opacity: 0; }
+  }
+  @keyframes scene-watch-view { 0%, 53.333% { opacity: 1; } 66.667% { opacity: .8; } 72%, 100% { opacity: 0; } }
+  @keyframes scene-scan { 0%, 29%, 53.333%, 100% { transform: translate(0, 0); opacity: 0; } 8%, 35% { opacity: .6; } 28%, 52% { transform: translate(100px, -15px); opacity: 0; } }
+  @keyframes scene-detection { 0%, 30%, 43%, 52%, 72%, 100% { opacity: 0; } 32%, 39%, 46%, 50%, 53.333%, 66.667% { opacity: .9; } }
+  @keyframes scene-approach-route { 0%, 66.667% { stroke-dashoffset: 1; opacity: .85; } 90%, 95% { stroke-dashoffset: 0; opacity: .85; } 99%, 100% { stroke-dashoffset: 0; opacity: 0; } }
+  /* 停滞后转向观察，新轨迹随脚下位置延伸，不预先给出完整规划路线。 */
+  @keyframes scene-schedule-walk {
+    0% { transform: translate(0, 0); opacity: 0; }
+    5% { opacity: 1; }
+    30%, 70% { transform: translate(85px, -12px); opacity: 1; }
+    80% { transform: translate(135px, 40px); }
+    90%, 95% { transform: translate(200px, -3px); opacity: 1; }
+    99%, 100% { transform: translate(200px, -3px); opacity: 0; }
+  }
+  @keyframes scene-schedule-turn { 0%, 46.667% { transform: rotate(0); } 58%, 70% { transform: rotate(7deg); } 80% { transform: rotate(-7deg); } 90%, 100% { transform: rotate(0); } }
+  @keyframes scene-old-route { 0%, 30%, 100% { opacity: .6; } 46.667%, 95% { opacity: .15; } }
+  @keyframes scene-direction { 0%, 46.667% { stroke-dashoffset: 1; opacity: 0; } 60%, 70% { stroke-dashoffset: 0; opacity: .65; } 80%, 100% { stroke-dashoffset: 0; opacity: 0; } }
+  @keyframes scene-new-route { 0%, 70% { stroke-dashoffset: 1; opacity: .85; } 80% { stroke-dashoffset: .5193; } 90%, 95% { stroke-dashoffset: 0; opacity: .85; } 99%, 100% { stroke-dashoffset: 0; opacity: 0; } }
 }
 #architecture { margin-top: 96px; }
 .architecture-intro { margin-bottom: 32px; }

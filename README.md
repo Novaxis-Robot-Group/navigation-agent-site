@@ -62,7 +62,7 @@ python3 tests/playback_report.py http://127.0.0.1:4174
 
 ## 核心能力展示
 
-打开 `/#capabilities` 查看三项 Agent 能力：任务内记忆、途中目标监测、选择性调度。桌面为三列并排，间距 24px，卡高 340px、内边距 24px；800px 及以下为单列，卡高 300px。每卡图外保留一个短标题和一句说明，SVG 内没有可见文字、流程框、箭头或实拍拼图。三段已确认的等距微场景保持原造型、配色和时序；记忆片段保留门、沙发和走廊的微缩轮廓。真实边界与文档链接统一收进默认折叠的“技术说明”。
+打开 `/#capabilities` 查看三项 Agent 能力：任务内记忆、途中目标监测、事件触发重规划。桌面为三列并排，间距 24px，卡高 340px、内边距 24px；800px 及以下为单列，卡高 300px。每卡图外保留一个短标题和一句说明，SVG 内没有可见文字、流程框、箭头或实拍拼图。三段统一房间视角、机器人尺度和右侧椅子目标，不显示 Agent 立方体；该符号仅保留在工程架构图。记忆通过走廊与椅子的虚线平面缩略图表达历史观察，含椅子线索的片段轻微上浮后继续探索。途中监测按“行进中连续出现候选 → 停车复核 → 接近”播放。第三段以薄室内隔断为例：机器人停滞、转向观察，再继续执行；新轨迹随着机器人移动延伸，不预先显示完整规划路线。路线仅示意探索方向变化，不表示精确路径规划或任务成功。真实边界与文档链接统一收进默认折叠的“技术说明”。
 
 能力区不使用 Tab；MuJoCo 和 Go2 的视频任务切换保持不变。桌面可见动画按 6 秒循环，悬停或键盘聚焦突出当前图像，不降低文字透明度。手机只播放可见内容区中央最近的一项，其余静态可见。点击画面可暂停；手动暂停、离屏、后台标签页及系统减少动态效果均受支持。修改后运行 `node --test tests/*.test.cjs`，同时检查图内可见文字为零、三卡全部可见、技术说明默认收起和手机无横向溢出。
 
@@ -74,13 +74,13 @@ python3 tests/playback_report.py http://127.0.0.1:4174
 
 架构图沿用站点字体、配色和 1200px 宽度。桌面舞台高 340px，800px 及以下为纵向布局、高 420px，模块标签不缩小或隐藏。只有两个 Custom 插槽外沿按 6 秒循环轻移，Agent、连接关系和文字固定；点击画面或键盘可暂停，离屏、后台、减少动态效果及无 JS 场景保持完整静态图。适配边界与接入指南位于默认折叠的“适配接口”。验证命令为 `node --test tests/*.test.cjs`。
 
-以下文案依据 Agent 源码 `c8fd0597` 核对。图形解释机制，不代表真实检测输出、实走轨迹、完整架构或测评结论。详细实现通过每项的文档链接查看；链接沿用 Agent 仓库的访问权限。
+以下能力文案依据 Agent 源码 `3506f1be` 核对。图形解释机制，不代表真实检测输出、实走轨迹、完整架构或测评结论。详细实现通过每项的文档链接查看；链接沿用 Agent 仓库的访问权限。
 
 | 能力 | 源码依据（Agent 仓库相对路径） | 展示边界 |
 | --- | --- | --- |
 | 任务内记忆 | `src/navigation_agent/agent/memory/`、`src/navigation_agent/agent/context/builder.py` | 记录观察、物体线索、动作结果和实际路径，供当前任务召回；不是跨任务长期记忆或完整 SLAM 地图。 |
-| 途中目标监测 | `src/navigation_agent/agent/tools/target_watch.py`、`docs/target-detector.md` | 需要检测服务、流式观测和目标标签；后台检查采样帧，连续候选可请求中断，再由 Agent 复核。几何场景中的检测与复核均为机制示意，不显示成功判定。 |
-| 选择性调度 | `src/navigation_agent/agent/core/scheduling.py`、`src/navigation_agent/agent/skills/object_search/selective.py`、`docs/scheduling.md` | 区分连续执行、事件触发规划与 STOP 后独立核验；入口依部署而定，不宣称已测得调用节省或成功率提升。 |
+| 途中目标监测 | `src/navigation_agent/agent/tools/target_watch.py`、`docs/en/configuration.md#target-detection` | 内置后端配置已启用 YOLO；Agent 指定目标类别后，在搜索导航中检查采样帧。连续候选可请求中断，再由 Agent 复核并根据视觉证据选择接近。需要检测服务、流式观测和中断支持，检测不等于任务成功。 |
+| 事件触发重规划 | `src/navigation_agent/agent/core/scheduling.py`、`src/navigation_agent/agent/skills/object_search/selective.py`、`configs/prompts/scheduling.md` | 用真实停滞触发上层介入作为示例；候选检测也会触发处理，STOP 后另行核验。入口依部署而定，不宣称已测得调用节省或成功率提升。 |
 
 ## 修改内容
 

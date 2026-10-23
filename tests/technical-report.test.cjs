@@ -34,7 +34,7 @@ test('report entry retains the five-link navigation and separate implementation 
 });
 
 test('report integration preserves capability boundaries and does not promote the experiment plan to results', () => {
-  assert.match(html, /YOLO-World monitoring is off by default/);
+  assert.match(html, /YOLO-World is enabled in the supplied backend configurations/);
   assert.match(html, /same VLM client/);
   assert.match(html, /distinct from independent experimental scoring/);
   assert.match(html, /Mock data · Not measured results/);
