@@ -183,3 +183,114 @@ function initializeCapabilities() {
 
 document.querySelectorAll('[data-illustration]').forEach(initializeIllustrationMotion);
 initializeCapabilities();
+
+// 表格保存原始精度，图表直接读取当前表格，避免两份分数发生偏差。
+function initializeBenchmarks() {
+  const section = document.querySelector('#benchmarks');
+  if (!section) return;
+
+  const tablist = section.querySelector('.benchmark-tabs');
+  const tabs = [...tablist.querySelectorAll('[role="tab"]')];
+  const panels = [...section.querySelectorAll('.benchmark-panel')];
+  const renderers = panels.map(panel => {
+    const columns = [...panel.querySelectorAll('thead th')].slice(1);
+    const rows = [...panel.querySelectorAll('tbody tr')];
+    const controls = panel.querySelector('.benchmark-metrics');
+    const chart = panel.querySelector('.benchmark-chart');
+    const heading = panel.querySelector('.benchmark-chart-title');
+    const buttons = columns.map((column, index) => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.textContent = column.textContent.split(' ')[0];
+      button.setAttribute('aria-pressed', 'false');
+      button.addEventListener('click', () => renderMetric(index));
+      controls.append(button);
+      return button;
+    });
+
+    function renderMetric(index) {
+      const column = columns[index];
+      const maximum = Number(column.dataset.chartMax);
+      heading.textContent = column.textContent;
+      buttons.forEach((button, i) => button.setAttribute('aria-pressed', String(i === index)));
+      chart.replaceChildren();
+      const descriptions = [];
+
+      for (const row of rows) {
+        const method = row.cells[0].textContent;
+        const cell = row.cells[index + 1];
+        const value = Number.parseFloat(cell.textContent);
+        const chartRow = document.createElement('div');
+        chartRow.className = 'benchmark-chart-row';
+        chartRow.dataset.method = row.dataset.method;
+        const label = document.createElement('span');
+        label.className = 'benchmark-chart-method';
+        label.append(...[...row.cells[0].childNodes].map(node => node.cloneNode(true)));
+        const track = document.createElement('span');
+        track.className = 'benchmark-track';
+        // 缺失分数只保留破折号，不生成零值条形。
+        if (Number.isFinite(value)) {
+          const bar = document.createElement('span');
+          bar.className = 'benchmark-bar';
+          bar.style.width = `${value / maximum * 100}%`;
+          track.append(bar);
+        }
+        const score = document.createElement(cell.querySelector('strong') ? 'strong' : 'span');
+        score.className = 'benchmark-chart-value';
+        score.textContent = cell.textContent;
+        chartRow.append(label, track, score);
+        chart.append(chartRow);
+        descriptions.push(`${method}: ${cell.textContent}`);
+      }
+
+      const axis = document.createElement('div');
+      axis.className = 'benchmark-axis';
+      axis.setAttribute('aria-hidden', 'true');
+      const scale = document.createElement('div');
+      scale.className = 'benchmark-axis-scale';
+      const unit = column.textContent.includes('(%)') || (index === 3 && maximum === 100) ? '%' : index === 2 ? ' m' : '';
+      for (const value of [0, maximum / 2, maximum]) {
+        const tick = document.createElement('span');
+        tick.textContent = `${value}${unit}`;
+        scale.append(tick);
+      }
+      axis.append(scale);
+      chart.append(axis);
+      chart.setAttribute('aria-label', `${column.textContent}: ${descriptions.join('; ')}`);
+    }
+
+    panel.querySelector('.benchmark-visual').hidden = false;
+    panel.querySelector(':scope > h3').hidden = true;
+    return renderMetric;
+  });
+
+  function selectDataset(index, focus = false) {
+    tabs.forEach((tab, i) => {
+      tab.setAttribute('aria-selected', String(i === index));
+      tab.tabIndex = i === index ? 0 : -1;
+      panels[i].hidden = i !== index;
+      panels[i].setAttribute('role', 'tabpanel');
+      panels[i].setAttribute('aria-labelledby', tab.id);
+    });
+    renderers[index](0);
+    if (focus) tabs[index].focus();
+  }
+
+  tabs.forEach((tab, index) => {
+    tab.addEventListener('click', () => selectDataset(index));
+    tab.addEventListener('keydown', event => {
+      let next = index;
+      if (event.key === 'ArrowRight') next = (index + 1) % tabs.length;
+      else if (event.key === 'ArrowLeft') next = (index - 1 + tabs.length) % tabs.length;
+      else if (event.key === 'Home') next = 0;
+      else if (event.key === 'End') next = tabs.length - 1;
+      else return;
+      event.preventDefault();
+      selectDataset(next, true);
+    });
+  });
+  tablist.hidden = false;
+  selectDataset(0);
+}
+
+initializeBenchmarks();

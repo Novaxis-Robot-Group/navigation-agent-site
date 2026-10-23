@@ -24,9 +24,9 @@ python3 preview.py
 
 ## 技术报告
 
-报告原文件位于 `media/reports/nova-hei-2026-10-22.pdf`，不依赖第三方阅读器，不设置强制下载。首页导航提供入口，评测口径内的链接定位到第 9 页实验计划。`media/` 已包含在 GitHub Pages 的触发路径和发布清单中。
+报告原文件位于 `media/reports/nova-hei-2026-10-22.pdf`，不依赖第三方阅读器，不设置强制下载。首页导航提供报告入口。`media/` 已包含在 GitHub Pages 的触发路径和发布清单中。
 
-报告中的 Nova-N 是本页 Navigation Agent 对应的导航原型，Nova-HEI 是其具身应用框架。当前范围是单机器人目标搜索与接近；多机器人、无人机、机械臂和跨任务记忆均不是已实现能力。首页保留现有布局，只同步任务内证据记忆、可选 YOLO-World 监测、事件调度及单独完成核验的边界。2026-10-22 版本的实验部分仍为计划，没有可替换示例表格的实测结果。
+报告中的 Nova-N 是本页 Navigation Agent 对应的导航原型，Nova-HEI 是其具身应用框架。当前范围是单机器人目标搜索与接近；多机器人、无人机、机械臂和跨任务记忆均不是已实现能力。首页保留现有布局，只同步任务内证据记忆、可选 YOLO-World 监测、事件调度及单独完成核验的边界。2026-10-22 版本的实验部分为计划；官网 Benchmark 已更新为用户于 2026-10-23 提供的数据。
 
 更新报告时使用新的版本文件名，同步修改首页链接，并运行 `node --test tests/*.test.cjs`。打开导航入口后，应看到浏览器中的 PDF 页面，而不是下载提示或 404。
 
@@ -116,20 +116,11 @@ python3 prepare_fonts.py
 
 ## Benchmark 表格
 
-在 `index.html` 的 `#benchmarks` 中维护四行数据：
+`index.html` 的 `#benchmarks` 保存用户于 2026-10-23 提供的 Habitat-GS、HM3Dv2、HM3D-OVON 结果，比较 LightNav-0 baseline、InternVLA-N1 和 Scheduling Harness (LightNav-based)。表格保留原始精度和单位，缺失项使用 `—`。各指标最佳值加粗：NE 越低越好，其余越高越好；HM3Dv2 的 SPL 按数值标记 0.413。
 
-| 页面名称 | 官方来源 |
-| --- | --- |
-| Room-to-Room（R2R） | [Matterport3D Simulator](https://github.com/peteanderson80/Matterport3DSimulator) |
-| Room-Across-Room（RxR） | [RxR 数据集](https://github.com/google-research-datasets/RxR) |
-| INSIGHT-Bench | [官方项目页](https://lightorigins.github.io/Light-INSIGHT-Bench/) |
-| HM3D ObjectNav v2 | [Habitat-Lab 数据集清单](https://github.com/facebookresearch/habitat-lab/blob/main/DATASETS.md) |
+`site.js` 从表格读取数值生成单指标水平条形图，默认显示 SR。三数据集通过 Tab 切换，支持左右键、Home 和 End；切换数据集后重置为 SR。SR 坐标为 0–100%，SPL 与 nDTW 为 0–1，NE 为 0–10 m，OS 沿用各数据集的原始单位。缺失值不生成零值条形。无 JavaScript 时三张完整表格仍可阅读。
 
-表格比较 LightNav 与 Agent + LightNav，列为 SR（百分数）、SPL（0–1）和 LLM-judged SR（百分数）。**所有当前数值均为用户要求的布局示例，不是实测或官方成绩。** 保留表格上方的双语 mock 说明；换入完整实测结果后再移除。同步补充评测版本、split、任务数量和实验设置，不将各基准的分数直接横向比较。R2R / RxR 是否采用连续环境版本尚待确认；HM3D v2 对应官方 `objectnav_hm3d_v2.zip`（HM3DSem-v0.2）。
-
-场景中可能有多个符合指令的同类目标，如椅子、电视或桌子。当 SR 绑定特定标注实例时，其他有效目标可能不计成功；不能将这一限制泛化到所有基准。LLM-judged SR 根据原始指令和最终画面，从语义上补充评估任务是否完成，不替代官方 SR。评审模型须独立于导航 Agent；两组使用同一评审模型、提示词、判定标准与任务集合，以保证比较公平。发布时注明独立评审模型及其设置。不确定计失败并单列，API 错误先补评，不能删除失败任务。R2R / RxR 的过程性要求不能仅靠最终画面判定。
-
-SPL 同时衡量成功与路径效率。探索可能延长路径并导致部分 SPL 下降，但不代表每次下降都来自有效探索。换入实测分数后，结合轨迹说明原因，不根据示例分数下结论。页面将这些必要说明收进“评测口径”。
+桌面图表在上、表格在下；手机图表纵向排列，只有表格横向滚动，方法列固定。修改分数时同步检查加粗项；运行 `node --test tests/*.test.cjs`，并核对四档屏宽、中英文、指标按钮和键盘切换。旧的 mock 数据及 LLM-judged SR 列已替换。
 
 ## 任务回放素材
 

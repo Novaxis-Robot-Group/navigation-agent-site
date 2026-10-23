@@ -9,8 +9,7 @@ const html = readFileSync(join(root, 'index.html'), 'utf8');
 const reportLinks = [...html.matchAll(/<a\b[^>]*href="(\.\/media\/reports\/[^"#]+)(#[^"]*)?"[^>]*>/g)];
 
 test('report links open a versioned local PDF in a separate browser tab', () => {
-  assert.equal(reportLinks.length, 2);
-  assert.ok(reportLinks.some(([, , fragment]) => fragment === '#page=9'));
+  assert.equal(reportLinks.length, 1);
   for (const [anchor, relativePath] of reportLinks) {
     assert.match(anchor, /type="application\/pdf"/);
     assert.match(anchor, /target="_blank"/);
@@ -33,9 +32,7 @@ test('report entry retains the five-link navigation and separate implementation 
   assert.match(footer, /data-en="Documentation ↗" data-zh="技术文档 ↗"/);
 });
 
-test('report integration does not promote the experiment plan to results', () => {
-  assert.match(html, /Mock data · Not measured results/);
-  assert.match(html, /planned experiments, not measured scores/);
+test('report and benchmark resources are included in deployment', () => {
   const workflow = readFileSync(join(root, '.github/workflows/pages.yml'), 'utf8');
   assert.match(workflow, /- media\/\*\*/);
   assert.match(workflow, /cp -R media _site\/media/);

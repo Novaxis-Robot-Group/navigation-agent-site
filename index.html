@@ -498,34 +498,133 @@
       <div class="demo-intro">
         <h2 id="benchmarks-title" data-en="Benchmarks" data-zh="基准评测">Benchmarks</h2>
       </div>
+      <div class="benchmark-tabs" role="tablist" aria-label="Benchmark datasets" data-label-en="Benchmark datasets" data-label-zh="评测数据集" hidden>
+        <button type="button" role="tab" id="benchmark-tab-habitat-gs" aria-controls="benchmark-habitat-gs" aria-selected="false" tabindex="-1">Habitat-GS</button>
+        <button type="button" role="tab" id="benchmark-tab-hm3dv2" aria-controls="benchmark-hm3dv2" aria-selected="false" tabindex="-1">HM3Dv2</button>
+        <button type="button" role="tab" id="benchmark-tab-hm3d-ovon" aria-controls="benchmark-hm3d-ovon" aria-selected="false" tabindex="-1">HM3D-OVON</button>
+      </div>
       <div class="benchmark-card">
-        <div class="mock-notice" id="mock-notice">
-          <strong  data-en="Mock data · Not measured results" data-zh="示例数据 · 非实测结果">Mock data · Not measured results</strong>
-        </div>
-        <div class="table-scroll" role="region" tabindex="0" aria-label="Benchmark scores, mock data" data-label-en="Benchmark scores, mock data" data-label-zh="基准分数表，示例数据">
-          <table class="benchmark-table" aria-describedby="mock-notice benchmark-protocol">
-            <caption class="sr-only"><span  data-en="Illustrative benchmark comparison — not experimental results" data-zh="基准对比示例表，非实验结果">Illustrative benchmark comparison — not experimental results</span></caption>
-            <thead>
-              <tr><th rowspan="2" scope="col" data-en="Benchmark" data-zh="基准">Benchmark</th><th colspan="3" scope="colgroup">LightNav</th><th colspan="3" scope="colgroup">Agent + LightNav</th></tr>
-              <tr><th scope="col">SR (%) ↑</th><th scope="col">SPL ↑</th><th scope="col">LLM-judged SR<br>(%) ↑</th><th scope="col">SR (%) ↑</th><th scope="col">SPL ↑</th><th scope="col">LLM-judged SR<br>(%) ↑</th></tr>
-            </thead>
-            <tbody>
-              <tr><th scope="row"><a href="https://github.com/peteanderson80/Matterport3DSimulator" target="_blank" rel="noopener noreferrer">R2R ↗</a><span class="benchmark-name">Room-to-Room</span></th><td>62.0</td><td>0.54</td><td>66.0</td><td>64.0</td><td>0.51</td><td>70.0</td></tr>
-              <tr><th scope="row"><a href="https://github.com/google-research-datasets/RxR" target="_blank" rel="noopener noreferrer">RxR ↗</a><span class="benchmark-name">Room-Across-Room</span></th><td>48.0</td><td>0.39</td><td>52.0</td><td>50.0</td><td>0.37</td><td>57.0</td></tr>
-              <tr><th scope="row"><a href="https://lightorigins.github.io/Light-INSIGHT-Bench/" target="_blank" rel="noopener noreferrer">INSIGHT-Bench ↗</a></th><td>58.0</td><td>0.43</td><td>62.0</td><td>63.0</td><td>0.41</td><td>69.0</td></tr>
-              <tr><th scope="row"><a href="https://github.com/facebookresearch/habitat-lab/blob/main/DATASETS.md" target="_blank" rel="noopener noreferrer">HM3D ObjectNav v2 ↗</a></th><td>42.0</td><td>0.29</td><td>46.0</td><td>49.0</td><td>0.27</td><td>55.0</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <details class="benchmark-notes">
-          <summary data-en="Metrics &amp; evaluation" data-zh="评测口径">Metrics &amp; evaluation</summary>
-          <div class="metric-definitions" id="benchmark-protocol">
-            <p data-en="SR measures task success; SPL also accounts for path efficiency. Exploration can lengthen paths and partly reduce SPL; attribution requires measured trajectories." data-zh="SR 衡量任务成功率；SPL 同时考虑路径效率。探索会延长路径，可能导致部分 SPL 下降；具体原因需结合实测轨迹分析。">SR measures task success; SPL also accounts for path efficiency. Exploration can lengthen paths and partly reduce SPL; attribution requires measured trajectories.</p>
-            <p data-en="A scene may contain multiple valid targets, such as chairs, TVs or tables. If SR is tied to a specific annotated instance, another valid match may not count. LLM-judged SR assesses task completion purely through semantic judgment of the instruction and final image. A separate model, independent of the navigation agent, judges both methods with the same criteria for a fair comparison." data-zh="场景中可能有多把椅子、多台电视或多张桌子。当 SR 绑定特定标注实例时，到达另一个符合指令的目标也可能不计成功。LLM-judged SR 仅根据指令与最终画面，从语义上判断任务是否完成。评审使用独立于导航 Agent 的模型，并以相同标准评估两种方法，以保证比较公平。">A scene may contain multiple valid targets, such as chairs, TVs or tables. If SR is tied to a specific annotated instance, another valid match may not count. LLM-judged SR assesses task completion purely through semantic judgment of the instruction and final image. A separate model, independent of the navigation agent, judges both methods with the same criteria for a fair comparison.</p>
-            <p class="protocol-pending" data-en="Evaluation splits, episode counts and judge settings will accompany measured results." data-zh="实测结果将同时注明数据划分、任务数与评审模型设置。">Evaluation splits, episode counts and judge settings will accompany measured results.</p>
-            <p><span data-en="The current technical report describes planned experiments, not measured scores. The table above remains illustrative. " data-zh="当前技术报告介绍的是实验计划，尚无实测分数；上表仍为示例数据。">The current technical report describes planned experiments, not measured scores. The table above remains illustrative. </span><a href="./media/reports/nova-hei-2026-10-22.pdf#page=9" type="application/pdf" target="_blank" rel="noopener noreferrer" data-en="Experiment plan ↗" data-zh="实验计划 ↗">Experiment plan ↗</a></p>
+        <section class="benchmark-panel" id="benchmark-habitat-gs" aria-labelledby="benchmark-heading-habitat-gs">
+          <h3 id="benchmark-heading-habitat-gs">Habitat-GS</h3>
+          <div class="benchmark-visual" hidden>
+            <div class="benchmark-metrics" role="group" aria-label="Metric" data-label-en="Metric" data-label-zh="指标"></div>
+            <h3 class="benchmark-chart-title" id="benchmark-chart-title-habitat-gs"></h3>
+            <div class="benchmark-chart" role="img" aria-labelledby="benchmark-chart-title-habitat-gs"></div>
           </div>
-        </details>
+          <div class="table-scroll" role="region" tabindex="0" aria-label="Habitat-GS">
+            <table class="benchmark-table">
+              <caption class="sr-only">Habitat-GS</caption>
+              <thead><tr><th scope="col" data-en="Method" data-zh="方法">Method</th>
+                <th scope="col" data-chart-max="100">SR (%) ↑</th>
+                <th scope="col" data-chart-max="1">SPL ↑</th>
+                <th scope="col" data-chart-max="10">NE (m) ↓</th>
+                <th scope="col" data-chart-max="1">OS ↑</th>
+                <th scope="col" data-chart-max="1">nDTW ↑</th>
+              </tr></thead>
+              <tbody>
+                <tr data-method="0"><th scope="row">LightNav-0 baseline</th>
+                  <td>39.785%</td>
+                  <td>0.376</td>
+                  <td><strong>5.095 m</strong></td>
+                  <td>0.550</td>
+                  <td><strong>0.53</strong></td>
+                </tr>
+                <tr data-method="1"><th scope="row">InternVLA-N1</th>
+                  <td>6.810%</td>
+                  <td>0.060</td>
+                  <td>9.380 m</td>
+                  <td>0.387</td>
+                  <td>—</td>
+                </tr>
+                <tr data-method="2"><th scope="row"><span class="benchmark-method-line">Scheduling Harness</span><span class="benchmark-method-line"> (LightNav-based)</span></th>
+                  <td><strong>53.047%</strong></td>
+                  <td><strong>0.423</strong></td>
+                  <td>5.577 m</td>
+                  <td><strong>0.716</strong></td>
+                  <td>0.410</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+        <section class="benchmark-panel" id="benchmark-hm3dv2" aria-labelledby="benchmark-heading-hm3dv2">
+          <h3 id="benchmark-heading-hm3dv2">HM3Dv2</h3>
+          <div class="benchmark-visual" hidden>
+            <div class="benchmark-metrics" role="group" aria-label="Metric" data-label-en="Metric" data-label-zh="指标"></div>
+            <h3 class="benchmark-chart-title" id="benchmark-chart-title-hm3dv2"></h3>
+            <div class="benchmark-chart" role="img" aria-labelledby="benchmark-chart-title-hm3dv2"></div>
+          </div>
+          <div class="table-scroll" role="region" tabindex="0" aria-label="HM3Dv2">
+            <table class="benchmark-table">
+              <caption class="sr-only">HM3Dv2</caption>
+              <thead><tr><th scope="col" data-en="Method" data-zh="方法">Method</th>
+                <th scope="col" data-chart-max="100">SR (%) ↑</th>
+                <th scope="col" data-chart-max="1">SPL ↑</th>
+                <th scope="col" data-chart-max="10">NE (m) ↓</th>
+                <th scope="col" data-chart-max="100">OS ↑</th>
+              </tr></thead>
+              <tbody>
+                <tr data-method="0"><th scope="row">LightNav-0 baseline</th>
+                  <td>77.10%</td>
+                  <td><strong>0.413</strong></td>
+                  <td>1.789 m</td>
+                  <td>83.0%</td>
+                </tr>
+                <tr data-method="1"><th scope="row">InternVLA-N1</th>
+                  <td>17.99%</td>
+                  <td>0.170</td>
+                  <td>3.02 m</td>
+                  <td>72.3%</td>
+                </tr>
+                <tr data-method="2"><th scope="row"><span class="benchmark-method-line">Scheduling Harness</span><span class="benchmark-method-line"> (LightNav-based)</span></th>
+                  <td><strong>77.50%</strong></td>
+                  <td>0.409</td>
+                  <td><strong>1.629 m</strong></td>
+                  <td><strong>85.4%</strong></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+        <section class="benchmark-panel" id="benchmark-hm3d-ovon" aria-labelledby="benchmark-heading-hm3d-ovon">
+          <h3 id="benchmark-heading-hm3d-ovon">HM3D-OVON</h3>
+          <div class="benchmark-visual" hidden>
+            <div class="benchmark-metrics" role="group" aria-label="Metric" data-label-en="Metric" data-label-zh="指标"></div>
+            <h3 class="benchmark-chart-title" id="benchmark-chart-title-hm3d-ovon"></h3>
+            <div class="benchmark-chart" role="img" aria-labelledby="benchmark-chart-title-hm3d-ovon"></div>
+          </div>
+          <div class="table-scroll" role="region" tabindex="0" aria-label="HM3D-OVON">
+            <table class="benchmark-table">
+              <caption class="sr-only">HM3D-OVON</caption>
+              <thead><tr><th scope="col" data-en="Method" data-zh="方法">Method</th>
+                <th scope="col" data-chart-max="100">SR (%) ↑</th>
+                <th scope="col" data-chart-max="1">SPL ↑</th>
+                <th scope="col" data-chart-max="10">NE (m) ↓</th>
+                <th scope="col" data-chart-max="100">OS ↑</th>
+              </tr></thead>
+              <tbody>
+                <tr data-method="0"><th scope="row">LightNav-0 baseline</th>
+                  <td><strong>46.667%</strong></td>
+                  <td><strong>0.216</strong></td>
+                  <td>3.685 m</td>
+                  <td>65.833%</td>
+                </tr>
+                <tr data-method="1"><th scope="row">InternVLA-N1</th>
+                  <td>—</td>
+                  <td>—</td>
+                  <td>—</td>
+                  <td>—</td>
+                </tr>
+                <tr data-method="2"><th scope="row"><span class="benchmark-method-line">Scheduling Harness</span><span class="benchmark-method-line"> (LightNav-based)</span></th>
+                  <td>45.833%</td>
+                  <td>0.204</td>
+                  <td><strong>3.622 m</strong></td>
+                  <td><strong>66.667%</strong></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
       </div>
     </section>
   </main>
