@@ -114,13 +114,11 @@ python3 prepare_fonts.py
 
 脚本仅依赖 Python 标准库。首次下载字体与官方 CSS 至 `.runtime/fonts/`，之后复用缓存；输出包含内容哈希，只清理本脚本生成且已替代的文件。浏览器根据官方 Unicode 范围按需加载切片。将 `media/fonts/` 的变化与文案一同提交。浏览或部署网站不需要 Python。
 
-## Benchmark 表格
+## Benchmark 图表
 
-`index.html` 的 `#benchmarks` 保存用户于 2026-10-23 提供的 Habitat-GS、HM3Dv2、HM3D-OVON 结果，比较 LightNav-0 baseline、InternVLA-N1 和 Scheduling Harness (LightNav-based)。表格保留原始精度和单位，缺失项使用 `—`。各指标最佳值加粗：NE 越低越好，其余越高越好；HM3Dv2 的 SPL 按数值标记 0.413。
+`index.html` 的 `#benchmarks` 保存用户提供的 Habitat-GS、HM3Dv2、HM3D-OVON 分数，保留原始精度、单位、缺失项与最佳值加粗。所有指标直接以静态图表展示，缺失项为 `—` 且不生成条形；NE 越低越好，其余越高越好。
 
-`site.js` 从表格读取数值生成单指标水平条形图，默认显示 SR。三数据集通过 Tab 切换，支持左右键、Home 和 End；切换数据集后重置为 SR。SR 坐标为 0–100%，SPL 与 nDTW 为 0–1，NE 为 0–10 m，OS 沿用各数据集的原始单位。缺失值不生成零值条形。无 JavaScript 时三张完整表格仍可阅读。
-
-桌面图表在上、表格在下；手机图表纵向排列，只有表格横向滚动，方法列固定。修改分数时同步检查加粗项；运行 `node --test tests/*.test.cjs`，并核对四档屏宽、中英文、指标按钮和键盘切换。旧的 mock 数据及 LLM-judged SR 列已替换。
+默认 Habitat-GS，仅数据集通过 Tab 切换，支持左右键、Home 和 End。桌面两列、800px 及以下单列，图表间距与内边距均为 24px；不显示表格或指标切换。坐标尺度和方法配色保持一致。无 JavaScript 时所有图表仍可阅读。修改数据后运行 `node --test tests/*.test.cjs` 并核对双语和四档屏宽。
 
 ## 任务回放素材
 

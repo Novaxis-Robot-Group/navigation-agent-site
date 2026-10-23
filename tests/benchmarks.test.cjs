@@ -10,17 +10,17 @@ const expected = [
   [['77.10%', '0.413', '1.789 m', '83.0%'], ['17.99%', '0.170', '3.02 m', '72.3%'], ['77.50%', '0.409', '1.629 m', '85.4%']],
   [['46.667%', '0.216', '3.685 m', '65.833%'], ['—', '—', '—', '—'], ['45.833%', '0.204', '3.622 m', '66.667%']],
 ];
-const cells = panels.map(([, panel]) => [...panel.matchAll(/<tr data-method="\d">([\s\S]*?)<\/tr>/g)]
-  .map(([, row]) => [...row.matchAll(/<td>([\s\S]*?)<\/td>/g)].map(([, cell]) => cell)));
 const plain = value => value.replace(/<[^>]+>/g, '').trim();
+const cells = panels.map(([, panel]) => {
+  const charts = [...panel.matchAll(/<figure class="benchmark-card benchmark-metric-card"[\s\S]*?<\/figure>/g)];
+  const columns = charts.map(([chart]) => [...chart.matchAll(/<span class="benchmark-chart-value">([\s\S]*?)<\/span>/g)].map(([, value]) => value));
+  return [0, 1, 2].map(method => columns.map(column => column[method]));
+});
 
 test('all supplied benchmark scores retain their precision, units and missing entries', () => {
   assert.equal(panels.length, 3);
   assert.deepEqual(cells.map(rows => rows.map(row => row.map(plain))), expected);
-  for (const [, panel] of panels) {
-    const methods = [...panel.matchAll(/<th scope="row">([\s\S]*?)<\/th>/g)].map(([, method]) => plain(method));
-    assert.deepEqual(methods, ['LightNav-0 baseline', 'InternVLA-N1', 'Scheduling Harness (LightNav-based)']);
-  }
+
 });
 
 test('best scores use lower NE and higher values for other metrics', () => {
@@ -35,10 +35,11 @@ test('best scores use lower NE and higher values for other metrics', () => {
   }
 });
 
-test('complete tables are available before JavaScript while obsolete mock results are removed', () => {
+test('all metrics are static charts without tables or metric switching', () => {
   for (const [markup] of panels) {
     assert.doesNotMatch(markup.split('>')[0], /\bhidden\b/);
-    assert.match(markup, /<caption class="sr-only">/);
+    assert.doesNotMatch(markup, /<table|benchmark-metrics/);
+    assert.match(markup, /class="benchmark-chart" role="img"/);
   }
   const section = html.slice(html.indexOf('id="benchmarks"'));
   assert.doesNotMatch(section, /Mock data|LLM-judged SR|planned experiments, not measured scores/);
