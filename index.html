@@ -141,10 +141,16 @@
                 <p class="architecture-module-label">Go2</p>
               </div>
               <div class="architecture-module">
-                <svg class="architecture-module-art architecture-simulation" viewBox="0 0 104 88" aria-hidden="true">
+                <svg class="architecture-module-art" viewBox="0 0 104 88" aria-hidden="true">
                   <rect class="architecture-slot" x="8" y="8" width="88" height="64" rx="8"/>
-                  <path class="scene-grid" d="m25 53 27-15 27 15-27 15ZM38 46l27 15M38 61l27-15"/>
-                  <g transform="translate(52 37) scale(.6)"><use href="#scene-robot"/></g>
+                  <ellipse class="scene-shadow" cx="52" cy="61" rx="24" ry="8"/>
+                  <g class="architecture-cart">
+                    <path class="architecture-cart-dark" d="M36 37a16 6 0 0 1 32 0l2 16a18 6 0 0 1-36 0Z"/>
+                    <path class="architecture-cart-rim" d="M32 34a20 7 0 0 0 40 0v4a20 7 0 0 1-40 0Z"/>
+                    <ellipse class="architecture-cart-disc" cx="52" cy="34" rx="20" ry="7"/>
+                    <path class="architecture-cart-dark" d="M45 22.5a7 3.5 0 0 0 14 0v6.5a7 3.5 0 0 1-14 0Z"/>
+                    <ellipse class="architecture-cart-dark" cx="52" cy="22.5" rx="7" ry="3.5"/>
+                  </g>
                 </svg>
                 <p class="architecture-module-label">MuJoCo</p>
               </div>

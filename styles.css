@@ -212,8 +212,10 @@ h1 > span { display: block; }
 .architecture-custom .architecture-module-art { opacity: .6; }
 .architecture-custom .architecture-slot { fill: none; stroke: var(--secondary-ink); stroke-dasharray: 4 5; }
 .architecture-extension { stroke: var(--secondary-ink); stroke-width: 1.4; }
-.architecture-simulation { stroke-dasharray: 3 3; }
-.architecture-simulation .architecture-slot { stroke-dasharray: none; }
+.architecture-cart { stroke: var(--accent-ink); stroke-width: 1.5; stroke-linejoin: round; }
+.architecture-cart-dark { fill: var(--ink); }
+.architecture-cart-rim { fill: var(--accent-ink); }
+.architecture-cart-disc { fill: var(--accent); }
 .architecture-joint { position: relative; display: block; height: 1px; margin-left: calc(-1 * max(8px, 25cqw - 170px)); margin-right: -37px; background: var(--secondary); transform: translateY(-12px); }
 .architecture-core + .architecture-joint { margin-left: -37px; margin-right: calc(-1 * max(8px, 25cqw - 228px)); }
 .architecture-joint::before, .architecture-joint::after { content: ""; position: absolute; top: -8px; width: 7px; height: 17px; border: 1px solid var(--accent); border-radius: 3px; background: var(--panel); }
