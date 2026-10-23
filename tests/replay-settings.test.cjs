@@ -47,7 +47,7 @@ function setup(nativePopover = true) {
   return { context, button, panel, player, firstOption, events, window, document, open: () => button.listeners.click() };
 }
 
-test('main controls remain outside the video in a fixed compact rail', () => {
+test('main controls remain visible outside the video in a fixed compact rail', () => {
   assert.match(styles, /--transport-height: 40px/);
   assert.match(styles, /--transport-height: 44px/);
   assert.match(styles, /\.transport \{ display: flex;[^}]*height: var\(--transport-height\)/);
@@ -55,7 +55,7 @@ test('main controls remain outside the video in a fixed compact rail', () => {
   assert.doesNotMatch(html, /replay-play-cue|view-compact|transport-options/);
   assert.equal((html.match(/data-settings-panel role="dialog"/g) || []).length, 3);
   assert.equal((html.match(/aria-haspopup="dialog"/g) || []).length, 3);
-  assert.match(styles, /:focus-within > \.transport > :not\(\.replay-settings\) \{ transition: none;/);
+  assert.doesNotMatch(styles, /\.transport >[^{}]*\{[^}]*opacity:\s*0/);
   assert.match(source, /else if \(player.requestFullscreen\) await player.requestFullscreen/);
 });
 

@@ -197,16 +197,6 @@
 @media (hover: hover) {
   .player:hover, .baseline-player:hover { border-color: var(--card-hover-border); }
 }
-@media (hover: hover) and (pointer: fine) and (min-width: 801px) {
-  [data-controls="compact"] > .transport > :not(.replay-settings) { opacity: 0; pointer-events: none; }
-  [data-controls="compact"]:has(.play-button[data-playing="false"]) > .transport > .play-button { opacity: 1; pointer-events: auto; }
-  [data-controls="compact"]:is(:hover, :focus-within, [aria-busy="true"], [data-waiting="true"]) > .transport > :not(.replay-settings),
-  [data-controls="compact"]:has(.media-error[role="alert"]:not([hidden])) > .transport > :not(.replay-settings) { opacity: 1; pointer-events: auto; }
-  [data-controls="compact"]:focus-within > .transport > :not(.replay-settings) { transition: none; }
-}
-@media (hover: hover) and (pointer: fine) and (min-width: 801px) and (prefers-reduced-motion: no-preference) {
-  [data-controls="compact"] > .transport > :not(.replay-settings) { transition: opacity .2s ease, background-color .3s ease, color .3s ease; }
-}
 @media (prefers-reduced-motion: reduce) {
   .task-tab:hover { transform: none; }
 }
